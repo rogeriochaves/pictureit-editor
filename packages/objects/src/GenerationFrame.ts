@@ -69,9 +69,11 @@ export class GenerationFrameObject extends fabric.Group {
     //@ts-ignore
     super.initialize(groupObjects, initOptions, true)
 
-    // for some reason top and left are overwritten misteriously after initialize after fromObject
+    // for some reason top, left, width and height are overwritten misteriously after initialize after fromObject
     this.top = options.top
     this.left = options.left
+    this.width = options.width
+    this.height = options.height
 
     this.on("moving", this.adjustClipPath)
     this.on("resizing", this.adjustClipPath)

@@ -52,7 +52,6 @@ export const generateImage = createAsyncThunk<
     frame.showLoading((4 + num_inference_steps * 0.1) * 1000)
 
     const [initImage, initImageWithNoise] = await renderInitImage(editor, frame, true)
-
     const clipMask = await renderClipMask(editor, frame)
 
     if (frame.metadata) {
@@ -162,12 +161,17 @@ const exportFrameToCanvas = async (
   generationFrame: fabric.GenerationFrame,
   layerList: fabric.GenerationFrame[]
 ) => {
-  const frame = editor.frame.options
+  const frameOptions = {
+    ...editor.frame.options,
+    top: 0,
+    left: 0,
+  }
+
   const objectExporter = new ObjectExporter()
 
   const layers = layerList
     .map((layer) => {
-      const exported = objectExporter.export(layer.toObject(), frame) as IGenerationFrame
+      const exported = objectExporter.export(layer.toObject(), frameOptions) as IGenerationFrame
       exported.objects = exported.objects?.filter(
         (object: ILayer) => !object.id?.match(/-background$/) && !nonRenderableLayerTypes.includes(object.type)
       )
@@ -183,7 +187,7 @@ const exportFrameToCanvas = async (
     frame: { width: generationFrame.width ?? 0, height: generationFrame.height ?? 0 },
     layers,
     metadata: {},
-    top: (generationFrame.top ?? 0) - 32, // TODO: where is this magic number comming from?
+    top: generationFrame.top,
     left: generationFrame.left,
   })
 

@@ -171,7 +171,7 @@ export const InitImageSettings = () => {
               </Block>
 
               <Block $style={{ background: `url(${transparentB64})` }}>
-                <img width="200" src={initImageWithNoise} />
+                <img width="200" src={initImageWithNoise} style={{ display: "block" }} />
               </Block>
 
               <NoiseSlider localNoise={localNoise} onChangeNoise={onChangeNoise} />
