@@ -1,5 +1,6 @@
 import { fabric } from "fabric"
 import groupBy from "lodash/groupBy"
+
 class StaticVectorObject extends fabric.Group {
   static type = "StaticVector"
   public src: string

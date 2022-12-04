@@ -1,3 +1,4 @@
+import "./fabric6-typesfix"
 export * from "./Frame"
 export * from "./StaticText"
 export * from "./StaticImage"
