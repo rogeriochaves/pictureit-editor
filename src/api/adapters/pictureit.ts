@@ -59,9 +59,7 @@ const PictureIt: PictureItApi = class {
   }
 
   static async saveFile(file: PictureItFile): Promise<boolean> {
-    const fileParams: any = file
-    fileParams.content = JSON.stringify(file.content)
-    await postApi(`/api/files/${file.id}`, fileParams)
+    await postApi(`/api/files/${file.id}`, file)
     return true
   }
 
@@ -76,8 +74,6 @@ const PictureIt: PictureItApi = class {
 
       throw err
     })
-
-    file.content = JSON.parse(file.content)
 
     return file
   }
