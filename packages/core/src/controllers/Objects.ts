@@ -2,7 +2,7 @@ import { fabric } from "fabric"
 import { isArray, pick } from "lodash"
 import { nanoid } from "nanoid"
 import Base from "./Base"
-import { ILayer, ILayerOptions } from "@layerhub-io/types"
+import { IGroup, ILayer, ILayerOptions } from "@layerhub-io/types"
 import { copyStyleProps, defaultBackgroundOptions, defaultFrameOptions, getCopyStyleCursor, LayerType, nonRenderableLayerTypes } from "../common/constants"
 import { Direction, GradientOptions, ScaleType, ShadowOptions, Size } from "../common/interfaces"
 import ObjectImporter from "../utils/object-importer"
@@ -44,11 +44,30 @@ class Objects extends Base {
       canvas.add(object)
     }
 
+    this.afterAddHook(object)
+  }
+
+  public addToGroup = async (group: fabric.Group, item: Partial<ILayer>) => {
+    const options = this.editor.frame.options
+    const objectImporter = new ObjectImporter(this.editor)
+    const refItem = item as unknown as ILayer
+
+    const object: fabric.Object = await objectImporter.import(refItem, options)
+    group.addWithUpdate(object)
+
+    this.afterAddHook(group)
+  }
+
+  public afterAddHook = async (object: fabric.Object) => {
+    const { canvas } = this
+
     this.state.setActiveObject(object)
     canvas.setActiveObject(object)
 
     this.updateContextObjects()
     this.editor.history.save()
+
+    canvas.requestRenderAll()
 
     if (object.type === "StaticVideo") {
       setTimeout(() => {
@@ -56,6 +75,7 @@ class Objects extends Base {
       }, 500)
     }
   }
+
   /**
    *
    * @param options object properties to be updated

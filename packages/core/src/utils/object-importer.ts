@@ -355,6 +355,7 @@ class ObjectImporter {
       originY,
       type,
       preview,
+      clipPath,
     } = item as Required<ILayer>
     let metadata = item.metadata ? item.metadata : {}
     const { fill } = metadata
@@ -386,6 +387,7 @@ class ObjectImporter {
       strokeDashOffset: item.strokeDashOffset ? item.strokeMiterLimit : 0,
       metadata: metadata,
       preview,
+      clipPath: clipPath,
     }
     return baseOptions
   }

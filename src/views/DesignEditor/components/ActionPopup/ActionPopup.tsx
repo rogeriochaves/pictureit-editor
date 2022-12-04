@@ -24,7 +24,7 @@ const ActionPopup = () => {
   const setPopupForTarget = (target: fabric.Object | undefined) => {
     if (target && target.type == LayerType.GENERATION_FRAME && target.oCoords) {
       const { x, y } = target.oCoords.mt // mid-top
-      setPopup({ x, y, target, isMoving: false })
+      setPopup({ x, y, target: target as fabric.GenerationFrame, isMoving: false })
     } else {
       setPopup(null)
     }
@@ -71,41 +71,19 @@ const ActionPopup = () => {
       [targetId]: { state: "LOADING" },
     })
 
-    setTimeout(() => {
+    setTimeout(async () => {
       setGeneratingState({
         ...generatingState,
         [targetId]: { state: "SUCCESS", data: { image: sampleImage } },
       })
 
-      const groupId = nanoid()
-      const imageId = nanoid()
-      const options = {
-        id: groupId,
-        type: "Group",
-        top: popup.target.top,
-        left: popup.target.left,
-        width: popup.target.width,
-        height: popup.target.height,
-        objects: [{
-          id: imageId,
-          type: "StaticImage",
-          src: sampleImage,
-          top: popup.target.top,
-          left: popup.target.left,
-          width: popup.target.width,
-          height: popup.target.height,
-          clipPath: popup.target
-        }]
-      }
-      editor.objects.add(options)
+      await popup.target.setImage(sampleImage)
+      editor.objects.afterAddHook(popup.target as fabric.Object)
 
-      const image = editor.objects.findOneById(imageId)
-      const group = editor.objects.findOneById(groupId) as fabric.Group
-      editor.canvas.canvas.remove(popup.target);
-      group.addWithUpdate(popup.target)
-      // group.add
-      // editor.objects.group
-
+      setTimeout(async () => {
+        await popup.target.setImage("https://pictureit.art/serve/picture/03b92f0f-highly-detailed-netherland-dua.webp")
+        editor.objects.afterAddHook(popup.target as fabric.Object)
+      }, 1000)
     }, 1000)
   }, [popup, generatingState])
 
