@@ -16,7 +16,11 @@ type LazySelector<T, P> = {
 
 export const lazySelectorFamily = <T, P>(props: {
   key: string
-  get: (opts: { id: string | undefined; refresh: (recoilValue: RecoilValue<any>) => void }) => (params: P) => Promise<T>
+  get: (opts: {
+    id: string | undefined
+    refresh: (recoilValue: RecoilValue<any>) => void
+    set: <T>(recoilVal: RecoilState<T>, valOrUpdater: ((currVal: T) => T) | T) => void
+  }) => (params: P) => Promise<T>
 }): ((id: string | undefined) => LazySelector<T, P>) => {
   const requests: RecoilState<{ [key: string]: Promise<T> }> = atom({
     key: props.key,
@@ -41,7 +45,7 @@ export const lazySelectorFamily = <T, P>(props: {
 
         return getCallback(({ set, refresh }) => (params: P) => {
           if (!id) return
-          const newValue = props.get({ id: id.toString(), refresh })(params)
+          const newValue = props.get({ id: id.toString(), refresh, set })(params)
 
           set(requests, {
             ...currentRequests,

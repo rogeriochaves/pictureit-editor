@@ -17,13 +17,16 @@ export const DEFAULT_GUIDANCE = 7.5
 export const generateImageRequest = lazySelectorFamily({
   key: "generateImageRequest",
   get:
-    ({ refresh }) =>
+    ({ set, refresh }) =>
     async (params: { frame: fabric.GenerationFrame; editor: Editor }) => {
       try {
         await generateImage(params)
       } catch (err) {
         if ((err as any).status == 401) {
           refresh(currentUserQuery)
+        }
+        if ((err as any).status == 402) {
+          set(paymentRequiredState, true)
         }
 
         throw err
@@ -33,6 +36,11 @@ export const generateImageRequest = lazySelectorFamily({
 
 export const hidePopupState = atom({
   key: "hidePopupState",
+  default: false,
+})
+
+export const paymentRequiredState = atom({
+  key: "paymentRequiredState",
   default: false,
 })
 
