@@ -5,7 +5,7 @@ import { Block } from "baseui/block"
 import { Button, KIND } from "baseui/button"
 import { Theme } from "baseui/theme"
 import React, { useRef } from "react"
-import { useRecoilValue, useRecoilValueLoadable } from "recoil"
+import { useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from "recoil"
 import Github from "~/components/Icons/Github"
 import Logo from "~/components/Icons/Logo"
 import Play from "~/components/Icons/Play"
@@ -13,8 +13,10 @@ import useDesignEditorContext from "~/hooks/useDesignEditorContext"
 import { IDesign } from "~/interfaces/DesignEditor"
 import { loadTemplateFonts } from "~/utils/fonts"
 import { loadVideoEditorAssets } from "~/utils/video"
+import api from "../../../../api"
 import { useExportToJSON } from "../../../../hooks/useSaveLoad"
 import { editorTypeState } from "../../../../state/designEditor"
+import { changesWithoutExportingState } from "../../../../state/file"
 import { currentUserQuery } from "../../../../state/user"
 import DesignTitle from "./DesignTitle"
 
@@ -34,8 +36,10 @@ const Navbar = () => {
   const inputFileRef = useRef<HTMLInputElement>(null)
   const user = useRecoilValueLoadable(currentUserQuery)
   const exportToJSON = useExportToJSON()
+  const setChangesWithoutExporting = useSetRecoilState(changesWithoutExportingState)
 
   const parseGraphicJSON = () => {
+    setChangesWithoutExporting(false)
     makeDownload(exportToJSON())
   }
 
@@ -233,6 +237,95 @@ const Navbar = () => {
     }
   }
 
+  const OpenSourceNavbar = () => (
+    <Block $style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
+      <input
+        multiple={false}
+        onChange={handleFileInput}
+        type="file"
+        id="file"
+        ref={inputFileRef}
+        style={{ display: "none" }}
+      />
+      <Button
+        size="compact"
+        onClick={handleInputFileRefClick}
+        kind={KIND.tertiary}
+        overrides={{
+          StartEnhancer: {
+            style: {
+              marginRight: "4px",
+            },
+          },
+        }}
+      >
+        Import
+      </Button>
+
+      <Button
+        size="compact"
+        onClick={makeDownloadTemplate}
+        kind={KIND.tertiary}
+        overrides={{
+          StartEnhancer: {
+            style: {
+              marginRight: "4px",
+            },
+          },
+        }}
+      >
+        Export
+      </Button>
+      <Button
+        size="compact"
+        onClick={() => setDisplayPreview(true)}
+        kind={KIND.tertiary}
+        overrides={{
+          StartEnhancer: {
+            style: {
+              marginRight: "4px",
+            },
+          },
+        }}
+      >
+        <Play size={24} />
+      </Button>
+
+      <Button size="compact" onClick={() => window.location.replace("https://github.com/")} kind={KIND.tertiary}>
+        <Github size={24} />
+      </Button>
+    </Block>
+  )
+
+  const PictureItNavbar = () => (
+    <Block $style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
+      <Button
+        size="compact"
+        onClick={() => setDisplayPreview(true)}
+        kind={KIND.tertiary}
+        overrides={{
+          StartEnhancer: {
+            style: {
+              marginRight: "4px",
+            },
+          },
+        }}
+      >
+        <Play size={24} />
+      </Button>
+      {user.state != "hasError" && (
+        <Button
+          style={{ marginLeft: "0.5rem", minWidth: "100px" }}
+          size="compact"
+          onClick={() => window.location.replace("https://editor.layerhub.io")}
+          kind={KIND.primary}
+        >
+          {user.state == "hasValue" ? user.contents?.name : "\u00A0"}
+        </Button>
+      )}
+    </Block>
+  )
+
   return (
     // @ts-ignore
     <ThemeProvider theme={DarkTheme}>
@@ -241,78 +334,7 @@ const Navbar = () => {
           <Logo size={36} />
         </div>
         <DesignTitle />
-        <Block $style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
-          <input
-            multiple={false}
-            onChange={handleFileInput}
-            type="file"
-            id="file"
-            ref={inputFileRef}
-            style={{ display: "none" }}
-          />
-          <Button
-            size="compact"
-            onClick={handleInputFileRefClick}
-            kind={KIND.tertiary}
-            overrides={{
-              StartEnhancer: {
-                style: {
-                  marginRight: "4px",
-                },
-              },
-            }}
-          >
-            Import
-          </Button>
-
-          <Button
-            size="compact"
-            onClick={makeDownloadTemplate}
-            kind={KIND.tertiary}
-            overrides={{
-              StartEnhancer: {
-                style: {
-                  marginRight: "4px",
-                },
-              },
-            }}
-          >
-            Export
-          </Button>
-          <Button
-            size="compact"
-            onClick={() => setDisplayPreview(true)}
-            kind={KIND.tertiary}
-            overrides={{
-              StartEnhancer: {
-                style: {
-                  marginRight: "4px",
-                },
-              },
-            }}
-          >
-            <Play size={24} />
-          </Button>
-
-          <Button
-            size="compact"
-            onClick={() => window.location.replace("https://github.com/layerhub-io/react-design-editor")}
-            kind={KIND.tertiary}
-          >
-            <Github size={24} />
-          </Button>
-
-          {user.state != "hasError" && (
-            <Button
-              style={{ marginLeft: "0.5rem", minWidth: "100px" }}
-              size="compact"
-              onClick={() => window.location.replace("https://editor.layerhub.io")}
-              kind={KIND.primary}
-            >
-              {user.state == "hasValue" ? user.contents?.name : "\u00A0"}
-            </Button>
-          )}
-        </Block>
+        {"isPictureIt" in api ? <PictureItNavbar /> : <OpenSourceNavbar />}
       </Container>
     </ThemeProvider>
   )

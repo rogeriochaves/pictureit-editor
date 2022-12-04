@@ -20,6 +20,11 @@ export const waitingForFileSaveDebounceState: RecoilState<boolean> = atom({
   default: false,
 })
 
+export const changesWithoutExportingState: RecoilState<boolean> = atom({
+  key: "changesWithoutExportingState",
+  default: false,
+})
+
 export const saveFileRequest = lazySelector({
   key: "saveFileRequest",
   get: () => async (file: PictureItFile) => {

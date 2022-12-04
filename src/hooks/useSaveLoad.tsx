@@ -6,13 +6,15 @@ import { nanoid } from "nanoid"
 import { useCallback, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
+import api from "../api"
 import { IDesign } from "../interfaces/DesignEditor"
 import { currentDesignState, currentSceneState, scenesState } from "../state/designEditor"
 import {
+  changesWithoutExportingState,
   exponentialBackoffSaveRetryState,
   MAX_RETRY_SAVE_TIME,
   saveFileRequest,
-  waitingForFileSaveDebounceState
+  waitingForFileSaveDebounceState,
 } from "../state/file"
 import { useCallRecoilLazyLoadable, useRecoilValueLazyLoadable } from "../utils/lazySelectorFamily"
 
@@ -22,6 +24,7 @@ export const useAutosaveEffect = () => {
   const currentScene = useRecoilValue(currentSceneState)
   const saveWithRetries = useSaveWithRetries()
   const setWaitingForFileSaveDebounce = useSetRecoilState(waitingForFileSaveDebounceState)
+  const setChangesWithoutExporting = useSetRecoilState(changesWithoutExportingState)
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const onModifiedDebounced = useCallback(
@@ -29,15 +32,19 @@ export const useAutosaveEffect = () => {
       if (!id) return
 
       setWaitingForFileSaveDebounce(false)
-      saveWithRetries(editor, id)
+
+      if ("isPictureIt" in api) {
+        saveWithRetries(editor, id)
+      }
     }, 3000),
     [editor, id, saveWithRetries, setWaitingForFileSaveDebounce]
   )
 
   const onModified = useCallback(() => {
     setWaitingForFileSaveDebounce(true)
+    setChangesWithoutExporting(true)
     onModifiedDebounced()
-  }, [onModifiedDebounced, setWaitingForFileSaveDebounce])
+  }, [onModifiedDebounced, setChangesWithoutExporting, setWaitingForFileSaveDebounce])
 
   useEffect(() => {
     if (!editor || !currentScene || !id) return
@@ -56,17 +63,26 @@ export const useAutosaveEffect = () => {
 
 export const usePreventCloseIfNotSaved = () => {
   const waitingForFileSaveDebounce = useRecoilValue(waitingForFileSaveDebounceState)
+  const changesWithoutExporting = useRecoilValue(changesWithoutExportingState)
   const saveRequest = useRecoilValueLazyLoadable(saveFileRequest)
 
   const preventClosingIfNotSaved = useCallback(
     (event: BeforeUnloadEvent) => {
-      if (waitingForFileSaveDebounce || saveRequest.state != "hasValue") {
-        const message = "Your changes were not saved yet, are you sure you want to close?"
-        event.returnValue = message
-        return message
+      if ("isPictureIt" in api) {
+        if (waitingForFileSaveDebounce || saveRequest.state != "hasValue") {
+          const message = "Your changes were not saved yet, are you sure you want to close?"
+          event.returnValue = message
+          return message
+        }
+      } else {
+        if (changesWithoutExporting) {
+          const message = "Your changes were not saved yet, export to a file if you don't want to lose your work"
+          event.returnValue = message
+          return message
+        }
       }
     },
-    [saveRequest, waitingForFileSaveDebounce]
+    [changesWithoutExporting, saveRequest.state, waitingForFileSaveDebounce]
   )
 
   useEffect(() => {
