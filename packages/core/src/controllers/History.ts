@@ -54,7 +54,7 @@ class History extends Base {
             )
           }
         })
-        this.current = canvasJSON.objects
+        this.current = canvasJSON.objects.filter((object: any) => !nonRenderableLayerTypes.includes(object.type || ""))
       }
     } catch (err) {
       console.log(err)
