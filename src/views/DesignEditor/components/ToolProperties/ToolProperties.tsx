@@ -1,10 +1,11 @@
-import React from "react"
+import React, { useState } from "react"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
 import getSelectionType from "~/utils/get-selection-type"
 import { styled } from "baseui"
 import Items, { ToolItems } from "./Items"
-import useAppContext from "~/hooks/useAppContext"
 import { ILayer } from "@layerhub-io/types"
+import { activeToolState } from "../../../../state/designEditor"
+import { useRecoilValue } from "recoil"
 
 const DEFAULT_TOOLBOX = "Canvas"
 
@@ -20,8 +21,8 @@ const Container = styled("div", (props) => ({
 }))
 
 const Toolbox = () => {
-  const [state, setState] = React.useState<ToolboxState>({ toolbox: DEFAULT_TOOLBOX })
-  const { activeTool } = useAppContext()
+  const [state, setState] = useState<ToolboxState>({ toolbox: DEFAULT_TOOLBOX })
+  const activeTool = useRecoilValue(activeToolState)
   const activeObject = useActiveObject() as ILayer
   const editor = useEditor()
 

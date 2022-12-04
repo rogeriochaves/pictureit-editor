@@ -1,11 +1,12 @@
 import { Button, SIZE } from "baseui/button"
 import React, { useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
+import { useRecoilState } from "recoil"
 import ResizeObserver from "resize-observer-polyfill"
-import useAppContext from "~/hooks/useAppContext"
 import Loading from "./components/Loading"
 import { editorFonts } from "./constants/fonts"
 import { useAutosaveEffect, usePreventCloseIfNotSaved } from "./hooks/useSaveLoad"
+import { isMobileState } from "./state/designEditor"
 import { loadFileRequest, saveFileRequest } from "./state/file"
 import { useRecoilLazyLoadable, useRecoilValueLazyLoadable } from "./utils/lazySelectorFamily"
 
@@ -18,7 +19,7 @@ const Container = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate()
 
   const containerRef = useRef<HTMLDivElement>(null)
-  const { isMobile, setIsMobile } = useAppContext()
+  const [isMobile, setIsMobile] = useRecoilState(isMobileState)
   const [loaded, setLoaded] = useState(false)
   const updateMediaQuery = (value: number) => {
     if (!isMobile && value >= 800) {

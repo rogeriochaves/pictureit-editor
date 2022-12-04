@@ -1,12 +1,10 @@
 import { useStyletron, styled } from "baseui"
-import useAppContext from "~/hooks/useAppContext"
 import Icons from "~/components/Icons"
 import { useTranslation } from "react-i18next"
 import Scrollable from "~/components/Scrollable"
 import { Block } from "baseui/block"
-import { useRecoilValue } from "recoil"
-import { editorTypeState } from "../../../../state/designEditor"
-import { ToolType } from "../../../../state/appContext"
+import { useRecoilValue, useSetRecoilState } from "recoil"
+import { activeToolState, ToolType } from "../../../../state/designEditor"
 
 export const TOOL_ITEMS = [
   {
@@ -30,9 +28,8 @@ const Container = styled("div", (props) => ({
 }))
 
 const ToolsList = () => {
-  const { activeTool } = useAppContext()
+  const activeTool = useRecoilValue(activeToolState)
   const { t } = useTranslation("editor")
-  const editorType = useRecoilValue(editorTypeState)
 
   return (
     <Container>
@@ -52,7 +49,7 @@ const ToolsList = () => {
 }
 
 const ToolListItem = ({ label, icon, activeTool, name }: any) => {
-  const { setActiveTool } = useAppContext()
+  const setActiveTool = useSetRecoilState(activeToolState)
   const [_css, theme] = useStyletron()
   // @ts-ignore
   const Icon = Icons[icon]

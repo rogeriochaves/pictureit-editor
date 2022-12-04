@@ -28,6 +28,17 @@ export const currentDesignState: RecoilState<IDesign> = atom({
   } as IDesign,
 })
 
+export enum ToolType {
+  MOVE = "Move",
+  GENERATION = "Generation",
+  DRAWING = "Drawing",
+}
+
+export const activeToolState: RecoilState<ToolType> = atom({
+  key: "activeToolState",
+  default: ToolType.MOVE as ToolType,
+})
+
 export enum PanelType {
   LAYERS = "Layers",
 }
@@ -35,6 +46,11 @@ export enum PanelType {
 export const activePanelState: RecoilState<PanelType | undefined> = atom({
   key: "activePanelState",
   default: undefined as PanelType | undefined,
+})
+
+export const isMobileState: RecoilState<boolean | undefined> = atom({
+  key: "isMobileState",
+  default: undefined as boolean | undefined,
 })
 
 export const editorTypeState: RecoilState<DesignType> = atom({

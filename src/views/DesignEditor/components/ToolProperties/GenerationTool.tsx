@@ -3,8 +3,8 @@ import { useEditor } from "@layerhub-io/react"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { useEffect } from "react"
-import useAppContext from "../../../../hooks/useAppContext"
-import { ToolType } from "../../../../state/appContext"
+import { useSetRecoilState } from "recoil"
+import { activeToolState, ToolType } from "../../../../state/designEditor"
 import Canvas from "./Canvas"
 
 const square = new fabric.Rect({
@@ -23,7 +23,7 @@ const square = new fabric.Rect({
 let requestDragging = false
 const GenerationTool = () => {
   const editor = useEditor()
-  const { setActiveTool } = useAppContext()
+  const setActiveTool = useSetRecoilState(activeToolState)
 
   function mouseMoveHandler(e: IEvent) {
     if (requestDragging) {

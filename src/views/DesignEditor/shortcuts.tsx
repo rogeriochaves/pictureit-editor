@@ -1,12 +1,12 @@
 import { useCallback, useEffect } from "react"
 import { useEditor } from "@layerhub-io/react"
-import useAppContext from "../../hooks/useAppContext"
-import { ToolType } from "../../state/appContext"
+import { useSetRecoilState } from "recoil"
+import { activeToolState, ToolType } from "../../state/designEditor"
 
 const Shortcuts = () => {
   const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0
   const editor = useEditor()
-  const { setActiveTool } = useAppContext()
+  const setActiveTool = useSetRecoilState(activeToolState)
 
   const handleShortcuts = useCallback((event: KeyboardEvent) => {
     const shortcuts = [
