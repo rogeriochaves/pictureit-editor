@@ -8,7 +8,7 @@ import { Slider } from "baseui/slider"
 import { StatefulTooltip } from "baseui/tooltip"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
-import React, { ChangeEvent, useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import NoColor from "../../../../components/Icons/NoColor"
 import Steps from "../../../../components/Icons/Steps"
 import { DEFAULT_NOISE, renderInitImage, renderNewInitImage, setHidePopup } from "../../../../store/generation"
@@ -17,7 +17,6 @@ import Common from "./Common"
 import { Separator } from "./Shared/Separator"
 import { ColorSquare } from "./Shared/ColorSquare"
 import { debounce } from "lodash"
-import { addGaussianNoise } from "../../../../utils/noise"
 
 const GenerationFrame = () => {
   const dispatch = useAppDispatch()
@@ -54,7 +53,7 @@ const GenerationFrame = () => {
 const InitImageSettings = () => {
   const editor = useEditor()
   const activeObject = useActiveObject<fabric.GenerationFrame | undefined>()
-  const [localNoise, setLocalNoise] = useState<number>(DEFAULT_NOISE)
+  const [localNoise, setLocalNoise] = useState<number>(activeObject?.metadata?.initImage?.noise ?? DEFAULT_NOISE)
   const [initImageWithNoise, setInitImageWithNoise] = useState<string | undefined>()
   const [currentCanvasImage, setCurrentCanvasImage] = useState<string | undefined>()
 

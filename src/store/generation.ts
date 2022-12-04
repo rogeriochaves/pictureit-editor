@@ -46,7 +46,7 @@ export const generateImage = createAsyncThunk<
     const num_inference_steps = frame.metadata?.steps || 50
     frame.showLoading((4 + num_inference_steps * 0.1) * 1000)
 
-    const [initImage, initImageWithNoise] = await renderInitImage(editor, frame, !frame.metadata?.initImage?.fixed)
+    const [initImage, initImageWithNoise] = await renderInitImage(editor, frame, true)
 
     if (frame.metadata) {
       frame.metadata.initImage = {
@@ -108,7 +108,7 @@ export const renderInitImage = async (
     if (renderInitImage) {
       initImage = initImageCanvas.toDataURL("image/png")
     }
-    addGaussianNoise(initImageCanvas.getContext("2d")!, generationFrame.metadata?.initImage?.noise || DEFAULT_NOISE)
+    addGaussianNoise(initImageCanvas.getContext("2d")!, generationFrame.metadata?.initImage?.noise ?? DEFAULT_NOISE)
     initImageWithNoise = initImageCanvas && initImageCanvas.toDataURL("image/jpeg")
   }
 
