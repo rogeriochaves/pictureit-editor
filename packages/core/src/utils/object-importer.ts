@@ -1,7 +1,6 @@
 import { fabric } from "fabric"
 import { nanoid } from "nanoid"
 import { LayerType, nonRenderableLayerTypes, transparentB64, transparentPattern } from "../common/constants"
-import { loadImageFromURL } from "./image-loader"
 import { Editor } from "../editor"
 import { updateObjectBounds, updateObjectShadow } from "./fabric"
 import {
@@ -105,7 +104,7 @@ class ObjectImporter {
         const baseOptions = this.getBaseOptions(item, options, inGroup)
         const { src, cropX, cropY } = item as IStaticImage
 
-        const image: any = await loadImageFromURL(src)
+        const image = await fabric.util.loadImage(src, { crossOrigin: "anonymous" })
 
         const { width, height } = baseOptions
         if (!width || !height) {
@@ -135,7 +134,7 @@ class ObjectImporter {
         const baseOptions = this.getBaseOptions(item, options, inGroup)
         const { src, cropX, cropY } = item as IBackgroundImage
 
-        const image: any = await loadImageFromURL(src)
+        const image = await fabric.util.loadImage(src, { crossOrigin: "anonymous" })
 
         const { width, height } = baseOptions
         if (!width || !height) {

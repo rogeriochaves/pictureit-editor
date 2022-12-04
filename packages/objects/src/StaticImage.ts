@@ -14,7 +14,7 @@ export class StaticImageObject extends fabric.Image {
   }
 
   static fromObject(options: any): Promise<fabric.StaticImage> {
-    return fabric.util.loadImage(options.src).then((img) => {
+    return fabric.util.loadImage(options.src, { crossOrigin: "anonymous" }).then((img) => {
       return new fabric.StaticImage(img, options)
     })
   }

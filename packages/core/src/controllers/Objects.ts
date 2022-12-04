@@ -2,7 +2,7 @@ import { fabric } from "fabric"
 import { isArray, pick } from "lodash"
 import { nanoid } from "nanoid"
 import Base from "./Base"
-import { IGroup, ILayer, ILayerOptions } from "@layerhub-io/types"
+import { ILayer, ILayerOptions } from "@layerhub-io/types"
 import {
   copyStyleProps,
   defaultBackgroundOptions,
@@ -14,7 +14,6 @@ import {
 import { Direction, GradientOptions, ScaleType, ShadowOptions, Size } from "../common/interfaces"
 import ObjectImporter from "../utils/object-importer"
 import setObjectGradient, { setObjectShadow } from "../utils/fabric"
-import { loadImageFromURL } from "../utils/image-loader"
 
 class Objects extends Base {
   public clipboard: any
@@ -803,7 +802,7 @@ class Objects extends Base {
       if (currentBackgroundImage) {
         const currentBackgroundImageJSON = currentBackgroundImage.toJSON(this.config.propertiesToInclude)
         delete currentBackgroundImageJSON.clipPath
-        const nextImageElement = await loadImageFromURL(currentBackgroundImageJSON.src)
+        const nextImageElement = await fabric.util.loadImage(currentBackgroundImageJSON.src, { crossOrigin: "anonymous" })
         nextImage = new fabric.StaticImage(nextImageElement, { ...currentBackgroundImageJSON, id: nanoid() })
         // @ts-ignore
         // this.canvas.add(nextImage)
@@ -830,7 +829,7 @@ class Objects extends Base {
       }
       const objectJSON = refObject.toJSON(this.config.propertiesToInclude)
       delete objectJSON.clipPath
-      const image = await loadImageFromURL(objectJSON.src)
+      const image = await fabric.util.loadImage(objectJSON.src, { crossOrigin: "anonymous" })
       const backgroundImage = new fabric.BackgroundImage(image, { ...objectJSON, id: nanoid() })
       // @ts-ignore
       this.canvas.add(backgroundImage)

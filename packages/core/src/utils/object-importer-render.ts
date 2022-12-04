@@ -1,6 +1,5 @@
 import { fabric } from "fabric"
 import { LayerType, nonRenderableLayerTypes, transparentB64, transparentPattern } from "../common/constants"
-import { loadImageFromURL } from "./image-loader"
 import { updateObjectShadow } from "./fabric"
 import {
   IBackground,
@@ -89,7 +88,7 @@ class ObjectImporter {
         const baseOptions = this.getBaseOptions(item)
         const { src, cropX, cropY } = item as IStaticImage
 
-        const image: any = await loadImageFromURL(src)
+        const image = await fabric.util.loadImage(src, { crossOrigin: "anonymous" })
         const element = new fabric.StaticImage(image, {
           ...baseOptions,
           cropX: cropX || 0,
@@ -110,7 +109,7 @@ class ObjectImporter {
         const baseOptions = this.getBaseOptions(item)
         const { src, cropX, cropY } = item as IBackgroundImage
 
-        const image: any = await loadImageFromURL(src)
+        const image = await fabric.util.loadImage(src, { crossOrigin: "anonymous" })
         const element = new fabric.BackgroundImage(image, {
           ...baseOptions,
           cropX: cropX || 0,
@@ -131,7 +130,7 @@ class ObjectImporter {
         const baseOptions = this.getBaseOptions(item)
         const { preview: src, cropX, cropY } = item as IStaticImage
 
-        const image: any = await loadImageFromURL(src as string)
+        const image = await fabric.util.loadImage(src as string, { crossOrigin: "anonymous" })
         const element = new fabric.StaticImage(image, {
           ...baseOptions,
           cropX: cropX || 0,
