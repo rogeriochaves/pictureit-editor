@@ -155,6 +155,7 @@ class Objects extends Base {
     for (const frame of this.canvas.getObjects()) {
       if (frame instanceof fabric.GenerationFrame && object.intersectsWithObject(frame as fabric.Object)) {
         this.canvas.remove(object)
+        object.evented = false
         frame.add(object)
 
         break
@@ -197,9 +198,6 @@ class Objects extends Base {
       if (object) {
         this.canvas.disableEvents()
         this.canvas.setActiveObject(object)
-        if (object.group) {
-          object.hasControls = false
-        }
         this.canvas.enableEvents()
         this.canvas.requestRenderAll()
 

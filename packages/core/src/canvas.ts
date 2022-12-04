@@ -36,8 +36,11 @@ class Canvas {
     this.canvas.disableEvents = function () {
       if (this.__fire === undefined) {
         this.__fire = this.fire
-        // @ts-ignore
-        this.fire = function () {}
+        Object.defineProperty(this, "fire", {
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          value: () => {},
+          writable: true,
+        })
       }
     }
 

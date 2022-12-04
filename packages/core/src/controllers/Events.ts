@@ -47,9 +47,27 @@ class Events extends Base {
   }
 
   private onDoubleClick = (event: fabric.IEvent<any>) => {
-    const subTarget = event.subTargets![0]
-    if (subTarget) {
-      this.editor.objects.select(subTarget.id)
+    const initialSelection = this.canvas.getActiveObject() as any
+    const parent = initialSelection._objects ? initialSelection : initialSelection.group
+    const objects = parent?._objects
+    if (objects) {
+      const pointer = this.canvas.getPointer(event.e) as fabric.Point
+      const centerPoint = parent.getCenterPoint()
+      pointer.x -= centerPoint.x
+      pointer.y -= centerPoint.y
+
+      for (const object of objects) {
+        if (object == initialSelection) continue
+        if ((object.id || "").match(/-rect$/)) continue
+        if ((object as fabric.Object).containsPoint(pointer)) {
+          if (!object.id) {
+            console.warn("Object could not be selected because it has no id")
+          } else {
+            object.evented = true
+            this.editor.objects.select(object.id)
+          }
+        }
+      }
     }
   }
 
@@ -146,6 +164,14 @@ class Events extends Base {
 
   handleSelection = (target: fabric.IEvent) => {
     if (target) {
+      if (target.deselected) {
+        for (const deselected of target.deselected) {
+          if (deselected.group) {
+            deselected.evented = false
+          }
+        }
+      }
+
       this.state.setActiveObject(null)
       const initialSelection = this.canvas.getActiveObject() as any
       const isNotMultipleSelection =
