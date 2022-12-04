@@ -14,11 +14,9 @@ const square = new fabric.Rect({
   top: 0,
   opacity: 0.8,
   visible: false,
-  selectable: false,
+  selectable: true,
   hasControls: false,
   hasBorders: true,
-  stroke: "rgba(24, 142, 226, 1)",
-  strokeWidth: 3,
   type: LayerType.POSITIONING_HELPER,
 })
 
@@ -45,6 +43,7 @@ const Generation = () => {
 
   function mouseOverHandler(_e: IEvent) {
     square.visible = true
+    editor.canvas.canvas.setActiveObject(square)
     editor.canvas.canvas.requestRenderAll()
 
     setTimeout(() => {
@@ -56,6 +55,7 @@ const Generation = () => {
     //@ts-ignore
     editor.canvas.canvas._currentTransform = null
     square.visible = false
+    editor.canvas.canvas.discardActiveObject()
     editor.canvas.canvas.requestRenderAll()
   }
 
