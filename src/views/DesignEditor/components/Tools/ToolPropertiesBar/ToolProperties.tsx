@@ -4,7 +4,7 @@ import getSelectionType from "~/utils/get-selection-type"
 import { styled } from "baseui"
 import Items, { ToolItems } from "./Items"
 import { ILayer } from "@layerhub-io/types"
-import { activeToolState } from "../../../../state/designEditor"
+import { activeToolState } from "../../../../../state/designEditor"
 import { useRecoilValue } from "recoil"
 
 const DEFAULT_TOOLBOX = "Canvas"

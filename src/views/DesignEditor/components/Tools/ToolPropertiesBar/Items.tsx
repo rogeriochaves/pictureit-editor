@@ -8,7 +8,7 @@ import Multiple from "./Multiple"
 import Canvas from "./Canvas"
 import GenerationFrame from "./GenerationFrame"
 import GenerationTool from "./GenerationTool"
-import { ToolType } from "../../../../state/designEditor"
+import { ToolType } from "../../../../../state/designEditor"
 
 export const ToolItems = {
   [ToolType.DRAWING]: DrawingTool,

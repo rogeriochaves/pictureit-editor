@@ -2,7 +2,7 @@ import Navbar from "./components/Navbar"
 import Tools from "./components/Tools"
 import Canvas from "./components/Canvas"
 import Footer from "./components/Footer"
-import Toolbox from "./components/ToolProperties"
+import Toolbox from "./components/Tools/ToolPropertiesBar"
 import EditorContainer from "./components/EditorContainer"
 
 const PresentationEditor = () => {

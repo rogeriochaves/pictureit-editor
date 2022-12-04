@@ -15,8 +15,9 @@ import EditorContainer from "./components/EditorContainer"
 import Footer from "./components/Footer"
 import Navbar from "./components/Navbar"
 import Tools from "./components/Tools"
-import Toolbox from "./components/ToolProperties"
+import ToolPropertiesBar from "./components/Tools/ToolPropertiesBar"
 import Shortcuts from "./Shortcuts"
+import PanelSidebar from "./components/Panels/PanelSidebar"
 
 const GraphicEditor = () => {
   const user = useRecoilValueLoadable(currentUserQuery)
@@ -33,8 +34,9 @@ const GraphicEditor = () => {
       <Navbar />
       <div style={{ display: "flex", flex: 1 }}>
         <Tools />
+        <PanelSidebar />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", position: "relative" }}>
-          <Toolbox />
+          <ToolPropertiesBar />
           <Canvas />
           <Footer />
         </div>

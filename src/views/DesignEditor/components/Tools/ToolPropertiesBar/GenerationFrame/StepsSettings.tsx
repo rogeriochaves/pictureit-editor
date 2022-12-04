@@ -7,7 +7,7 @@ import { Slider } from "baseui/slider"
 import { StatefulTooltip } from "baseui/tooltip"
 import { fabric } from "fabric"
 import { useCallback, useEffect, useState } from "react"
-import Steps from "../../../../../components/Icons/Steps"
+import Steps from "../../../../../../components/Icons/Steps"
 
 export const StepsSettings = () => {
   const activeObject = useActiveObject<fabric.GenerationFrame | undefined>()

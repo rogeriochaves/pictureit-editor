@@ -21,7 +21,7 @@ import TextAlignRight from "~/components/Icons/TextAlignRight"
 import { Slider } from "baseui/slider"
 import { FONT_SIZES, SAMPLE_FONTS } from "~/constants/editor"
 import { IStaticText } from "@layerhub-io/types"
-import { getTextProperties } from "../../utils/text"
+import { getTextProperties } from "../../../utils/text"
 import { loadFonts } from "~/utils/fonts"
 import Scrollbar from "@layerhub-io/react-custom-scrollbar"
 

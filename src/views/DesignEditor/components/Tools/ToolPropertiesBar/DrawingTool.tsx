@@ -9,7 +9,7 @@ import { nanoid } from "nanoid"
 import { useCallback, useEffect } from "react"
 import { HexColorPicker } from "react-colorful"
 import { useRecoilState } from "recoil"
-import { drawingColorState } from "../../../../state/designEditor"
+import { drawingColorState } from "../../../../../state/designEditor"
 import { ColorSquare } from "./Shared/ColorSquare"
 import { Separator } from "./Shared/Separator"
 

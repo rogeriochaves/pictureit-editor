@@ -1,7 +1,7 @@
 import { Block } from "baseui/block"
 import { useRecoilValue } from "recoil"
 import { activePanelState } from "../../../../state/designEditor"
-import panels from "../Panels"
+import panels from "."
 
 const PanelSidebar = () => {
   const activePanel = useRecoilValue(activePanelState)

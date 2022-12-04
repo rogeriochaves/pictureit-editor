@@ -4,7 +4,7 @@ import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { useEffect } from "react"
 import { useSetRecoilState } from "recoil"
-import { activeToolState, ToolType } from "../../../../state/designEditor"
+import { activeToolState, ToolType } from "../../../../../state/designEditor"
 import Canvas from "./Canvas"
 
 const square = new fabric.Rect({
