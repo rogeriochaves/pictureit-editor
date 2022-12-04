@@ -21,7 +21,7 @@ const Container = styled("div", (props) => ({
 
 const Toolbox = () => {
   const [state, setState] = React.useState<ToolboxState>({ toolbox: DEFAULT_TOOLBOX })
-  const { setActiveSubMenu, activePanel } = useAppContext()
+  const { setActiveSubMenu, activeTool } = useAppContext()
   const activeObject = useActiveObject() as ILayer
   const editor = useEditor()
 
@@ -63,7 +63,7 @@ const Toolbox = () => {
   }, [editor, activeObject])
 
   // @ts-ignore
-  const Component = ToolItems[activePanel] || Items[state.toolbox]
+  const Component = ToolItems[activeTool] || Items[state.toolbox]
 
   return <Container>{Component ? <Component /> : state.toolbox}</Container>
 }

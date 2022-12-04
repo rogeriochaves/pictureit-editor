@@ -1,36 +1,36 @@
 import React from "react"
 import useAppContext from "~/hooks/useAppContext"
-import panelItems from "./panelItems"
+import toolItems from "./toolItems"
 import { Block } from "baseui/block"
 import { useRecoilValue } from "recoil"
 import { isSidebarOpenState } from "../../../../state/designEditor"
 
 interface State {
-  panel: string
+  tool: string
 }
-const PanelsList = () => {
-  const [state, setState] = React.useState<State>({ panel: "Text" })
+const ToolsList = () => {
+  const [state, setState] = React.useState<State>({ tool: "Text" })
   const isSidebarOpen = useRecoilValue(isSidebarOpenState)
-  const { activePanel, activeSubMenu } = useAppContext()
+  const { activeTool, activeSubMenu } = useAppContext()
 
   React.useEffect(() => {
-    setState({ panel: activePanel })
-  }, [activePanel])
+    setState({ tool: activeTool })
+  }, [activeTool])
 
   React.useEffect(() => {
     if (activeSubMenu) {
-      setState({ panel: activeSubMenu })
+      setState({ tool: activeSubMenu })
     } else {
-      setState({ panel: activePanel })
+      setState({ tool: activeTool })
     }
-  }, [activePanel, activeSubMenu])
+  }, [activeTool, activeSubMenu])
 
   // @ts-ignore
-  const Component = panelItems[state.panel]
+  const Component = toolItems[state.tool]
 
   return (
     <Block
-      id="EditorPanelItem"
+      id="EditorToolItem"
       $style={{
         background: "#ffffff",
         width: isSidebarOpen ? "306px" : 0,
@@ -46,4 +46,4 @@ const PanelsList = () => {
   )
 }
 
-export default PanelsList
+export default ToolsList

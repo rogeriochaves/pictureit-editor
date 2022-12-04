@@ -38,17 +38,17 @@ const TimeMarker = () => {
   const onStart = () => {
     const playHeadDomRef = document.getElementById("EditorPlayHead") as HTMLDivElement
     const initialX = playHeadDomRef.offsetLeft
-    const panelsListRef = document.getElementById("EditorPanelList") as HTMLDivElement
-    const panelItemRef = document.getElementById("EditorPanelItem") as HTMLDivElement
+    const toolsListRef = document.getElementById("EditorToolList") as HTMLDivElement
+    const toolItemRef = document.getElementById("EditorToolItem") as HTMLDivElement
     const playControlRef = document.getElementById("EditorPlayControl") as HTMLDivElement
 
-    const panelItemsWidth =
-      panelsListRef.getBoundingClientRect().width +
-      panelItemRef.getBoundingClientRect().width +
+    const toolItemsWidth =
+      toolsListRef.getBoundingClientRect().width +
+      toolItemRef.getBoundingClientRect().width +
       playControlRef.getBoundingClientRect().width
 
     const onDrag = (ev: MouseEvent) => {
-      let x = ev.clientX - initialX - panelItemsWidth
+      let x = ev.clientX - initialX - toolItemsWidth
       let newX = initialX + x * 40
       if (newX + 2 <= 0 || newX >= maxTime) return
       setTime(newX)

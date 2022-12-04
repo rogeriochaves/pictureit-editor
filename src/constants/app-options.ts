@@ -1,4 +1,4 @@
-export enum PanelType {
+export enum ToolType {
   TEMPLATES = "Templates",
   BACKGROUND = "Background",
   MOVE = "Move",
@@ -10,7 +10,7 @@ export enum PanelType {
 export const BASE_ITEMS = [
   {
     id: "move",
-    name: PanelType.MOVE,
+    name: ToolType.MOVE,
   },
   // {
   //   id: "elements",
@@ -18,11 +18,11 @@ export const BASE_ITEMS = [
   // },
   {
     id: "generation",
-    name: PanelType.GENERATION,
+    name: ToolType.GENERATION,
   },
   {
     id: "drawing",
-    name: PanelType.DRAWING,
+    name: ToolType.DRAWING,
   },
   // {
   //   id: "templates",
@@ -59,7 +59,7 @@ export const BASE_ITEMS = [
   // },
 ]
 
-export const VIDEO_PANEL_ITEMS = [
+export const VIDEO_TOOL_ITEMS = [
   {
     id: "templates",
     name: "Templates",

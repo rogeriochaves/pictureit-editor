@@ -1,5 +1,5 @@
 import { useStyletron, styled } from "baseui"
-import { BASE_ITEMS, VIDEO_PANEL_ITEMS } from "~/constants/app-options"
+import { BASE_ITEMS, VIDEO_TOOL_ITEMS } from "~/constants/app-options"
 import useAppContext from "~/hooks/useAppContext"
 import Icons from "~/components/Icons"
 import { useTranslation } from "react-i18next"
@@ -14,21 +14,21 @@ const Container = styled("div", (props) => ({
   display: "flex",
 }))
 
-const PanelsList = () => {
-  const { activePanel } = useAppContext()
+const ToolsList = () => {
+  const { activeTool } = useAppContext()
   const { t } = useTranslation("editor")
   const editorType = useRecoilValue(editorTypeState)
-  const PANEL_ITEMS = editorType === "VIDEO" ? VIDEO_PANEL_ITEMS : BASE_ITEMS
+  const TOOL_ITEMS = editorType === "VIDEO" ? VIDEO_TOOL_ITEMS : BASE_ITEMS
   return (
     <Container>
       <Scrollable autoHide={true}>
-        {PANEL_ITEMS.map((panelListItem) => (
-          <PanelListItem
-            label={t(`panels.panelsList.${panelListItem.id}`)}
-            name={panelListItem.name}
-            key={panelListItem.name}
-            icon={panelListItem.name}
-            activePanel={activePanel}
+        {TOOL_ITEMS.map((toolListItem) => (
+          <ToolListItem
+            label={t(`tools.toolsList.${toolListItem.id}`)}
+            name={toolListItem.name}
+            key={toolListItem.name}
+            icon={toolListItem.name}
+            activeTool={activeTool}
           />
         ))}
       </Scrollable>
@@ -36,23 +36,23 @@ const PanelsList = () => {
   )
 }
 
-const PanelListItem = ({ label, icon, activePanel, name }: any) => {
-  const { setActivePanel } = useAppContext()
+const ToolListItem = ({ label, icon, activeTool, name }: any) => {
+  const { setActiveTool } = useAppContext()
   const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
   const [css, theme] = useStyletron()
   // @ts-ignore
   const Icon = Icons[icon]
   return (
     <Block
-      id="EditorPanelList"
+      id="EditorToolList"
       onClick={() => {
         setIsSidebarOpen(true)
-        setActivePanel(name)
+        setActiveTool(name)
       }}
       $style={{
         width: "80px",
         height: "80px",
-        backgroundColor: name === activePanel ? theme.colors.white : theme.colors.primary100,
+        backgroundColor: name === activeTool ? theme.colors.white : theme.colors.primary100,
         display: "flex",
         alignItems: "center",
         flexDirection: "column",
@@ -76,4 +76,4 @@ const PanelListItem = ({ label, icon, activePanel, name }: any) => {
   )
 }
 
-export default PanelsList
+export default ToolsList

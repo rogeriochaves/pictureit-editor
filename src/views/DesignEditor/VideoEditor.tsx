@@ -1,5 +1,5 @@
 import Navbar from "./components/Navbar"
-import Panels from "./components/Panels"
+import Tools from "./components/Tools"
 import Canvas from "./components/Canvas"
 import Footer from "./components/Footer"
 import Toolbox from "./components/Toolbox"
@@ -10,7 +10,7 @@ const VideoEditor = () => {
     <EditorContainer>
       <Navbar />
       <div style={{ display: "flex", flex: 1 }}>
-        <Panels />
+        <Tools />
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
           <Toolbox />
           <Canvas />

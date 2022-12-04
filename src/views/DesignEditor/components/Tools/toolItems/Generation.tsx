@@ -4,7 +4,7 @@ import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { useEffect } from "react"
 import { useSetRecoilState } from "recoil"
-import { PanelType } from "../../../../../constants/app-options"
+import { ToolType } from "../../../../../constants/app-options"
 import useAppContext from "../../../../../hooks/useAppContext"
 import { isSidebarOpenState } from "../../../../../state/designEditor"
 
@@ -24,12 +24,7 @@ const square = new fabric.Rect({
 let requestDragging = false
 const Generation = () => {
   const editor = useEditor()
-  const { setActivePanel } = useAppContext()
-  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
-
-  useEffect(() => {
-    setIsSidebarOpen(false)
-  }, [setIsSidebarOpen])
+  const { setActiveTool } = useAppContext()
 
   function mouseMoveHandler(e: IEvent) {
     if (requestDragging) {
@@ -79,7 +74,7 @@ const Generation = () => {
         prompt.focus()
       }
     }, 50)
-    setActivePanel(PanelType.MOVE)
+    setActiveTool(ToolType.MOVE)
   }
 
   useEffect(() => {

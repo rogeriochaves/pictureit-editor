@@ -7,10 +7,10 @@ import Locked from "./Locked"
 import Multiple from "./Multiple"
 import Canvas from "./Canvas"
 import GenerationFrame from "./GenerationFrame"
-import { PanelType } from "../../../../constants/app-options"
+import { ToolType } from "../../../../constants/app-options"
 
 export const ToolItems = {
-  [PanelType.DRAWING]: DrawingTool,
+  [ToolType.DRAWING]: DrawingTool,
 }
 
 export default {

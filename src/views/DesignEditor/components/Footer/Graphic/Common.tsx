@@ -7,7 +7,7 @@ import { Theme } from "baseui/theme"
 import React from "react"
 import { useRecoilState } from "recoil"
 import Icons from "~/components/Icons"
-import { PanelType } from "../../../../../constants/app-options"
+import { ToolType } from "../../../../../constants/app-options"
 import { isSidebarOpenState } from "../../../../../state/designEditor"
 import useAppContext from "../../../../../hooks/useAppContext"
 
@@ -31,7 +31,7 @@ const Common = () => {
   })
   const editor = useEditor()
   const zoomRatio: number = useZoomRatio()
-  const { setActivePanel } = useAppContext()
+  const { setActiveTool } = useAppContext()
   const [ isSidebarOpen, setIsSidebarOpen ] = useRecoilState(isSidebarOpenState)
 
   React.useEffect(() => {
@@ -56,7 +56,7 @@ const Common = () => {
           kind={KIND.tertiary}
           size={SIZE.compact}
           onClick={() => {
-            setActivePanel(PanelType.LAYERS)
+            setActiveTool(ToolType.LAYERS)
             setIsSidebarOpen(!isSidebarOpen)
           }}
         >

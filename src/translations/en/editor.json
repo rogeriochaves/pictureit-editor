@@ -1,6 +1,6 @@
 {
-    "panels": {
-        "panelsList": {
+    "tools": {
+        "toolsList": {
             "templates": "Templates",
             "customize": "Customize",
             "elements": "Elements",

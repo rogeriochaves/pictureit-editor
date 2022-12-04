@@ -1,12 +1,12 @@
 import { useEffect } from "react"
 import { useEditor } from "@layerhub-io/react"
 import useAppContext from "../../hooks/useAppContext"
-import { PanelType } from "../../constants/app-options"
+import { ToolType } from "../../constants/app-options"
 
 const Shortcuts = () => {
   const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0
   const editor = useEditor()
-  const { setActivePanel } = useAppContext()
+  const { setActiveTool } = useAppContext()
 
   const handleShortcuts = (event: KeyboardEvent) => {
     const shortcuts = [
@@ -30,11 +30,11 @@ const Shortcuts = () => {
       },
       {
         keys: ["V"],
-        action: () => setActivePanel(PanelType.MOVE),
+        action: () => setActiveTool(ToolType.MOVE),
       },
       {
         keys: ["P"],
-        action: () => setActivePanel(PanelType.DRAWING),
+        action: () => setActiveTool(ToolType.DRAWING),
       },
     ]
 

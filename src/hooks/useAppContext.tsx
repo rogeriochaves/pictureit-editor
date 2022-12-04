@@ -1,5 +1,5 @@
 import {
-  activePanelState,
+  activeToolState,
   activeSubMenuState,
   isMobileState,
 } from "../state/appContext"
@@ -7,14 +7,14 @@ import { useRecoilState } from "recoil"
 
 const useAppContext = () => {
   const [isMobile, setIsMobile] = useRecoilState(isMobileState)
-  const [activePanel, setActivePanel] = useRecoilState(activePanelState)
+  const [activeTool, setActiveTool] = useRecoilState(activeToolState)
   const [activeSubMenu, setActiveSubMenu] = useRecoilState(activeSubMenuState)
 
   return {
     isMobile,
     setIsMobile,
-    activePanel,
-    setActivePanel,
+    activeTool,
+    setActiveTool,
     activeSubMenu,
     setActiveSubMenu,
   }
