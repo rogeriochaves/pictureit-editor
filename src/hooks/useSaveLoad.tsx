@@ -153,7 +153,7 @@ export const useSaveIfNewFile = () => {
   const navigate = useNavigate()
   const save = useSave()
 
-  return useCallback(() => {
+  return useDebouncedCallback(() => {
     if (!id) {
       const newId = nanoid()
 
@@ -163,7 +163,7 @@ export const useSaveIfNewFile = () => {
         }
       })
     }
-  }, [id, navigate, save])
+  }, 100)
 }
 
 export const useSave = () => {

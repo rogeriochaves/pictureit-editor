@@ -100,21 +100,16 @@ const Scenes = () => {
     }
   }, [currentScene, editor, scenes, setScenes, rerenderPreview])
 
-  // Save new file when scene is first set
-  useEffect(() => {
-    if (editor) {
-      saveIfNewFile()
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!!currentScene])
-
   // Updates canvas when selecting a different scene
   useEffect(() => {
     if (!editor || !currentScene) return
 
-    editor.scene.importFromJSON(currentScene)
-  }, [editor, currentScene])
+    editor.scene.importFromJSON(currentScene).then(() => {
+      // Save new file when scene is first set
+      saveIfNewFile()
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentScene])
 
   const addScene = React.useCallback(async () => {
     const updatedTemplate = editor.scene.exportToJSON()
