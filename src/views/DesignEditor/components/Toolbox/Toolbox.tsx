@@ -16,10 +16,11 @@ const Container = styled("div", (props) => ({
   boxShadow: "rgb(0 0 0 / 15%) 0px 1px 1px",
   height: "50px",
   display: "flex",
+  borderBottom: "1px solid #e7e8f3",
 }))
 
 const Toolbox = () => {
-  const [state, setState] = React.useState<ToolboxState>({ toolbox: "Text" })
+  const [state, setState] = React.useState<ToolboxState>({ toolbox: DEFAULT_TOOLBOX })
   const { setActiveSubMenu } = useAppContext()
   const activeObject = useActiveObject() as ILayer
   const editor = useEditor()

@@ -25,6 +25,8 @@ import Underline from "./Underline"
 import Add from "./Add"
 import Video from "./Video"
 import Cursor from "./Cursor"
+import PencilBrush from "./PencilBrush"
+import GenerationIcon from "./GenerationIcon"
 
 class Icons {
   static Background = Background
@@ -53,9 +55,9 @@ class Icons {
   static ArrowBackOutline = ArrowBackOutline
   static Underline = Underline
   static Add = Add
-  static Drawing = Pixabay
+  static Drawing = PencilBrush
   static Move = Cursor
-  static Generation = Pixabay
+  static Generation = GenerationIcon
 }
 
 export default Icons

@@ -62,7 +62,7 @@ const PanelListItem = ({ label, icon, activePanel, name }: any) => {
         fontSize: "0.8rem",
         userSelect: "none",
         transition: "all 0.5s",
-        gap: "0.1rem",
+        gap: "0.3rem",
         ":hover": {
           cursor: "pointer",
           backgroundColor: theme.colors.white,
