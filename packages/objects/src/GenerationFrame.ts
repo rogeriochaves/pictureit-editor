@@ -101,7 +101,7 @@ export class GenerationFrameObject extends fabric.Group {
           left: this.left,
           width: this.width,
           height: this.height,
-          evented: false
+          evented: false,
         })
 
         this.add(staticImage as any)
@@ -126,14 +126,10 @@ export class GenerationFrameObject extends fabric.Group {
     return super.toObject(propertiesToInclude)
   }
 
-  static fromObject(options: GenerationFrameOptions, callback: (arg: fabric.GenerationFrame) => void) {
-    fabric.util.enlivenObjects(
-      (options as any).objects,
-      (enlivenObjects: fabric.Object[]) => {
-        callback && callback(new fabric.GenerationFrame(enlivenObjects, options))
-      },
-      ""
-    )
+  static fromObject(options: GenerationFrameOptions): Promise<fabric.GenerationFrame> {
+    return fabric.util.enlivenObjects((options as any).objects).then((enlivenObjects) => {
+      return new fabric.GenerationFrame(enlivenObjects, options)
+    })
   }
 }
 

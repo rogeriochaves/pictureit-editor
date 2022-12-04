@@ -4,6 +4,7 @@ declare module "fabric" {
   namespace fabric {
     interface IUtil {
       loadImage(url: string): Promise<HTMLImageElement>
+      enlivenObjects(objects: any[]): Promise<fabric.Object[]>
     }
     interface IEvent {
       deselected?: fabric.Object[] | undefined

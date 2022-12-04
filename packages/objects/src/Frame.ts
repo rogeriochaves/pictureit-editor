@@ -22,8 +22,8 @@ export class FrameObject extends fabric.Rect {
     return super.toObject(propertiesToInclude)
   }
 
-  static fromObject(options: FrameOptions, callback: (arg: fabric.Frame) => void) {
-    return callback && callback(new fabric.Frame(options))
+  static fromObject(options: FrameOptions) : Promise<fabric.Frame> {
+    return Promise.resolve(new fabric.Frame(options))
   }
 }
 

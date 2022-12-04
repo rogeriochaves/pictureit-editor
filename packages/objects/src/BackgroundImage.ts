@@ -38,17 +38,10 @@ export class BackgroundImageObject extends fabric.Image {
     return this
   }
 
-  static fromObject(options: any, callback: Function) {
-    fabric.util.loadImage(
-      options.src,
-      function (img) {
-        // @ts-ignore
-        return callback && callback(new fabric.BackgroundImage(img, options))
-      },
-      null,
-      // @ts-ignore
-      { crossOrigin: "anonymous" }
-    )
+  static fromObject(options: any): Promise<fabric.BackgroundImage> {
+    fabric.util.loadImage(options.src).then((img) => {
+      return new fabric.BackgroundImage(img, options)
+    })
   }
 
   toObject(propertiesToInclude = []) {

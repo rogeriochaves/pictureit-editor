@@ -16,8 +16,8 @@ export class StaticPathObject extends fabric.Path {
   toJSON(propertiesToInclude = []) {
     return super.toObject(propertiesToInclude)
   }
-  static fromObject(options: StaticPathOptions, callback: Function) {
-    return callback && callback(new fabric.StaticPath(options))
+  static fromObject(options: StaticPathOptions) : any {
+    return Promise.resolve(new fabric.StaticPath(options))
   }
 }
 

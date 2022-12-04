@@ -28,8 +28,8 @@ export class StaticTextObject extends fabric.Textbox {
       // metadata: this.metadata,
     })
   }
-  static fromObject(options: StaticTextOptions, callback: Function) {
-    return callback && callback(new fabric.StaticText(options))
+  static fromObject(options: StaticTextOptions) : any {
+    return Promise.resolve(new fabric.StaticText(options))
   }
 }
 

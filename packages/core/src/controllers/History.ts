@@ -25,13 +25,9 @@ class History extends Base {
       const canvasJSON = this.canvas.toJSON(this.config.propertiesToInclude) as any
       canvasJSON.objects.forEach((object: fabric.Object) => {
         if (object.clipPath) {
-          fabric.util.enlivenObjects(
-            [object.clipPath],
-            function (arg1: any) {
-              object.clipPath = arg1[0]
-            },
-            ""
-          )
+          fabric.util.enlivenObjects([object.clipPath]).then((objects) => {
+            object.clipPath = objects[0]
+          })
         }
       })
 
@@ -83,18 +79,14 @@ class History extends Base {
       const objects = transaction.json
       this.current = objects
       this.isActive = true
-      fabric.util.enlivenObjects(
-        objects,
-        (enlivenObjects: any[]) => {
-          enlivenObjects.forEach((enlivenObject) => {
-            if (!nonRenderableLayerTypes.includes(enlivenObject.type)) {
-              this.canvas.add(enlivenObject)
-            }
-          })
-          this.emitStatus()
-        },
-        ""
-      )
+      fabric.util.enlivenObjects(objects).then((enlivenObjects) => {
+        enlivenObjects.forEach((enlivenObject) => {
+          if (!nonRenderableLayerTypes.includes(enlivenObject.type || "")) {
+            this.canvas.add(enlivenObject)
+          }
+        })
+        this.emitStatus()
+      })
       this.isActive = false
     }
   }

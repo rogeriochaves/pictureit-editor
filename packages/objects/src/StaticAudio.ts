@@ -14,8 +14,8 @@ export class StaticAudioObject extends fabric.Object {
     return this
   }
 
-  static fromObject(options: StaticAudioOptions, callback: Function) {
-    return callback && callback(new fabric.StaticAudio(options))
+  static fromObject(options: StaticAudioOptions): Promise<fabric.StaticAudio> {
+    return Promise.resolve(new fabric.StaticAudio(options))
   }
 }
 

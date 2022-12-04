@@ -44,8 +44,8 @@ export class BackgroundObject extends fabric.Rect {
     return super.toObject(propertiesToInclude)
   }
 
-  static fromObject(options: BackgroundOptions, callback: Function) {
-    return callback && callback(new fabric.Background(options))
+  static fromObject(options: BackgroundOptions) : Promise<fabric.Background> {
+    return Promise.resolve(new fabric.Background(options))
   }
 }
 
