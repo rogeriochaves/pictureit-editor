@@ -13,8 +13,7 @@ export const Canvas = (props: Props) => {
 
   React.useEffect(() => {
     if ((import.meta as any).hot.data.editor) {
-      location.reload()
-      return
+      (import.meta as any).hot.data.editor.destroy()
     }
     const container = containerRef.current as HTMLDivElement
     const { clientHeight, clientWidth } = container

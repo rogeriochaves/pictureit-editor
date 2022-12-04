@@ -53,7 +53,7 @@ class Canvas {
   }
 
   public destroy = () => {
-    // this.canvas.dispose()
+    this.canvas.dispose()
     // this.dettachResizeObserver()
   }
 
