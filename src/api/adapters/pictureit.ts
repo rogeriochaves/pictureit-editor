@@ -64,7 +64,16 @@ const PictureIt: PictureItApi = class {
   }
 
   static async loadFile(id: string): Promise<PictureItFile> {
-    return await getApi(`/api/files/${id}`)
+    return await getApi(`/api/files/${id}`).catch((err) => {
+      if (err.status && err.status == 401) {
+        document.location = `${PICTURE_IT_URL}/login?return_to=${encodeURIComponent(document.location.toString())}`
+
+        // small delay to display the loading while the redirect happens
+        return new Promise((resolve) => setTimeout(resolve, 3000))
+      }
+
+      throw err
+    })
   }
 
   static isPictureIt(): true {
@@ -94,6 +103,10 @@ async function getApi(url: string) {
   const response = await pictureItFetch(url, {
     method: "GET",
     credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
   })
   const json = await response.json()
   if (json.error) {
