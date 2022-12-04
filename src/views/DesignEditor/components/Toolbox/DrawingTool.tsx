@@ -1,23 +1,20 @@
-import { useCallback, useEffect } from "react"
-import { Block } from "baseui/block"
 import { useEditor } from "@layerhub-io/react"
-import { Separator } from "./Shared/Separator"
-import { IEvent } from "fabric/fabric-impl"
-import { fabric } from "fabric"
-import { nanoid } from "nanoid"
+import { Block } from "baseui/block"
 import { Button, KIND, SIZE } from "baseui/button"
-import { StatefulTooltip } from "baseui/tooltip"
 import { PLACEMENT, StatefulPopover } from "baseui/popover"
-import { ColorSquare } from "./Shared/ColorSquare"
+import { StatefulTooltip } from "baseui/tooltip"
+import { fabric } from "fabric"
+import { IEvent } from "fabric/fabric-impl"
+import { nanoid } from "nanoid"
+import { useCallback, useEffect } from "react"
 import { HexColorPicker } from "react-colorful"
-import { useSelector } from "react-redux"
-import { RootState } from "../../../../store/rootReducer"
-import { useAppDispatch } from "../../../../store/store"
-import { setDrawingColor } from "../../../../store/design-editor"
+import { useRecoilState } from "recoil"
+import { drawingColorState } from "../../../../contexts/DesignEditor"
+import { ColorSquare } from "./Shared/ColorSquare"
+import { Separator } from "./Shared/Separator"
 
 const DrawingTool = () => {
-  const color = useSelector((state: RootState) => state.designEditor.drawingColor)
-  const dispatch = useAppDispatch()
+  const [drawingColor, setDrawingColor] = useRecoilState(drawingColorState)
   const editor = useEditor()
 
   const objectAddedHandler = useCallback(
@@ -36,14 +33,14 @@ const DrawingTool = () => {
     canvas.isDrawingMode = true
     canvas.freeDrawingBrush = new fabric.PencilBrush(canvas)
     canvas.freeDrawingBrush.width = 15
-    canvas.freeDrawingBrush.color = color
+    canvas.freeDrawingBrush.color = drawingColor
     canvas.on("object:added", objectAddedHandler)
 
     return () => {
       canvas.isDrawingMode = false
       canvas.off("object:added", objectAddedHandler)
     }
-  }, [color, editor, objectAddedHandler])
+  }, [drawingColor, editor, objectAddedHandler])
 
   return (
     <Block
@@ -72,9 +69,9 @@ const DrawingTool = () => {
           content={() => (
             <Block padding="12px" width="200px" backgroundColor="#ffffff" display="grid" gridGap="8px">
               <HexColorPicker
-                color={color}
+                color={drawingColor}
                 onChange={(color) => {
-                  dispatch(setDrawingColor(color))
+                  setDrawingColor(color)
                   editor.canvas.canvas.freeDrawingBrush.color = color
                 }}
                 style={{ width: "100%" }}
@@ -85,7 +82,7 @@ const DrawingTool = () => {
           <Block>
             <StatefulTooltip placement={PLACEMENT.bottom} showArrow={true} accessibilityType="tooltip" content="Color">
               <Button size={SIZE.mini} kind={KIND.tertiary}>
-                <ColorSquare color={color} />
+                <ColorSquare color={drawingColor} />
               </Button>
             </StatefulTooltip>
           </Block>

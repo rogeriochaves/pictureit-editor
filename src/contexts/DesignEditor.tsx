@@ -77,3 +77,8 @@ export const contextMenuSceneRequestState: RecoilState<ContextMenuTimelineReques
     visible: false,
   } as ContextMenuTimelineRequest,
 })
+
+export const drawingColorState: RecoilState<string> = atom({
+  key: "drawingColorState",
+  default: "#000",
+})
