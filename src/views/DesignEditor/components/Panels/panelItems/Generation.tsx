@@ -64,8 +64,8 @@ const Generation = () => {
       type: LayerType.GENERATION_FRAME,
       width: 512,
       height: 512,
-      left: square.left,
-      top: square.top,
+      left: (square.left || 0) - editor.frame.options.left,
+      top: (square.top || 0) - editor.frame.options.top,
       fill: transparentPattern,
     }
     editor.objects.add(options)

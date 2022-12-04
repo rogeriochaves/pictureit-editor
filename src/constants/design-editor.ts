@@ -1,5 +1,6 @@
 import { nanoid } from "nanoid"
 import { IFrame } from "@layerhub-io/types"
+import { LayerType, transparentPatternPromise } from "@layerhub-io/core"
 
 export const getDefaultTemplate = async (_canvas: fabric.Canvas, { width, height }: IFrame) => {
   return {
@@ -8,7 +9,16 @@ export const getDefaultTemplate = async (_canvas: fabric.Canvas, { width, height
       width,
       height,
     },
-    layers: [],
+    layers: [
+      {
+        type: LayerType.GENERATION_FRAME,
+        width: 512,
+        height: 512,
+        left: 0,
+        top: 0,
+        fill: await transparentPatternPromise,
+      },
+    ],
     metadata: {},
   }
 }

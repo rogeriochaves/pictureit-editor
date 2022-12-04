@@ -14,7 +14,6 @@ import SceneItem from "./SceneItem"
 import { Block } from "baseui/block"
 import useContextMenuTimelineRequest from "~/hooks/useContextMenuTimelineRequest"
 import SceneContextMenu from "./SceneContextMenu"
-import { LayerType, transparentPatternPromise } from "@layerhub-io/core"
 
 let firstUpdate = false
 const Scenes = () => {
@@ -99,20 +98,6 @@ const Scenes = () => {
               setCurrentScene({ ...initialDesign, preview: data })
               setScenes([{ ...initialDesign, preview: data }])
             })
-
-            setTimeout(async () => {
-              const frame = editor.canvas.canvas.getObjects().find((object) => object.type == LayerType.FRAME)
-
-              const options = {
-                type: LayerType.GENERATION_FRAME,
-                width: 512,
-                height: 512,
-                left: frame?.left,
-                top: frame?.top,
-                fill: await transparentPatternPromise,
-              }
-              editor.objects.add(options)
-            }, 500);
           })
           .catch(console.log)
       }
