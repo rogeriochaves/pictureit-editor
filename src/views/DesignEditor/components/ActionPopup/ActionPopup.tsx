@@ -94,6 +94,7 @@ const ActionPopup = () => {
         >
           <div style={{ display: "flex", gap: "12px" }}>
             <input
+              id="actionPopupPrompt"
               type="text"
               style={{
                 borderRadius: "5px",

@@ -70,6 +70,13 @@ const Generation = () => {
     })
     editor.canvas.canvas.add(generationFrame)
     editor.canvas.canvas.setActiveObject(generationFrame)
+    editor.canvas.canvas.fire("selection:updated")
+    setTimeout(() => {
+      const prompt = document.getElementById("actionPopupPrompt");
+      if (prompt) {
+        prompt.focus()
+      }
+    }, 50);
     setActivePanel(PanelType.MOVE)
   }
 
