@@ -23,6 +23,10 @@ export class GenerationFrameObject extends fabric.Group {
       absolutePositioned: true,
     })
 
+    for (const object of objects) {
+      object.evented = false
+    }
+
     const groupObjects =
       objects.length > 0
         ? objects
@@ -51,13 +55,7 @@ export class GenerationFrameObject extends fabric.Group {
       clipPath: clipPath,
       subTargetCheck: true,
       interactive: true,
-    })
-
-    for (const object of objects) {
-      object.evented = false
-      object.top *= this.scaleY
-      object.left *= this.scaleX
-    }
+    }, true)
 
     // for some reason top and left are overwritten misteriously after initialize after fromObject
     this.top = options.top
