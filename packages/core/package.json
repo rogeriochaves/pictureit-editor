@@ -14,13 +14,12 @@
   "devDependencies": {
     "@types/fabric": "^4.5.7",
     "@types/lodash": "^4.14.182",
-    "fabric": "^5.2.1",
     "typescript": "^4.6.3"
   },
   "dependencies": {
     "@layerhub-io/objects": "^0.2.0",
     "@layerhub-io/types": "^0.3.0",
-    "fabric": "^5.2.1",
+    "fabric": "github:rogeriochaves/fabric.js",
     "lodash": "^4.17.21",
     "nanoid": "^3.3.3",
     "resize-observer-polyfill": "^1.5.1"

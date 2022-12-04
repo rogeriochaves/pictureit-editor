@@ -18,7 +18,7 @@ export const PROPERTIES_TO_INCLUDE = [
   "fontURL",
   "duration",
   "preview",
-  "fill"
+  "fill",
 ]
 
 export const defaultEditorConfig: EditorConfig = {
@@ -47,12 +47,17 @@ export const defaultEditorConfig: EditorConfig = {
   },
 }
 
+export let transparentPattern: fabric.Pattern | undefined
+
 export const transparentB64 =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAQMAAABtzGvEAAAABlBMVEX////y8vR/2MH6AAAAFUlEQVQY02MAgv///w9+auBdQBQFAChSj3FVQCgvAAAAAElFTkSuQmCC"
 
-export const transparentPattern = new fabric.Pattern({
-  source: transparentB64,
-  repeat: "repeat",
+// @ts-ignore
+fabric.util.loadImage(transparentB64).then((img) => {
+  transparentPattern = new fabric.Pattern({
+    source: img,
+    repeat: "repeat",
+  })
 })
 
 export const defaultFrameOptions = {

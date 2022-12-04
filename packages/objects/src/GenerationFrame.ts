@@ -11,6 +11,13 @@ export class GenerationFrameObject extends fabric.Group {
   initialize(objects?: fabric.Object[], options?: GenerationFrameOptions) {
     const id = options.id
 
+    const clipPath = new fabric.Rect({
+      ...options,
+      //@ts-ignore
+      id: `${id}-clipPath`,
+      type: "rect",
+      absolutePositioned: true,
+    })
     const groupObjects =
       objects.length > 0
         ? objects
@@ -20,10 +27,10 @@ export class GenerationFrameObject extends fabric.Group {
               //@ts-ignore
               id: `${id}-rect`,
               type: "rect",
-              selectable: true,
-              hasControls: true,
-              hasBorders: true,
-              absolutePositioned: true,
+              selectable: false,
+              hasControls: false,
+              hasBorders: false,
+              evented: false,
             }),
           ]
 
@@ -32,10 +39,26 @@ export class GenerationFrameObject extends fabric.Group {
       //@ts-ignore
       id,
       type: GenerationFrameObject.type,
-      top: options.top,
-      left: options.left
+      layout: "clip-path",
+      clipPath: clipPath,
+      subTargetCheck: true,
+      interactive: true,
     })
+
+    this.on("moving", this.adjustClipPath.bind(this))
+    this.on("resizing", this.adjustClipPath.bind(this))
+    this.on("scaling", this.adjustClipPath.bind(this))
+
     return this
+  }
+
+  public adjustClipPath() {
+    this.clipPath.set({
+      top: this.top,
+      left: this.left,
+      width: this.width * this.scaleX,
+      height: this.height * this.scaleY,
+    })
   }
 
   async setImage(src: string) {

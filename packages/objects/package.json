@@ -13,11 +13,8 @@
   "license": "MIT",
   "devDependencies": {
     "@types/fabric": "^4.5.7",
-    "fabric": "^5.2.1",
+    "fabric": "github:rogeriochaves/fabric.js",
     "typescript": "^4.6.3"
-  },
-  "peerDependencies": {
-    "fabric": "^5.2.1"
   },
   "dependencies": {
     "lodash": "^4.17.21"

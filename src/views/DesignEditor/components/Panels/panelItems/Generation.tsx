@@ -2,7 +2,6 @@ import { LayerType, transparentPattern } from "@layerhub-io/core"
 import { useEditor } from "@layerhub-io/react"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
-import { nanoid } from "nanoid"
 import { useEffect } from "react"
 import { PanelType } from "../../../../../constants/app-options"
 import useAppContext from "../../../../../hooks/useAppContext"
@@ -13,7 +12,6 @@ const square = new fabric.Rect({
   height: 512,
   left: 0,
   top: 0,
-  fill: transparentPattern,
   opacity: 0.8,
   visible: false,
   selectable: false,
@@ -73,22 +71,24 @@ const Generation = () => {
     editor.objects.add(options)
 
     setTimeout(() => {
-      const prompt = document.getElementById("actionPopupPrompt");
+      const prompt = document.getElementById("actionPopupPrompt")
       if (prompt) {
         prompt.focus()
       }
-    }, 50);
+    }, 50)
     setActivePanel(PanelType.MOVE)
   }
 
   useEffect(() => {
-    let canvas = editor.canvas.canvas
+    const canvas = editor.canvas.canvas
     canvas.add(square)
 
     canvas.on("mouse:over", mouseOverHandler)
     canvas.on("mouse:out", mouseOutHandler)
     canvas.on("mouse:move", mouseMoveHandler)
     canvas.on("mouse:up", mouseUpHandler)
+
+    square.fill = transparentPattern
 
     return () => {
       square.visible = false
