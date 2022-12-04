@@ -71,10 +71,6 @@ const ActionPopup = () => {
   const popupWidth = 500
   const minX = (popupRef.current?.getBoundingClientRect().x || 0) * -1 + 12
   const minY = (popupRef.current?.getBoundingClientRect().y || 0) * -1 + 12
-  // eslint-disable-next-line no-console
-  console.log("popupRef.current", popupRef.current)
-  // eslint-disable-next-line no-console
-  console.log("minY", minY)
 
   return (
     <div ref={popupRef}>

@@ -17,6 +17,7 @@ export type ILayerType =
   | "Frame"
   | "Group"
   | "activeSelection"
+  | "GenerationFrame"
 
 export enum LayerType {
   STATIC_VECTOR = "StaticVector",
@@ -36,6 +37,7 @@ export enum LayerType {
   FRAME = "Frame",
   GROUP = "Group",
   ACTIVE_SELECTION = "activeSelection",
+  GENERATION_FRAME = "GenerationFrame",
 }
 
 export interface IKeyValue {
@@ -156,6 +158,10 @@ export interface IBackground extends LayerBaseOptions {
   fill: string
 }
 
+export interface IGenerationFrame extends LayerBaseOptions {
+  fill: string | fabric.Pattern
+}
+
 export type ILayer =
   | IStaticText
   | IDynamicText
@@ -168,6 +174,7 @@ export type ILayer =
   | IStaticVector
   | IGroup
   | IBackgroundImage
+  | IGenerationFrame
 
 export type ILayerOptions = IStaticText &
   IDynamicText &
@@ -179,4 +186,5 @@ export type ILayerOptions = IStaticText &
   IStaticVideo &
   IStaticVector &
   IGroup &
-  IBackgroundImage
+  IBackgroundImage &
+  IGenerationFrame

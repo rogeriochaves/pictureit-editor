@@ -46,9 +46,11 @@ export const defaultEditorConfig: EditorConfig = {
   },
 }
 
+export const transparentB64 =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAQMAAABtzGvEAAAABlBMVEX////y8vR/2MH6AAAAFUlEQVQY02MAgv///w9+auBdQBQFAChSj3FVQCgvAAAAAElFTkSuQmCC"
+
 export const transparentPattern = new fabric.Pattern({
-  source:
-    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAQMAAABtzGvEAAAABlBMVEX////y8vR/2MH6AAAAFUlEQVQY02MAgv///w9+auBdQBQFAChSj3FVQCgvAAAAAElFTkSuQmCC",
+  source: transparentB64,
   repeat: "repeat",
 })
 

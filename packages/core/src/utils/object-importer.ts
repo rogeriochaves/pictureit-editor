@@ -1,12 +1,13 @@
 import { fabric } from "fabric"
 import { nanoid } from "nanoid"
-import { LayerType } from "../common/constants"
+import { LayerType, transparentB64, transparentPattern } from "../common/constants"
 import { loadImageFromURL } from "./image-loader"
 import { Editor } from "../editor"
 import { updateObjectBounds, updateObjectShadow } from "./fabric"
 import {
   IBackground,
   IBackgroundImage,
+  IGenerationFrame,
   IGroup,
   ILayer,
   IStaticAudio,
@@ -52,6 +53,9 @@ class ObjectImporter {
         break
       case LayerType.STATIC_AUDIO:
         object = await this.staticAudio(item, options, inGroup)
+        break
+      case LayerType.GENERATION_FRAME:
+        object = await this.generationFrame(item, options, inGroup)
         break
       default:
         object = await this.background(item, options, inGroup)
@@ -294,6 +298,26 @@ class ObjectImporter {
 
           resolve(element)
         })
+      } catch (err) {
+        reject(err)
+      }
+    })
+  }
+
+  public generationFrame(item: ILayer, options: Required<ILayer>, inGroup: boolean): Promise<fabric.Rect> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const baseOptions = this.getBaseOptions(item, options, inGroup)
+        const { fill } = item as IGenerationFrame
+
+        // @ts-ignore
+        const element = new fabric.Rect({
+          ...baseOptions,
+          type: item.type,
+          fill: typeof fill === "object" && fill.source == transparentB64 ? transparentPattern : fill,
+        })
+
+        resolve(element)
       } catch (err) {
         reject(err)
       }

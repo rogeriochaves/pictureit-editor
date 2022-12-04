@@ -1,10 +1,11 @@
 import { fabric } from "fabric"
-import { LayerType } from "../common/constants"
+import { LayerType, transparentB64, transparentPattern } from "../common/constants"
 import { loadImageFromURL } from "./image-loader"
 import { updateObjectShadow } from "./fabric"
 import {
   IBackground,
   IBackgroundImage,
+  IGenerationFrame,
   IGroup,
   ILayer,
   IStaticImage,
@@ -40,6 +41,9 @@ class ObjectImporter {
         break
       case LayerType.GROUP:
         object = await this.group(item, params)
+        break
+      case LayerType.GENERATION_FRAME:
+        object = await this.generationFrame(item)
         break
     }
     return object as fabric.Object
@@ -226,6 +230,25 @@ class ObjectImporter {
 
           resolve(element)
         })
+      } catch (err) {
+        reject(err)
+      }
+    })
+  }
+
+  public generationFrame(item: ILayer): Promise<fabric.Rect> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const baseOptions = this.getBaseOptions(item)
+        const { fill } = item as IGenerationFrame
+
+        const element = new fabric.Rect({
+          ...baseOptions,
+          type: item.type,
+          fill: typeof fill === "object" && fill.source == transparentB64 ? transparentPattern : fill,
+        })
+
+        resolve(element)
       } catch (err) {
         reject(err)
       }

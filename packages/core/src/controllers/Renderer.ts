@@ -11,14 +11,13 @@ class Renderer {
     return new Promise(async (resolve, reject) => {
       const staticCanvas = new fabric.StaticCanvas(null)
       await this.loadTemplate(staticCanvas, template, params)
-      // IF CONTAINS VIDEO, add await
       const data = staticCanvas.toDataURL({
         top: 0,
         left: 0,
         height: staticCanvas.getHeight(),
         width: staticCanvas.getWidth(),
       })
-      // return data
+
       resolve(data)
     })
   }
