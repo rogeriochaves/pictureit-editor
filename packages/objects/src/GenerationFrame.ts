@@ -102,8 +102,9 @@ export class GenerationFrameObject extends fabric.Group {
   }
 
   async setImage(src: string) {
-    return new Promise<void>((resolve, _reject) => {
-      fabric.util.loadImage(src, { crossOrigin: "anonymous" }).then((img) => {
+    return fabric.util
+      .loadImage(src, { crossOrigin: "anonymous" })
+      .then((img) => {
         this.removeError()
         const nonRectObjects = this._objects.filter(
           (item) => (item as any).id != `${this.id}-background` && (item as any).id != `${this.id}-loading-bar`
@@ -114,7 +115,6 @@ export class GenerationFrameObject extends fabric.Group {
 
         if (!img) {
           this.showError("Error loading image")
-          resolve()
           return
         }
 
@@ -131,10 +131,12 @@ export class GenerationFrameObject extends fabric.Group {
 
         this.add(staticImage as any)
         this.finishLoading()
-
-        resolve()
       })
-    })
+      .catch((e) => {
+        console.error("Error loading image", e)
+
+        this.showError("Error loading image")
+      })
   }
 
   showError(message: string) {
