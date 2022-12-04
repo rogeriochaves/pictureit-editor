@@ -35,10 +35,11 @@ export const useAutosaveEffect = () => {
   }, 3000)
 
   const onModified = useCallback(() => {
-    if (!editor || !currentScene || !id) return
+    if (!editor || !currentScene) return
 
     setChangesWithoutExporting(true)
-    if ("isPictureIt" in api) {
+
+    if (id && "isPictureIt" in api) {
       setWaitingForFileSaveDebounce(true)
       debouncedSave()
     }
