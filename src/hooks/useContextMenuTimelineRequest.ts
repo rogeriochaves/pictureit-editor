@@ -1,8 +1,8 @@
-import { useContext } from "react"
-import { DesignEditorContext } from "~/contexts/DesignEditor"
+import { useRecoilValue } from "recoil"
+import { contextMenuTimelineRequestState } from "../contexts/DesignEditor"
 
 const useContextMenuTimelineRequest = () => {
-  const { contextMenuTimelineRequest } = useContext(DesignEditorContext)
+  const contextMenuTimelineRequest = useRecoilValue(contextMenuTimelineRequestState)
   return contextMenuTimelineRequest
 }
 

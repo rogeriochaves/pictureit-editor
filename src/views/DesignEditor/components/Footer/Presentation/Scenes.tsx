@@ -1,24 +1,26 @@
-import React from "react"
-import { useStyletron } from "baseui"
-import Add from "~/components/Icons/Add"
-import useDesignEditorPages from "~/hooks/useDesignEditorScenes"
-import { DesignEditorContext } from "~/contexts/DesignEditor"
-import { nanoid } from "nanoid"
-import { getDefaultTemplate } from "~/constants/design-editor"
+import { closestCenter, DndContext, DragOverlay, PointerSensor, useSensor } from "@dnd-kit/core"
+import { restrictToFirstScrollableAncestor, restrictToHorizontalAxis } from "@dnd-kit/modifiers"
+import { arrayMove, horizontalListSortingStrategy, SortableContext } from "@dnd-kit/sortable"
 import { useEditor, useFrame } from "@layerhub-io/react"
 import { IScene } from "@layerhub-io/types"
-import { DndContext, closestCenter, PointerSensor, useSensor, DragOverlay } from "@dnd-kit/core"
-import { arrayMove, SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable"
-import { restrictToFirstScrollableAncestor, restrictToHorizontalAxis } from "@dnd-kit/modifiers"
-import SceneItem from "./SceneItem"
+import { useStyletron } from "baseui"
 import { Block } from "baseui/block"
+import { nanoid } from "nanoid"
+import React from "react"
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
+import Add from "~/components/Icons/Add"
+import { getDefaultTemplate } from "~/constants/design-editor"
+import { currentDesignState, currentSceneState, scenesState } from "~/contexts/DesignEditor"
 import useContextMenuTimelineRequest from "~/hooks/useContextMenuTimelineRequest"
+import useDesignEditorPages from "~/hooks/useDesignEditorScenes"
 import SceneContextMenu from "./SceneContextMenu"
+import SceneItem from "./SceneItem"
 
 const Scenes = () => {
   const scenes = useDesignEditorPages()
-  const { setScenes, setCurrentScene, currentScene, setCurrentDesign, currentDesign } =
-    React.useContext(DesignEditorContext)
+  const setScenes = useSetRecoilState(scenesState)
+  const [currentScene, setCurrentScene] = useRecoilState(currentSceneState)
+  const currentDesign = useRecoilValue(currentDesignState)
   const editor = useEditor()
   const [css] = useStyletron()
   const [currentPreview, setCurrentPreview] = React.useState("")

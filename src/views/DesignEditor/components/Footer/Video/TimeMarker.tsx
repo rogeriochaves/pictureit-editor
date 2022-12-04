@@ -1,7 +1,8 @@
-import React from "react"
 import { useTimer } from "@layerhub-io/use-timer"
 import { Block } from "baseui/block"
-import { DesignEditorContext } from "~/contexts/DesignEditor"
+import React from "react"
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
+import { displayPlaybackState, maxTimeState, scenesState } from "~/contexts/DesignEditor"
 
 const SCALE_FACTOR = 1
 
@@ -12,7 +13,9 @@ const TimeMarker = () => {
     x: 0,
     y: 0,
   })
-  const { scenes, setDisplayPlayback, maxTime, setMaxTime } = React.useContext(DesignEditorContext)
+  const scenes = useRecoilValue(scenesState)
+  const setDisplayPlayback = useSetRecoilState(displayPlaybackState)
+  const [maxTime, setMaxTime] = useRecoilState(maxTimeState)
 
   React.useEffect(() => {
     if (time * SCALE_FACTOR <= maxTime) {

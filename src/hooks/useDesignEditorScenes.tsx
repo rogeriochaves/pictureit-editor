@@ -1,8 +1,8 @@
-import React from "react"
-import { DesignEditorContext } from "~/contexts/DesignEditor"
+import { useRecoilValue } from "recoil"
+import { scenesState } from "../contexts/DesignEditor"
 
 const useDesignEditorScenes = () => {
-  const { scenes } = React.useContext(DesignEditorContext)
+  const scenes = useRecoilValue(scenesState)
   return scenes
 }
 

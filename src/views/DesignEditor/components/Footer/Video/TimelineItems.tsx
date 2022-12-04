@@ -1,15 +1,18 @@
-import React from "react"
-import { DesignEditorContext } from "~/contexts/DesignEditor"
-import { useEditor, useFrame } from "@layerhub-io/react"
-import { DndContext, closestCenter, PointerSensor, useSensor, DragOverlay } from "@dnd-kit/core"
-import { arrayMove, SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable"
+import { closestCenter, DndContext, DragOverlay, PointerSensor, useSensor } from "@dnd-kit/core"
 import { restrictToFirstScrollableAncestor, restrictToHorizontalAxis } from "@dnd-kit/modifiers"
-import TimelineItem from "./TimelineItem"
-import { Block } from "baseui/block"
+import { arrayMove, horizontalListSortingStrategy, SortableContext } from "@dnd-kit/sortable"
+import { useEditor, useFrame } from "@layerhub-io/react"
 import { IScene } from "@layerhub-io/types"
+import { Block } from "baseui/block"
+import React from "react"
+import { useRecoilState, useRecoilValue } from "recoil"
+import { currentPreviewState, currentSceneState, scenesState } from "~/contexts/DesignEditor"
+import TimelineItem from "./TimelineItem"
 
 const TimelineItems = () => {
-  const { currentScene, scenes, currentPreview, setCurrentPreview, setScenes } = React.useContext(DesignEditorContext)
+  const [scenes, setScenes] = useRecoilState(scenesState)
+  const currentScene = useRecoilValue(currentSceneState)
+  const [currentPreview, setCurrentPreview] = useRecoilState(currentPreviewState)
   const editor = useEditor()
   const frame = useFrame()
   const [draggedScene, setDraggedScene] = React.useState<IScene | null>(null)
@@ -62,7 +65,7 @@ const TimelineItems = () => {
   }
 
   React.useEffect(() => {
-    let watcher = async () => {
+    const watcher = async () => {
       const updatedScene = editor.scene.exportToJSON()
       const updatedPreview = (await editor.renderer.render(updatedScene)) as any
       const updatedScenes = scenes.map((scene) => {
@@ -73,7 +76,7 @@ const TimelineItems = () => {
             duration: scene.duration,
           }
         } else {
-        return scene
+          return scene
         }
       })
       setScenes(updatedScenes)

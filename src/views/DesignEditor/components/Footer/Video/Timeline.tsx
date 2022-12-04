@@ -1,24 +1,27 @@
-import React from "react"
-import { useStyletron } from "baseui"
-import Add from "~/components/Icons/Add"
-import { DesignEditorContext } from "~/contexts/DesignEditor"
-import { nanoid } from "nanoid"
-import { getDefaultTemplate } from "~/constants/design-editor"
 import { useEditor } from "@layerhub-io/react"
-import { Block } from "baseui/block"
-import { useTimer } from "@layerhub-io/use-timer"
 import { IScene } from "@layerhub-io/types"
-import TimelineItems from "./TimelineItems"
-import TimeMarker from "./TimeMarker"
-import TimelineControl from "./TimelineControl"
-import TimelineContextMenu from "./TimelineContextMenu"
+import { useTimer } from "@layerhub-io/use-timer"
+import { useStyletron } from "baseui"
+import { Block } from "baseui/block"
+import { nanoid } from "nanoid"
+import React from "react"
+import { useRecoilState, useSetRecoilState } from "recoil"
+import Add from "~/components/Icons/Add"
+import { getDefaultTemplate } from "~/constants/design-editor"
+import { currentDesignState, currentPreviewState, currentSceneState, scenesState } from "~/contexts/DesignEditor"
 import useContextMenuTimelineRequest from "~/hooks/useContextMenuTimelineRequest"
 import { findSceneIndexByTime } from "~/views/DesignEditor/utils/scenes"
+import TimelineContextMenu from "./TimelineContextMenu"
+import TimelineControl from "./TimelineControl"
+import TimelineItems from "./TimelineItems"
+import TimeMarker from "./TimeMarker"
 
 const Timeline = () => {
   const { time, setTime, status } = useTimer()
-  const { setScenes, setCurrentScene, currentScene, scenes, setCurrentPreview, setCurrentDesign, currentDesign } =
-    React.useContext(DesignEditorContext)
+  const [scenes, setScenes] = useRecoilState(scenesState)
+  const [currentScene, setCurrentScene] = useRecoilState(currentSceneState)
+  const [currentDesign, setCurrentDesign] = useRecoilState(currentDesignState)
+  const setCurrentPreview = useSetRecoilState(currentPreviewState)
   const contextMenuTimelineRequest = useContextMenuTimelineRequest()
   const editor = useEditor()
   const [css] = useStyletron()

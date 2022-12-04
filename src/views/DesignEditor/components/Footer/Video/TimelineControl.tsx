@@ -1,4 +1,3 @@
-import React from "react"
 import { useTimer } from "@layerhub-io/use-timer"
 import { Block } from "baseui/block"
 import Pause from "~/components/Icons/Pause"

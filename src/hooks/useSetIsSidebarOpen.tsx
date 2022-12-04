@@ -1,8 +1,8 @@
-import { useContext } from "react"
-import { DesignEditorContext } from "~/contexts/DesignEditor"
+import { useSetRecoilState } from "recoil"
+import { isSidebarOpenState } from "../contexts/DesignEditor"
 
 const useSetIsSidebarOpen = () => {
-  const { setIsSidebarOpen } = useContext(DesignEditorContext)
+  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
   return setIsSidebarOpen
 }
 

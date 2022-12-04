@@ -1,8 +1,8 @@
-import { useContext } from "react"
-import { DesignEditorContext } from "~/contexts/DesignEditor"
+import { useRecoilValue } from "recoil"
+import { editorTypeState } from "../contexts/DesignEditor"
 
 const useEditorType = () => {
-  const { editorType } = useContext(DesignEditorContext)
+  const editorType = useRecoilValue(editorTypeState)
   return editorType
 }
 

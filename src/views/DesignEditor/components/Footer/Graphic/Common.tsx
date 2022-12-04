@@ -4,10 +4,11 @@ import { Button, KIND, SIZE } from "baseui/button"
 import { Input } from "baseui/input"
 import { Slider } from "baseui/slider"
 import { Theme } from "baseui/theme"
-import React, { useContext } from "react"
+import React from "react"
+import { useRecoilState } from "recoil"
 import Icons from "~/components/Icons"
 import { PanelType } from "../../../../../constants/app-options"
-import { DesignEditorContext } from "../../../../../contexts/DesignEditor"
+import { isSidebarOpenState } from "../../../../../contexts/DesignEditor"
 import useAppContext from "../../../../../hooks/useAppContext"
 
 const Container = styled<"div", object, Theme>("div", ({ $theme }) => ({
@@ -31,7 +32,7 @@ const Common = () => {
   const editor = useEditor()
   const zoomRatio: number = useZoomRatio()
   const { setActivePanel } = useAppContext()
-  const { isSidebarOpen, setIsSidebarOpen } = useContext(DesignEditorContext)
+  const [ isSidebarOpen, setIsSidebarOpen ] = useRecoilState(isSidebarOpenState)
 
   React.useEffect(() => {
     setOptions({ ...options, zoomRatio: Math.round(zoomRatio * 100) })
