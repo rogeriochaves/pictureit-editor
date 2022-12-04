@@ -11,7 +11,7 @@ const Drawing = () => {
 
   useEffect(() => {
     setIsSidebarOpen(false)
-  }, [])
+  }, [setIsSidebarOpen])
 
   function objectAddedHandler(e: IEvent) {
     const object = e.target!
@@ -19,12 +19,11 @@ const Drawing = () => {
     object.id = nanoid()
     object.name = "Free Drawing"
     object.type = "StaticPath"
-    editor.objects.updateContextObjects()
-    editor.history.save()
+    editor.objects.afterAddHook(object, false)
   }
 
   useEffect(() => {
-    let canvas = editor.canvas.canvas
+    const canvas = editor.canvas.canvas
     canvas.isDrawingMode = true
     canvas.freeDrawingBrush = new fabric.PencilBrush(canvas)
     canvas.freeDrawingBrush.width = 15
@@ -35,6 +34,7 @@ const Drawing = () => {
       canvas.isDrawingMode = false
       canvas.off('object:added', objectAddedHandler)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return null
