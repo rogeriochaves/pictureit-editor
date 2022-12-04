@@ -1,7 +1,7 @@
 import Base from "./Base"
 import { fabric } from "fabric"
 import throttle from "lodash/throttle"
-import { LayerType, nonRenderableLayerTypes } from "../common/constants"
+import { nonRenderableLayerTypes } from "../common/constants"
 
 class History extends Base {
   private redos: any[] = []
@@ -9,21 +9,6 @@ class History extends Base {
   private current: any[] = []
   private isActive: boolean = false
 
-  public initialize = () => {
-    const canvasJSON = this.canvas.toJSON(this.config.propertiesToInclude) as any
-    canvasJSON.objects.forEach((object: fabric.Object) => {
-      if (object.clipPath) {
-        fabric.util.enlivenObjects(
-          [object.clipPath],
-          function (arg1: any) {
-            object.clipPath = arg1[0]
-          },
-          ""
-        )
-      }
-    })
-    this.current = canvasJSON.objects
-  }
   public getStatus = () => {
     return {
       hasUndo: this.undos.length >= 1,
@@ -35,27 +20,31 @@ class History extends Base {
   }
 
   public save = () => {
+    if (this.isActive) return
     try {
-      if (this.current) {
-        const json = this.current
+      const canvasJSON = this.canvas.toJSON(this.config.propertiesToInclude) as any
+      canvasJSON.objects.forEach((object: fabric.Object) => {
+        if (object.clipPath) {
+          fabric.util.enlivenObjects(
+            [object.clipPath],
+            function (arg1: any) {
+              object.clipPath = arg1[0]
+            },
+            ""
+          )
+        }
+      })
+
+      const nextCurrent = canvasJSON.objects.filter(
+        (object: any) => !nonRenderableLayerTypes.includes(object.type || "")
+      )
+      if (JSON.stringify(this.current) !== JSON.stringify(nextCurrent)) {
         this.undos.push({
           type: "UPDATE",
-          json,
+          json: this.current,
         })
-        const canvasJSON = this.canvas.toJSON(this.config.propertiesToInclude) as any
-        canvasJSON.objects.forEach((object: fabric.Object) => {
-          if (object.clipPath) {
-            fabric.util.enlivenObjects(
-              [object.clipPath],
-              function (arg1: any) {
-                object.clipPath = arg1[0]
-              },
-              ""
-            )
-          }
-        })
-        this.current = canvasJSON.objects.filter((object: any) => !nonRenderableLayerTypes.includes(object.type || ""))
       }
+      this.current = nextCurrent
     } catch (err) {
       console.log(err)
     }
