@@ -1,27 +1,40 @@
-import React from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import { Block } from "baseui/block"
 import Common from "./Common"
 import Flip from "./Shared/Flip"
-import useAppContext from "~/hooks/useAppContext"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
 import { Separator } from "./Shared/Separator"
+import { PLACEMENT, StatefulPopover } from "baseui/popover"
+import { HexColorPicker } from "react-colorful"
+import { StatefulTooltip } from "baseui/tooltip"
+import { Button, KIND, SIZE } from "baseui/button"
+import { ColorSquare } from "./Shared/ColorSquare"
+import { debounce } from "lodash"
 
 const Path = () => {
-  const [state, setState] = React.useState({ fill: "#000000" })
-  const { setActiveSubMenu } = useAppContext()
+  const [state, setState] = React.useState({ stroke: "transparent" })
   const editor = useEditor()
-  const activeObject = useActiveObject() as any
+  const activeObject = useActiveObject<fabric.Object>()
 
   React.useEffect(() => {
     if (activeObject && activeObject.type === "StaticPath") {
-      setState({ fill: activeObject.fill })
+      setState({ stroke: activeObject.stroke ?? "transparent" })
     }
   }, [activeObject])
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const onChangeColor = useCallback(
+    (color: string) => {
+      activeObject.stroke = color
+      editor.canvas.canvas.requestRenderAll()
+    },
+    [activeObject, editor]
+  )
 
   React.useEffect(() => {
     const watcher = async () => {
       if (activeObject && activeObject.type === "StaticPath") {
-        setState({ fill: activeObject.fill })
+        setState({ stroke: activeObject.stroke ?? "transparent" })
       }
     }
     if (editor) {
@@ -33,6 +46,28 @@ const Path = () => {
       }
     }
   }, [editor, activeObject])
+
+  function ColorPicker<T>(props: T & { onChange: (color: string) => void }) {
+    const [changedColor, setChangedColor] = useState(false)
+
+    useEffect(() => {
+      return () => {
+        if (changedColor) {
+          editor.history.save()
+        }
+      }
+    }, [changedColor])
+
+    return (
+      <HexColorPicker
+        {...props}
+        onChange={(color) => {
+          setChangedColor(true)
+          props.onChange(color)
+        }}
+      />
+    )
+  }
 
   return (
     <Block
@@ -54,20 +89,23 @@ const Path = () => {
       >
         <Block>{activeObject?.name}</Block>
         <Separator />
-        <Block onClick={() => setActiveSubMenu("PathFill")}>
-          <Block
-            $style={{
-              height: "24px",
-              width: "24px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              backgroundColor: state.fill,
-              border: "1px solid #dedede",
-            }}
-          />
-        </Block>
+        <StatefulPopover
+          showArrow={true}
+          placement={PLACEMENT.bottom}
+          content={() => (
+            <Block padding="12px" width="200px" backgroundColor="#ffffff" display="grid" gridGap="8px">
+              <ColorPicker color={state.stroke} onChange={onChangeColor} style={{ width: "100%" }} />
+            </Block>
+          )}
+        >
+          <Block>
+            <StatefulTooltip placement={PLACEMENT.bottom} showArrow={true} accessibilityType="tooltip" content="Color">
+              <Button size={SIZE.mini} kind={KIND.tertiary}>
+                <ColorSquare color={state.stroke} />
+              </Button>
+            </StatefulTooltip>
+          </Block>
+        </StatefulPopover>
         <Flip />
       </Block>
       <Common />
