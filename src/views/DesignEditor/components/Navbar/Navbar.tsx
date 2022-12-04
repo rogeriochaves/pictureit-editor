@@ -13,6 +13,7 @@ import useDesignEditorContext from "~/hooks/useDesignEditorContext"
 import { IDesign } from "~/interfaces/DesignEditor"
 import { loadTemplateFonts } from "~/utils/fonts"
 import { loadVideoEditorAssets } from "~/utils/video"
+import { useExportToJSON } from "../../../../hooks/useSaveLoad"
 import { editorTypeState } from "../../../../state/designEditor"
 import { currentUserQuery } from "../../../../state/user"
 import DesignTitle from "./DesignTitle"
@@ -32,39 +33,10 @@ const Navbar = () => {
   const editor = useEditor()
   const inputFileRef = useRef<HTMLInputElement>(null)
   const user = useRecoilValueLoadable(currentUserQuery)
+  const exportToJSON = useExportToJSON()
 
   const parseGraphicJSON = () => {
-    const currentScene = editor.scene.exportToJSON()
-
-    const updatedScenes = scenes.map((scn) => {
-      if (scn.id === currentScene.id) {
-        return {
-          id: currentScene.id,
-          layers: currentScene.layers,
-          name: currentScene.name,
-        }
-      }
-      return {
-        id: scn.id,
-        layers: scn.layers,
-        name: scn.name,
-      }
-    })
-
-    if (currentDesign) {
-      const graphicTemplate: IDesign = {
-        id: currentDesign.id,
-        type: "GRAPHIC",
-        name: currentDesign.name,
-        frame: currentDesign.frame,
-        scenes: updatedScenes,
-        metadata: {},
-        preview: "",
-      }
-      makeDownload(graphicTemplate)
-    } else {
-      console.log("NO CURRENT DESIGN")
-    }
+    makeDownload(exportToJSON())
   }
 
   const parsePresentationJSON = () => {

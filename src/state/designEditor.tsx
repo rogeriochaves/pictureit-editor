@@ -21,7 +21,7 @@ export const currentDesignState: RecoilState<IDesign> = atom({
       height: 1,
     },
     metadata: {},
-    name: "",
+    name: "New Artwork",
     preview: "",
     scenes: [],
     type: "",

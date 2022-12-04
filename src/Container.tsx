@@ -5,12 +5,12 @@ import ResizeObserver from "resize-observer-polyfill"
 import useAppContext from "~/hooks/useAppContext"
 import Loading from "./components/Loading"
 import { editorFonts } from "./constants/fonts"
-import useAutosave from "./hooks/useAutosave"
+import { useAutosaveEffect } from "./hooks/useSaveLoad"
 import { loadFileRequest } from "./state/file"
 import { useRecoilLazyLoadable } from "./utils/lazySelectorFamily"
 
 const Container = ({ children }: { children: React.ReactNode }) => {
-  useAutosave()
+  useAutosaveEffect()
   const { id } = useParams()
   const [loadRequest, loadFile] = useRecoilLazyLoadable(loadFileRequest)
   const navigate = useNavigate()

@@ -1,33 +1,15 @@
-import React from "react"
 import { Block } from "baseui/block"
 import CloudCheck from "~/components/Icons/CloudCheck"
 import { StatefulTooltip } from "baseui/tooltip"
-import useDesignEditorContext from "~/hooks/useDesignEditorContext"
-
-interface State {
-  name: string
-  width: number
-}
+import { useRecoilState } from "recoil"
+import { currentDesignState } from "../../../../state/designEditor"
 
 const DesignTitle = () => {
-  const [state, setState] = React.useState<State>({ name: "New Artwork", width: 0 })
-  const { currentDesign, setCurrentDesign } = useDesignEditorContext()
+  const [currentDesign, setCurrentDesign] = useRecoilState(currentDesignState)
 
   const handleInputChange = (name: string) => {
-    setState({ ...state, name: name })
     setCurrentDesign({ ...currentDesign, name })
   }
-
-  React.useEffect(() => {
-    const name = currentDesign.name
-    if (name || name === "") {
-      setState({ ...state, name: name })
-    }
-  }, [currentDesign.name])
-
-  React.useEffect(() => {
-    setState({ ...state })
-  }, [state.name])
 
   return (
     <Block
@@ -51,12 +33,12 @@ const DesignTitle = () => {
               padding: "0",
               color: "#FFF",
               border: "none",
-              outline: "none"
+              outline: "none",
             }}
-            value={state.name}
+            value={currentDesign.name}
             onChange={(e: any) => handleInputChange(e.target.value)}
           />
-          {state.name}
+          {currentDesign.name}
         </div>
       </Block>
 
