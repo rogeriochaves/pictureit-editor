@@ -4,8 +4,8 @@ import { IEvent } from "fabric/fabric-impl"
 import { useEffect } from "react"
 
 const square = new fabric.Rect({
-  width: 1024,
-  height: 1024,
+  width: 512,
+  height: 512,
   left: 0,
   top: 0,
   fill: "rgba(24, 142, 226, 0.3)",
@@ -17,17 +17,33 @@ const square = new fabric.Rect({
   strokeWidth: 3,
 })
 
+let requestDragging = false
 const Generation = () => {
   const editor = useEditor()
 
   function mouseMoveHandler(e: IEvent) {
-    square.left = (e.absolutePointer?.x || 0) - ((square.width || 0) / 2)
-    square.top = (e.absolutePointer?.y || 0)  - ((square.height || 0) / 2)
+    if (requestDragging) {
+      square.left = (e.absolutePointer?.x || 0) - (square.width || 0) / 2
+      square.top = (e.absolutePointer?.y || 0) - (square.height || 0) / 2
+      requestDragging = false
+      editor.canvas.canvas.requestRenderAll()
+      //@ts-ignore
+      editor.canvas.canvas._setupCurrentTransform(e.e, square)
+    }
+  }
+
+  function mouseOverHandler(e: IEvent) {
     square.visible = true
     editor.canvas.canvas.requestRenderAll()
+
+    setTimeout(() => {
+      requestDragging = true
+    }, 10)
   }
 
   function mouseOutHandler(e: IEvent) {
+    //@ts-ignore
+    editor.canvas.canvas._currentTransform = null
     square.visible = false
     editor.canvas.canvas.requestRenderAll()
   }
@@ -43,26 +59,15 @@ const Generation = () => {
     // // hack: in front of the frame
     // canvas.bringForward(square)
 
-    // fabric.util.loadImage(url, function(img) {
-    //   text.set('fill', new fabric.Pattern({
-    //     source: img,
-    //     repeat: document.getElementById('repeat').value
-    //   }));
-    //   shape.set('fill', new fabric.Pattern({
-    //     source: img,
-    //     repeat: document.getElementById('repeat').value
-    //   }));
-    //   canvas.renderAll();
-    // });
-
-
-    canvas.on("mouse:move", mouseMoveHandler)
+    canvas.on("mouse:over", mouseOverHandler)
     canvas.on("mouse:out", mouseOutHandler)
+    canvas.on("mouse:move", mouseMoveHandler)
 
     return () => {
       canvas.remove(square)
-      canvas.off("mouse:move", mouseMoveHandler)
+      canvas.off("mouse:over", mouseOverHandler)
       canvas.off("mouse:out", mouseOutHandler)
+      canvas.on("mouse:move", mouseMoveHandler)
     }
   }, [])
 

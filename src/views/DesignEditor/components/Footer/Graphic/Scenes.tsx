@@ -4,7 +4,7 @@ import Add from "~/components/Icons/Add"
 import useDesignEditorPages from "~/hooks/useDesignEditorScenes"
 import { DesignEditorContext } from "~/contexts/DesignEditor"
 import { nanoid } from "nanoid"
-import { getDefaultTemplate } from "~/constants/design-editor"
+import { defaultTemplate, getDefaultTemplate } from "~/constants/design-editor"
 import { useEditor, useFrame } from "@layerhub-io/react"
 import { IScene } from "@layerhub-io/types"
 import { DndContext, closestCenter, PointerSensor, useSensor, DragOverlay } from "@dnd-kit/core"
@@ -64,10 +64,6 @@ const Scenes = () => {
       if (currentScene) {
         updateCurrentScene(currentScene)
       } else {
-        const defaultTemplate = getDefaultTemplate({
-          width: 1200,
-          height: 1200,
-        })
         setCurrentDesign({
           id: nanoid(),
           frame: defaultTemplate.frame,

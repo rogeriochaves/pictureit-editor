@@ -25,6 +25,8 @@ export const getDefaultTemplate = ({ width, height }: IFrame) => {
   }
 }
 
+export const defaultTemplate = getDefaultTemplate({ width: 512, height: 512 })
+
 export const TEXT_EFFECTS = [
   {
     id: 1,
