@@ -6,6 +6,7 @@ import { Button, KIND } from "baseui/button"
 import { Input, SIZE } from "baseui/input"
 import { PLACEMENT, StatefulPopover } from "baseui/popover"
 import { Slider } from "baseui/slider"
+import { StatefulTooltip } from "baseui/tooltip"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { debounce } from "lodash"
@@ -158,7 +159,7 @@ export const InitImageSettings = () => {
         <Block padding="12px" width="200px" backgroundColor="#ffffff" display="grid" gridGap="8px">
           {initImageWithNoise ? (
             <Block display="flex" flexDirection="column" gridGap="8px">
-              <Block>Init Image</Block>
+              <Block>Base Image</Block>
               <Block display="flex" gridGap="8px" alignItems="center">
                 {noInitImageButton}
                 {currentCanvasAsInitButton}
@@ -177,11 +178,11 @@ export const InitImageSettings = () => {
           ) : !activeObject.metadata?.initImage?.fixed && !currentCanvasImage ? (
             <Block display="flex" gridGap="8px" alignItems="center">
               {noInitImageButton}
-              <Block>No init image</Block>
+              <Block>No base image</Block>
             </Block>
           ) : (
             <Block display="flex" flexDirection="column" gridGap="8px">
-              <Block>Init Image</Block>
+              <Block>Base Image</Block>
               <Block display="flex" gridGap="8px" alignItems="center">
                 {noInitImageButton}
                 {currentCanvasAsInitButton}
@@ -192,9 +193,18 @@ export const InitImageSettings = () => {
       )}
     >
       <Block>
-        <ColorSquare>
-          {initImageWithNoise ? <img height="24" src={initImageWithNoise} /> : <NoColor size={24} />}
-        </ColorSquare>
+        <StatefulTooltip
+          placement={PLACEMENT.bottom}
+          showArrow={true}
+          accessibilityType="tooltip"
+          content="Base Image"
+        >
+          <Button kind={KIND.tertiary} size={SIZE.mini}>
+            <ColorSquare>
+              {initImageWithNoise ? <img height="24" src={initImageWithNoise} /> : <NoColor size={24} />}
+            </ColorSquare>
+          </Button>
+        </StatefulTooltip>
       </Block>
     </StatefulPopover>
   )

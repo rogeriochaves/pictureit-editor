@@ -1,11 +1,14 @@
-import React from "react"
-import { styled } from "baseui"
-import { Theme } from "baseui/theme"
-import Icons from "~/components/Icons"
-import { Button, KIND, SIZE } from "baseui/button"
-import { Slider } from "baseui/slider"
-import { Input } from "baseui/input"
 import { useEditor, useZoomRatio } from "@layerhub-io/react"
+import { styled } from "baseui"
+import { Button, KIND, SIZE } from "baseui/button"
+import { Input } from "baseui/input"
+import { Slider } from "baseui/slider"
+import { Theme } from "baseui/theme"
+import React, { useContext } from "react"
+import Icons from "~/components/Icons"
+import { PanelType } from "../../../../../constants/app-options"
+import { DesignEditorContext } from "../../../../../contexts/DesignEditor"
+import useAppContext from "../../../../../hooks/useAppContext"
 
 const Container = styled<"div", object, Theme>("div", ({ $theme }) => ({
   height: "50px",
@@ -27,10 +30,12 @@ const Common = () => {
   })
   const editor = useEditor()
   const zoomRatio: number = useZoomRatio()
+  const { setActivePanel } = useAppContext()
+  const { isSidebarOpen, setIsSidebarOpen } = useContext(DesignEditorContext)
 
   React.useEffect(() => {
     setOptions({ ...options, zoomRatio: Math.round(zoomRatio * 100) })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zoomRatio])
 
   const handleChange = (type: string, value: any) => {
@@ -43,21 +48,23 @@ const Common = () => {
     }
   }
 
-  if (!editor) return null
-
   return (
     <Container>
       <div>
-        <Button kind={KIND.tertiary} size={SIZE.compact}>
+        <Button
+          kind={KIND.tertiary}
+          size={SIZE.compact}
+          onClick={() => {
+            setActivePanel(PanelType.LAYERS)
+            setIsSidebarOpen(!isSidebarOpen)
+          }}
+        >
           <Icons.Layers size={20} />
         </Button>
       </div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <Button kind={KIND.tertiary} size={SIZE.compact}>
+        <Button kind={KIND.tertiary} size={SIZE.compact} onClick={() => editor.zoom.zoomToFit()}>
           <Icons.Expand size={16} />
-        </Button>
-        <Button kind={KIND.tertiary} size={SIZE.compact}>
-          <Icons.Compress size={16} />
         </Button>
         <Button kind={KIND.tertiary} size={SIZE.compact} onClick={() => editor.zoom.zoomOut()}>
           <Icons.RemoveCircleOutline size={24} />
@@ -112,18 +119,15 @@ const Common = () => {
         />
       </div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "end" }}>
-        <Button kind={KIND.tertiary} size={SIZE.compact}>
-          <Icons.Refresh size={16} />
-        </Button>
-        <Button kind={KIND.tertiary} size={SIZE.compact} onClick={editor.history.undo}>
+        <Button kind={KIND.tertiary} size={SIZE.compact} onClick={() => editor.history.undo()}>
           <Icons.Undo size={22} />
         </Button>
-        <Button kind={KIND.tertiary} size={SIZE.compact} onClick={editor.history.redo}>
+        <Button kind={KIND.tertiary} size={SIZE.compact} onClick={() => editor.history.redo()}>
           <Icons.Redo size={22} />
         </Button>
-        <Button kind={KIND.tertiary} size={SIZE.compact}>
+        {/* <Button kind={KIND.tertiary} size={SIZE.compact}>
           <Icons.TimePast size={16} />
-        </Button>
+        </Button> */}
       </div>
     </Container>
   )

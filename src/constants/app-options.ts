@@ -4,6 +4,7 @@ export enum PanelType {
   MOVE = "Move",
   DRAWING = "Drawing",
   GENERATION = "Generation",
+  LAYERS = "Layers",
 }
 
 export const BASE_ITEMS = [

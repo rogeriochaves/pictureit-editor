@@ -18,7 +18,9 @@ const Layers = () => {
   const [layerObjects, setLayerObjects] = React.useState<any[]>([])
   const setIsSidebarOpen = useSetIsSidebarOpen()
 
-  useEffect(() => {}, [setIsSidebarOpen(true)])
+  useEffect(() => {
+    setIsSidebarOpen(true)
+  }, [setIsSidebarOpen])
 
   React.useEffect(() => {
     if (objects) {

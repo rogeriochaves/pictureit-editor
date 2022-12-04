@@ -7,6 +7,7 @@ import { StatefulPopover, PLACEMENT } from "baseui/popover"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
 import { Button, SIZE, KIND } from "baseui/button"
 import OpacityIcon from "~/components/Icons/Opacity."
+import { StatefulTooltip } from "baseui/tooltip"
 
 const Opacity = () => {
   const editor = useEditor()
@@ -95,9 +96,13 @@ const Opacity = () => {
         </Block>
       )}
     >
-      <Button kind={KIND.tertiary} size={SIZE.mini}>
-        <OpacityIcon size={24} />
-      </Button>
+      <Block>
+        <StatefulTooltip placement={PLACEMENT.bottom} showArrow={true} accessibilityType="tooltip" content="Opacity">
+          <Button kind={KIND.tertiary} size={SIZE.mini}>
+            <OpacityIcon size={24} />
+          </Button>
+        </StatefulTooltip>
+      </Block>
     </StatefulPopover>
   )
 }
