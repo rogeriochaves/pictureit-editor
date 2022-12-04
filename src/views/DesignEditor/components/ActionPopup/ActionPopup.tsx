@@ -71,23 +71,25 @@ const ActionPopup = () => {
       [targetId]: { state: "LOADING" },
     })
 
+    popup.target.showLoading(9000)
+
     api
       .stableDiffusion({ prompt: prompt })
       .then(async (result) => {
         if (result.url) {
+          await popup.target.setImage(result.url)
+          editor.objects.afterAddHook(popup.target as fabric.Object, false)
+
           setGeneratingState({
             ...generatingState,
             [targetId]: { state: "SUCCESS", data: { image: result.url } },
           })
-
-          await popup.target.setImage(result.url)
-          editor.objects.afterAddHook(popup.target as fabric.Object)
         }
       })
       .catch((error) => {
         console.error("Error from stable diffusion", error)
       })
-  }, [editor, popup, generatingState])
+  }, [popup, generatingState, prompt, editor])
 
   const Pill = ({ value }: { value: string }) => {
     return (
@@ -111,7 +113,7 @@ const ActionPopup = () => {
 
   return (
     <div ref={popupRef}>
-      {popup && !popup.isMoving ? (
+      {popup && !popup.isMoving && currentGeneratingState.state != "LOADING" ? (
         <div
           style={{
             position: "absolute",
@@ -129,38 +131,32 @@ const ActionPopup = () => {
             gap: "8px",
           }}
         >
-          {currentGeneratingState.state == "LOADING" ? (
-            <div>Loading...</div>
-          ) : (
-            <>
-              <div style={{ display: "flex", gap: "12px" }}>
-                <input
-                  id="actionPopupPrompt"
-                  type="text"
-                  onChange={(e) => setPrompt(e.target.value)}
-                  value={prompt}
-                  style={{
-                    borderRadius: "5px",
-                    background: "#FFF",
-                    padding: "5px",
-                    flexGrow: "1",
-                    border: "1px solid #c4c4c4",
-                  }}
-                />
-                <Button size="compact" onClick={generateImage}>
-                  Generate
-                </Button>
-                {/* <Button size="compact" kind={KIND.secondary} colors={{color: "#FFF", backgroundColor: "#999"}}>
+          <div style={{ display: "flex", gap: "12px" }}>
+            <input
+              id="actionPopupPrompt"
+              type="text"
+              onChange={(e) => setPrompt(e.target.value)}
+              value={prompt}
+              style={{
+                borderRadius: "5px",
+                background: "#FFF",
+                padding: "5px",
+                flexGrow: "1",
+                border: "1px solid #c4c4c4",
+              }}
+            />
+            <Button size="compact" onClick={generateImage}>
+              Generate
+            </Button>
+            {/* <Button size="compact" kind={KIND.secondary} colors={{color: "#FFF", backgroundColor: "#999"}}>
           1
         </Button> */}
-              </div>
-              <div style={{ display: "flex", gap: "8px" }}>
-                <Pill value="trending on artstation" />
-                <Pill value="sharp focus" />
-                <Pill value="highly detailed" />
-              </div>
-            </>
-          )}
+          </div>
+          <div style={{ display: "flex", gap: "8px" }}>
+            <Pill value="trending on artstation" />
+            <Pill value="sharp focus" />
+            <Pill value="highly detailed" />
+          </div>
         </div>
       ) : null}
     </div>

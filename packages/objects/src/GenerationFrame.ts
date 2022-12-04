@@ -6,6 +6,7 @@ import { StaticTextObject } from "./StaticText"
 export class GenerationFrameObject extends fabric.Group {
   static type = "GenerationFrame"
   id: string
+  loadingAnimation: () => void | undefined
 
   //@ts-ignore
   initialize(objects?: fabric.Object[], options?: GenerationFrameOptions) {
@@ -86,10 +87,13 @@ export class GenerationFrameObject extends fabric.Group {
   async setImage(src: string) {
     return new Promise<void>((resolve, _reject) => {
       fabric.util.loadImage(src).then((img) => {
-        const nonRectObjects = this._objects.filter((item) => (item as any).id != `${this.id}-rect`)
+        const nonRectObjects = this._objects.filter(
+          (item) => (item as any).id != `${this.id}-rect` && (item as any).id != `${this.id}-loading-bar`
+        )
         for (const object of nonRectObjects) {
           this.remove(object)
         }
+        const loadingBar = this.getLoadingBar()
 
         if (!img) {
           const errorText = new fabric.StaticText({
@@ -126,9 +130,79 @@ export class GenerationFrameObject extends fabric.Group {
 
         this.add(staticImage as any)
 
+        if (loadingBar) {
+          if (this.loadingAnimation) {
+            // cancels animation
+            this.loadingAnimation()
+          }
+          this.remove(loadingBar)
+          this.add(loadingBar)
+          loadingBar.width = this.width
+          loadingBar.animate("opacity", 0, {
+            onChange: this.canvas.requestRenderAll.bind(this.canvas),
+            onComplete: () => {
+              this.remove(loadingBar)
+            },
+            duration: 1000,
+          })
+        }
+
         resolve()
       })
     })
+  }
+
+  showLoading(duration) {
+    const loadingBar = new fabric.Rect({
+      top: this.top,
+      left: this.left,
+      //@ts-ignore
+      id: `${this.id}-loading-bar`,
+      type: "rect",
+      selectable: false,
+      hasControls: false,
+      hasBorders: false,
+      evented: false,
+      width: 1,
+      height: 16,
+      fill: "rgba(66, 161, 214, 1)",
+    })
+    //@ts-ignore
+    const grad = new fabric.Gradient({
+      type: "linear",
+      coords: {
+        x1: 0,
+        y1: 0,
+        x2: this.width,
+        y2: 0,
+      },
+      colorStops: [
+        {
+          color: "rgba(45, 190, 163, 1)",
+          offset: 0,
+        },
+        {
+          color: "rgba(66, 161, 214, 1)",
+          offset: 0.5,
+        },
+        {
+          color: "rgba(136, 64, 254, 1)",
+          offset: 1,
+        },
+      ],
+    })
+    //@ts-ignore
+    loadingBar.fill = grad.toLive(this.canvas.getContext())
+
+    this.add(loadingBar)
+
+    this.loadingAnimation = loadingBar.animate("width", this.width * 0.95, {
+      onChange: this.canvas.requestRenderAll.bind(this.canvas),
+      duration,
+      easing: fabric.util.ease.easeInOutQuad,
+    }) as any
+
+    this.canvas.requestRenderAll()
   }
 
   getRect() {
@@ -136,6 +210,14 @@ export class GenerationFrameObject extends fabric.Group {
       (object) =>
         //@ts-ignore
         object.id == `${this.id}-rect`
+    )!
+  }
+
+  getLoadingBar() {
+    return this._objects.find(
+      (object) =>
+        //@ts-ignore
+        object.id == `${this.id}-loading-bar`
     )!
   }
 
