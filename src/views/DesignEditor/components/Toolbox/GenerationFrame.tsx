@@ -11,7 +11,7 @@ import { IEvent } from "fabric/fabric-impl"
 import React, { ChangeEvent, useCallback, useEffect, useState } from "react"
 import NoColor from "../../../../components/Icons/NoColor"
 import Steps from "../../../../components/Icons/Steps"
-import { DEFAULT_NOISE, renderInitImage, setHidePopup } from "../../../../store/generation"
+import { DEFAULT_NOISE, renderInitImage, renderNewInitImage, setHidePopup } from "../../../../store/generation"
 import { useAppDispatch } from "../../../../store/store"
 import Common from "./Common"
 import { Separator } from "./Shared/Separator"
@@ -56,6 +56,7 @@ const InitImageSettings = () => {
   const activeObject = useActiveObject<fabric.GenerationFrame | undefined>()
   const [localNoise, setLocalNoise] = useState<number>(DEFAULT_NOISE)
   const [initImageWithNoise, setInitImageWithNoise] = useState<string | undefined>()
+  const [currentCanvasImage, setCurrentCanvasImage] = useState<string | undefined>()
 
   const setInitImage = useCallback(
     (initImage: Partial<InitImage>) => {
@@ -76,11 +77,13 @@ const InitImageSettings = () => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const updateInitImage = useCallback(
-    debounce(async () => {
+    debounce(async (then: (() => void) | undefined = undefined) => {
       if (activeObject) {
         const [_initImage, initImageWithNoise] = await renderInitImage(editor, activeObject, false)
 
         setInitImageWithNoise(initImageWithNoise)
+
+        then?.()
       }
     }, 200),
     [activeObject, editor]
@@ -106,6 +109,20 @@ const InitImageSettings = () => {
     [setInitImage, updateInitImage]
   )
 
+  const onOpenPopover = useCallback(async () => {
+    if (activeObject) {
+      if (activeObject.metadata?.initImage?.fixed) {
+        const canvasImage = await renderNewInitImage(editor, activeObject)
+
+        if (canvasImage) {
+          setCurrentCanvasImage(canvasImage.toDataURL("image/png"))
+        }
+      } else {
+        setCurrentCanvasImage(undefined)
+      }
+    }
+  }, [activeObject, editor])
+
   const onClickNoInitImage = useCallback(() => {
     if (activeObject && activeObject._objects) {
       const toRemove = activeObject._objects.filter((object) => !object.id.match(/(-background|-image)$/))
@@ -114,8 +131,17 @@ const InitImageSettings = () => {
       editor.history.save()
       setInitImage({ fixed: true, image: undefined })
       setInitImageWithNoise(undefined)
+      onOpenPopover()
     }
-  }, [activeObject, editor, setInitImage])
+  }, [activeObject, editor, onOpenPopover, setInitImage])
+
+  const onClickCanvasAsInit = useCallback(() => {
+    setInitImage({ fixed: false, image: undefined, noise: 0 })
+
+    updateInitImage(() => {
+      setCurrentCanvasImage(undefined)
+    })
+  }, [setInitImage, updateInitImage])
 
   useEffect(() => {
     editor.canvas.canvas.on("object:modified", onModified)
@@ -128,21 +154,42 @@ const InitImageSettings = () => {
 
   if (!activeObject) return null
 
+  const noInitImageButton = (
+    <ColorSquare>
+      <Button size={SIZE.mini} kind={KIND.tertiary} onClick={onClickNoInitImage}>
+        <NoColor size={24} />
+      </Button>
+    </ColorSquare>
+  )
+
+  const currentCanvasAsInitButton = currentCanvasImage ? (
+    <Button size={SIZE.mini} kind={KIND.tertiary} onClick={onClickCanvasAsInit}>
+      <ColorSquare>
+        <img height={24} src={currentCanvasImage} />
+      </ColorSquare>
+    </Button>
+  ) : null
+
   return (
     <StatefulPopover
       showArrow={true}
       placement={PLACEMENT.bottom}
+      stateReducer={(_type, next) => {
+        if (next.isOpen) {
+          onOpenPopover()
+        }
+        return next
+      }}
       content={() => (
         <Block padding="12px" width="200px" backgroundColor="#ffffff" display="grid" gridGap="8px">
           {initImageWithNoise ? (
             <Block display="flex" flexDirection="column" gridGap="8px">
-              <Block>
-                <Button size={SIZE.mini} kind={KIND.tertiary} onClick={onClickNoInitImage}>
-                  <ColorSquare>
-                    <NoColor size={24} />
-                  </ColorSquare>
-                </Button>
+              <Block>Init Image</Block>
+              <Block display="flex" gridGap="8px" alignItems="center">
+                {noInitImageButton}
+                {currentCanvasAsInitButton}
               </Block>
+
               <img width="200" src={initImageWithNoise} />
 
               <Block $style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -206,12 +253,18 @@ const InitImageSettings = () => {
                 />
               </Block>
             </Block>
-          ) : (
+          ) : !activeObject.metadata?.initImage?.fixed && !currentCanvasImage ? (
             <Block display="flex" gridGap="8px" alignItems="center">
-              <ColorSquare>
-                <NoColor size={24} />
-              </ColorSquare>
+              {noInitImageButton}
               <Block>No init image</Block>
+            </Block>
+          ) : (
+            <Block display="flex" flexDirection="column" gridGap="8px">
+              <Block>Init Image</Block>
+              <Block display="flex" gridGap="8px" alignItems="center">
+                {noInitImageButton}
+                {currentCanvasAsInitButton}
+              </Block>
             </Block>
           )}
         </Block>

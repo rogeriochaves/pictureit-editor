@@ -48,7 +48,7 @@ export const generateImage = createAsyncThunk<
 
     const [initImage, initImageWithNoise] = await renderInitImage(editor, frame, !frame.metadata?.initImage?.fixed)
 
-    if (initImage && frame.metadata) {
+    if (frame.metadata) {
       frame.metadata.initImage = {
         ...(frame.metadata?.initImage || {}),
         fixed: true,
@@ -94,7 +94,11 @@ export const renderInitImage = async (
   let initImageWithNoise
   if (generationFrame.metadata?.initImage?.fixed) {
     if (generationFrame.metadata?.initImage?.image) {
-      initImageCanvas = await canvasFromImage(generationFrame.metadata?.initImage?.image, generationFrame.width!, generationFrame.height!)
+      initImageCanvas = await canvasFromImage(
+        generationFrame.metadata?.initImage?.image,
+        generationFrame.width!,
+        generationFrame.height!
+      )
     }
   } else {
     initImageCanvas = await renderNewInitImage(editor, generationFrame)
