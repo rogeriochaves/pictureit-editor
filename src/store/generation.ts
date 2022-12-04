@@ -19,6 +19,9 @@ const initialState: GenerationState = {
   hidePopup: false,
 }
 
+export const DEFAULT_NOISE = 2
+export const DEFAULT_PROMPT_STRENGTH = 0.8
+
 export const generationSlice = createSlice({
   name: "generation",
   initialState,
@@ -61,8 +64,12 @@ export const generateImage = createAsyncThunk<
         prompt: frame.metadata?.prompt || "",
         num_inference_steps,
         guidance_scale: frame.metadata?.guidance || 7.5,
-        prompt_strength: 0.8,
-        ...(initImageWithNoise ? { init_image: initImageWithNoise } : {}),
+        ...(initImageWithNoise
+          ? {
+              init_image: initImageWithNoise,
+              prompt_strength: frame.metadata?.initImage?.promptStrength ?? DEFAULT_PROMPT_STRENGTH,
+            }
+          : {}),
       })
       .then(async (result) => {
         if (result.url) {
@@ -81,8 +88,6 @@ export const generateImage = createAsyncThunk<
     return rejectWithValue((err as any).response?.data?.error.data || null)
   }
 })
-
-export const DEFAULT_NOISE = 2
 
 export const renderInitImage = async (
   editor: Editor,

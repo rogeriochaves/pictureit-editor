@@ -2,9 +2,10 @@ import { fabric } from "fabric"
 import { StaticImageObject } from "./StaticImage"
 
 export type InitImage = {
-  image?: string,
-  noise?: number,
-  fixed: boolean,
+  image?: string
+  noise?: number
+  fixed: boolean
+  promptStrength?: number
 }
 
 // @ts-ignore
