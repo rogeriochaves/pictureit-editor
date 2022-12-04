@@ -1,12 +1,27 @@
 import { useStyletron, styled } from "baseui"
-import { BASE_ITEMS, VIDEO_TOOL_ITEMS } from "~/constants/app-options"
 import useAppContext from "~/hooks/useAppContext"
 import Icons from "~/components/Icons"
 import { useTranslation } from "react-i18next"
 import Scrollable from "~/components/Scrollable"
 import { Block } from "baseui/block"
-import { useRecoilValue, useSetRecoilState } from "recoil"
+import { useRecoilValue } from "recoil"
 import { editorTypeState } from "../../../../state/designEditor"
+import { ToolType } from "../../../../state/appContext"
+
+export const TOOL_ITEMS = [
+  {
+    id: "move",
+    name: ToolType.MOVE,
+  },
+  {
+    id: "generation",
+    name: ToolType.GENERATION,
+  },
+  {
+    id: "drawing",
+    name: ToolType.DRAWING,
+  },
+]
 
 const Container = styled("div", (props) => ({
   width: "80px",
@@ -18,7 +33,7 @@ const ToolsList = () => {
   const { activeTool } = useAppContext()
   const { t } = useTranslation("editor")
   const editorType = useRecoilValue(editorTypeState)
-  const TOOL_ITEMS = editorType === "VIDEO" ? VIDEO_TOOL_ITEMS : BASE_ITEMS
+
   return (
     <Container>
       <Scrollable autoHide={true}>

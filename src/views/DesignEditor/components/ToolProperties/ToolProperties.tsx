@@ -21,7 +21,7 @@ const Container = styled("div", (props) => ({
 
 const Toolbox = () => {
   const [state, setState] = React.useState<ToolboxState>({ toolbox: DEFAULT_TOOLBOX })
-  const { setActiveSubMenu, activeTool } = useAppContext()
+  const { activeTool } = useAppContext()
   const activeObject = useActiveObject() as ILayer
   const editor = useEditor()
 
@@ -35,9 +35,8 @@ const Toolbox = () => {
       }
     } else {
       setState({ toolbox: DEFAULT_TOOLBOX })
-      setActiveSubMenu("")
     }
-  }, [activeObject, setActiveSubMenu])
+  }, [activeObject])
 
   React.useEffect(() => {
     const watcher = async () => {

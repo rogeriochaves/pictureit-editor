@@ -7,7 +7,6 @@ import Shadow from "./Common/Shadow"
 import { Input, SIZE } from "baseui/input"
 import { Button } from "baseui/button"
 import { ChevronRight } from "baseui/icon"
-import useAppContext from "~/hooks/useAppContext"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
 import { getTextOptions } from "~/utils/object-options"
 import { fontStyleLabels } from "~/constants/fonts"
@@ -19,7 +18,6 @@ import { defaultTextOptions } from "~/constants/contants"
 const TextProperties = () => {
   const fonts = [] as any
   const [state, setState] = React.useState<TextOptions>(defaultTextOptions)
-  const { setActiveSubMenu } = useAppContext()
   const activeObject = useActiveObject() as any
   const editor = useEditor()
 
@@ -58,7 +56,7 @@ const TextProperties = () => {
     } else {
       setState(defaultTextOptions)
     }
-  }, [activeObject])
+  }, [activeObject, fonts])
 
   const handleChange = async (key: string, value: any) => {
     if (key === "fontStyle") {
@@ -107,7 +105,7 @@ const TextProperties = () => {
                 },
               },
             }}
-            onFocus={() => setActiveSubMenu("FontSelector")}
+            onFocus={() => {}}
             endEnhancer={<ChevronRight size="18px" />}
             size={SIZE.compact}
             value={state.fontFamily}

@@ -1,14 +1,14 @@
-import { useEffect } from "react"
+import { useCallback, useEffect } from "react"
 import { useEditor } from "@layerhub-io/react"
 import useAppContext from "../../hooks/useAppContext"
-import { ToolType } from "../../constants/app-options"
+import { ToolType } from "../../state/appContext"
 
 const Shortcuts = () => {
   const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0
   const editor = useEditor()
   const { setActiveTool } = useAppContext()
 
-  const handleShortcuts = (event: KeyboardEvent) => {
+  const handleShortcuts = useCallback((event: KeyboardEvent) => {
     const shortcuts = [
       {
         keys: ["CMD", "Z"],
@@ -78,7 +78,7 @@ const Shortcuts = () => {
         break
       }
     }
-  }
+  }, [editor.history.redo, editor.history.undo, isMac, setActiveTool])
 
   useEffect(() => {
     if (!editor) return
@@ -87,7 +87,7 @@ const Shortcuts = () => {
     return () => {
       document.removeEventListener("keydown", handleShortcuts)
     }
-  }, [editor])
+  }, [editor, handleShortcuts])
 
   return null
 }

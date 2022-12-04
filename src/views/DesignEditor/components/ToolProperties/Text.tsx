@@ -58,7 +58,6 @@ const initialOptions: TextState = {
 const Text = () => {
   const [state, setState] = React.useState<TextState>(initialOptions)
   const activeObject = useActiveObject() as Required<IStaticText>
-  const { setActiveSubMenu } = useAppContext()
   const editor = useEditor()
 
   React.useEffect(() => {
@@ -66,7 +65,7 @@ const Text = () => {
       const textProperties = getTextProperties(activeObject, SAMPLE_FONTS)
       setState({ ...state, ...textProperties })
     }
-  }, [activeObject])
+  }, [activeObject, state])
 
   React.useEffect(() => {
     const watcher = async () => {
@@ -83,7 +82,7 @@ const Text = () => {
         editor.off("history:changed", watcher)
       }
     }
-  }, [editor, activeObject])
+  }, [editor, activeObject, state])
 
   const makeBold = React.useCallback(async () => {
     if (state.bold) {
@@ -215,7 +214,7 @@ const Text = () => {
     >
       <Block display="flex" gridGap="0.5rem" alignItems="center">
         <Block
-          onClick={() => setActiveSubMenu("FontSelector")}
+          onClick={() => {}}
           $style={{
             border: "1px solid rgb(185,185,185)",
             borderRadius: "4px",
@@ -243,7 +242,7 @@ const Text = () => {
             accessibilityType="tooltip"
             content="Text color"
           >
-            <Button onClick={() => setActiveSubMenu("TextFill")} size={SIZE.mini} kind={KIND.tertiary}>
+            <Button onClick={() => {}} size={SIZE.mini} kind={KIND.tertiary}>
               <TextColor color={state.color} size={22} />
             </Button>
           </StatefulTooltip>
@@ -298,7 +297,7 @@ const Text = () => {
 
           <TextSpacing />
           <Block width="1px" height="24px" backgroundColor="rgb(213,213,213)" margin="0 4px" />
-          <Button onClick={() => setActiveSubMenu("TextEffects")} size={SIZE.compact} kind={KIND.tertiary}>
+          <Button onClick={() => {}} size={SIZE.compact} kind={KIND.tertiary}>
             Effects
           </Button>
           <Block width="1px" height="24px" backgroundColor="rgb(213,213,213)" margin="0 4px" />
@@ -448,7 +447,7 @@ const TextSpacing = () => {
       const { charSpacing, lineHeight } = activeObject
       setState({ ...state, charSpacing: charSpacing / 10, lineHeight: lineHeight * 10 })
     }
-  }, [activeObject])
+  }, [activeObject, state])
 
   const handleChange = (type: string, value: number[]) => {
     if (editor) {

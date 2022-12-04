@@ -15,7 +15,7 @@ import EditorContainer from "./components/EditorContainer"
 import Footer from "./components/Footer"
 import Navbar from "./components/Navbar"
 import Tools from "./components/Tools"
-import Toolbox from "./components/Toolbox"
+import Toolbox from "./components/ToolProperties"
 import Shortcuts from "./Shortcuts"
 
 const GraphicEditor = () => {

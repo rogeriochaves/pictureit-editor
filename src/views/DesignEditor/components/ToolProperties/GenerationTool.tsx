@@ -3,8 +3,8 @@ import { useEditor } from "@layerhub-io/react"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { useEffect } from "react"
-import { ToolType } from "../../../../constants/app-options"
 import useAppContext from "../../../../hooks/useAppContext"
+import { ToolType } from "../../../../state/appContext"
 import Canvas from "./Canvas"
 
 const square = new fabric.Rect({
