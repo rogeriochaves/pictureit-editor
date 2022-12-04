@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { useEditor, useObjects } from "@layerhub-io/react"
 import { Block } from "baseui/block"
 import AngleDoubleLeft from "~/components/Icons/AngleDoubleLeft"
@@ -17,6 +17,8 @@ const Layers = () => {
   const objects = useObjects() as ILayer[]
   const [layerObjects, setLayerObjects] = React.useState<any[]>([])
   const setIsSidebarOpen = useSetIsSidebarOpen()
+
+  useEffect(() => {}, [setIsSidebarOpen(true)])
 
   React.useEffect(() => {
     if (objects) {

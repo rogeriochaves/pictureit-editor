@@ -1036,7 +1036,7 @@ class Objects extends Base {
   public updateContextObjects = () => {
     const objects = this.canvas.getObjects()
     const filteredObjects = objects.filter((o) => {
-      return o.type !== "Frame" && o.type !== "Background"
+      return !nonRenderableLayerTypes.includes(o.type || "")
     })
     this.state.setObjects(filteredObjects)
   }
