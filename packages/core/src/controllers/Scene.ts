@@ -31,7 +31,9 @@ class Scene extends Base {
       },
     }
 
-    const layers = canvasJSON.objects.filter((object: any) => object.type !== LayerType.FRAME)
+    const layers = canvasJSON.objects.filter(
+      (object: any) => object.type !== LayerType.FRAME && object.type !== LayerType.POSITIONING_HELPER
+    )
     const objectExporter = new ObjectExporter()
 
     layers.forEach((layer: ILayer) => {

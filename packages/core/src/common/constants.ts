@@ -76,6 +76,8 @@ export enum LayerType {
   BACKGROUND_IMAGE = "BackgroundImage",
   FRAME = "Frame",
   GROUP = "Group",
+  POSITIONING_HELPER = "PositioningHelper",
+  GENERATION_FRAME = "GenerationFrame",
 }
 
 export const defaultBackgroundOptions = {
@@ -83,7 +85,7 @@ export const defaultBackgroundOptions = {
   height: 1200,
   fill: "transparent",
   id: "background",
-  name: "Initial Frame",
+  name: "Initial Background",
 }
 
 export const commonParams = {

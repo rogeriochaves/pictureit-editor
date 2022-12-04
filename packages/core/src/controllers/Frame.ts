@@ -16,12 +16,12 @@ class Frame extends Base {
       ...defaultFrameOptions,
       absolutePositioned: this.config.clipToFrame,
     })
-    const background = new fabric.Background({
-      ...defaultBackgroundOptions,
-      shadow: this.config.shadow,
-    })
+    // const background = new fabric.Background({
+    //   ...defaultBackgroundOptions,
+    //   shadow: this.config.shadow,
+    // })
 
-    this.canvas.add(frame, background)
+    this.canvas.add(frame)
     // const center = this.canvas.getCenter()
     // frame.center()
     // background.center()

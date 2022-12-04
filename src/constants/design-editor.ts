@@ -8,19 +8,7 @@ export const getDefaultTemplate = ({ width, height }: IFrame) => {
       width,
       height,
     },
-    layers: [
-      {
-        id: "background",
-        name: "Initial Frame",
-        left: 0,
-        top: 0,
-        width,
-        height,
-        type: "Background",
-        fill: "transparent",
-        metadata: {},
-      },
-    ],
+    layers: [],
     metadata: {},
   }
 }

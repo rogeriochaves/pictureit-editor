@@ -5,6 +5,7 @@ import Footer from "./components/Footer"
 import EditorContainer from "./components/EditorContainer"
 import ContextMenu from "./components/ContextMenu"
 import Shortcuts from "./Shortcuts"
+import Toolbox from "./components/Toolbox"
 
 const GraphicEditor = () => {
   return (
@@ -14,6 +15,7 @@ const GraphicEditor = () => {
       <div style={{ display: "flex", flex: 1 }}>
         <Panels />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", position: "relative" }}>
+          <Toolbox />
           <Canvas />
           <Footer />
         </div>

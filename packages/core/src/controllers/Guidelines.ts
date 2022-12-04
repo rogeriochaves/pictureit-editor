@@ -16,6 +16,8 @@ class Guidelines extends Base {
   }
 
   initAligningGuidelines(canvas) {
+    viewportTransform = canvas.viewportTransform;
+
     var ctx = canvas.getSelectionContext(),
       aligningLineOffset = 0,
       aligningLineMargin = 16,
@@ -75,8 +77,6 @@ class Guidelines extends Base {
     })
 
     canvas.on("object:moving", function (e) {
-      var viewportTransform = viewportTransform || canvas.viewportTransform;
-
       var activeObject = e.target,
         canvasObjects = canvas.getObjects(),
         activeObjectCenter = activeObject.getCenterPoint(),

@@ -1,8 +1,10 @@
-import { transparentPattern } from "@layerhub-io/core"
+import { LayerType, transparentPattern } from "@layerhub-io/core"
 import { useEditor } from "@layerhub-io/react"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { useEffect } from "react"
+import { PanelType } from "../../../../../constants/app-options"
+import useAppContext from "../../../../../hooks/useAppContext"
 
 const square = new fabric.Rect({
   width: 512,
@@ -17,11 +19,13 @@ const square = new fabric.Rect({
   hasBorders: true,
   stroke: "rgba(24, 142, 226, 1)",
   strokeWidth: 3,
+  type: LayerType.POSITIONING_HELPER,
 })
 
 let requestDragging = false
 const Generation = () => {
   const editor = useEditor()
+  const { setActivePanel } = useAppContext()
 
   function mouseMoveHandler(e: IEvent) {
     if (requestDragging) {
@@ -34,7 +38,7 @@ const Generation = () => {
     }
   }
 
-  function mouseOverHandler(e: IEvent) {
+  function mouseOverHandler(_e: IEvent) {
     square.visible = true
     editor.canvas.canvas.requestRenderAll()
 
@@ -43,33 +47,46 @@ const Generation = () => {
     }, 10)
   }
 
-  function mouseOutHandler(e: IEvent) {
+  function mouseOutHandler(_e: IEvent) {
     //@ts-ignore
     editor.canvas.canvas._currentTransform = null
     square.visible = false
     editor.canvas.canvas.requestRenderAll()
   }
 
+  function mouseUpHandler(_e: IEvent) {
+    const generationFrame = new fabric.Rect({
+      width: 512,
+      height: 512,
+      left: square.left,
+      top: square.top,
+      fill: transparentPattern,
+      selectable: true,
+      hasControls: false,
+      hasBorders: true,
+      type: LayerType.GENERATION_FRAME,
+    })
+    editor.canvas.canvas.add(generationFrame)
+    editor.canvas.canvas.setActiveObject(generationFrame)
+    setActivePanel(PanelType.MOVE)
+  }
+
   useEffect(() => {
     let canvas = editor.canvas.canvas
     canvas.add(square)
-    // canvas.sendToBack(square)
-    // canvas.sendToBack(editor.frame.frame)
-    // canvas.sendToBack(editor.frame.background)
-    // // hack: in front of the background
-    // canvas.bringForward(square)
-    // // hack: in front of the frame
-    // canvas.bringForward(square)
 
     canvas.on("mouse:over", mouseOverHandler)
     canvas.on("mouse:out", mouseOutHandler)
     canvas.on("mouse:move", mouseMoveHandler)
+    canvas.on("mouse:up", mouseUpHandler)
 
     return () => {
+      square.visible = false
       canvas.remove(square)
       canvas.off("mouse:over", mouseOverHandler)
       canvas.off("mouse:out", mouseOutHandler)
-      canvas.on("mouse:move", mouseMoveHandler)
+      canvas.off("mouse:move", mouseMoveHandler)
+      canvas.off("mouse:up", mouseUpHandler)
     }
   }, [])
 

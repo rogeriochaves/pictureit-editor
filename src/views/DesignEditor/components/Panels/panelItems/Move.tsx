@@ -1,7 +1,5 @@
-import Toolbox from "../../Toolbox"
-
 const Move = () => {
-  return <Toolbox />
+  return null;
 }
 
 export default Move
