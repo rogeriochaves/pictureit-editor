@@ -41,7 +41,7 @@ const PictureIt: PictureItApi = class {
       return result
     }
 
-    return undefined
+    throw "signed out"
   }
 
   static isPictureIt(): true {

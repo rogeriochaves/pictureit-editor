@@ -330,14 +330,14 @@ const Navbar = () => {
             <Github size={24} />
           </Button>
 
-          {user.getValue() && (
+          {user.state != "hasError" && (
             <Button
               style={{ marginLeft: "0.5rem", minWidth: "100px" }}
               size="compact"
               onClick={() => window.location.replace("https://editor.layerhub.io")}
               kind={KIND.primary}
             >
-              {user.state == "hasValue" ? user.getValue()?.name : "\u00A0"}
+              {user.state == "hasValue" ? user.contents?.name : "\u00A0"}
             </Button>
           )}
         </Block>
