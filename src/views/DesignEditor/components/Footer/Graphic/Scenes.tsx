@@ -17,6 +17,8 @@ import {
   currentSceneState,
   scenesState,
 } from "../../../../../state/designEditor"
+import { loadFileRequest } from "../../../../../state/file"
+import { useRecoilValueLazyLoadable } from "../../../../../utils/lazySelectorFamily"
 import SceneContextMenu from "./SceneContextMenu"
 import SceneItem from "./SceneItem"
 
@@ -33,6 +35,7 @@ const Scenes = () => {
   const [draggedScene, setDraggedScene] = React.useState<IScene | null>(null)
   const contextMenuTimelineRequest = useRecoilValue(contextMenuTimelineRequestState)
   const saveIfNewFile = useSaveIfNewFile()
+  const loadRequest = useRecoilValueLazyLoadable(loadFileRequest)
 
   const sensors = [
     useSensor(PointerSensor, {
@@ -85,32 +88,53 @@ const Scenes = () => {
           updateCurrentScene(currentScene)
         }
       } else {
-        getDefaultTemplate(editor.canvas.canvas, { width: 512, height: 512 })
-          .then((defaultTemplate) => {
-            setCurrentDesign({
-              id: nanoid(),
-              frame: defaultTemplate.frame,
-              metadata: {},
-              name: "New Artwork",
-              preview: "",
-              scenes: [],
-              type: "PRESENTATION",
-            })
+        const loadedFile = loadRequest.contents?.content
 
-            return editor.scene.importFromJSON(defaultTemplate)
-          })
-          .then(() => {
-            const initialDesign = editor.scene.exportToJSON() as any
-            editor.renderer.render(initialDesign).then((data) => {
-              setCurrentScene({ ...initialDesign, preview: data })
-              setScenes([{ ...initialDesign, preview: data }])
-              saveIfNewFile()
+        if (loadedFile) {
+          setCurrentDesign(loadedFile)
+
+          editor.scene
+            .importFromJSON({
+              frame: loadedFile.frame,
+              ...loadedFile.scenes[0],
             })
-          })
-          .catch(console.log)
+            .then(() => {
+              const initialDesign = editor.scene.exportToJSON() as any
+              editor.renderer.render(initialDesign).then((data) => {
+                setCurrentScene({ ...initialDesign, preview: data })
+                setScenes([{ ...initialDesign, preview: data }])
+                saveIfNewFile()
+              })
+            })
+            .catch(console.log)
+        } else {
+          getDefaultTemplate(editor.canvas.canvas, { width: 512, height: 512 })
+            .then((defaultTemplate) => {
+              setCurrentDesign({
+                id: nanoid(),
+                frame: defaultTemplate.frame,
+                metadata: {},
+                name: "New Artwork",
+                preview: "",
+                scenes: [],
+                type: "PRESENTATION",
+              })
+
+              return editor.scene.importFromJSON(defaultTemplate)
+            })
+            .then(() => {
+              const initialDesign = editor.scene.exportToJSON() as any
+              editor.renderer.render(initialDesign).then((data) => {
+                setCurrentScene({ ...initialDesign, preview: data })
+                setScenes([{ ...initialDesign, preview: data }])
+                saveIfNewFile()
+              })
+            })
+            .catch(console.log)
+        }
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, currentScene])
 
   const addScene = React.useCallback(async () => {

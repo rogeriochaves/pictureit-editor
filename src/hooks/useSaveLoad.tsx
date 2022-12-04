@@ -153,7 +153,6 @@ const useSaveWithRetries = () => {
 export const useSaveIfNewFile = () => {
   const { id } = useParams()
   const navigate = useNavigate()
-  const editor = useEditor()
   const save = useSave()
 
   return useCallback(() => {
@@ -184,7 +183,7 @@ export const useSave = () => {
         id: id,
         name: content.name,
         preview: preview,
-        content: JSON.stringify(content),
+        content: content,
       })
     },
     [editor, exportToJSON, saveFile]

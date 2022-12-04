@@ -28,7 +28,7 @@ export type PictureItFile = {
   id: string
   name: string
   preview: string
-  content: string
+  content: object
 }
 
 export type PictureItApi = IsPictureIt & UserEndpoints & FileEndpoints & Api
@@ -59,12 +59,14 @@ const PictureIt: PictureItApi = class {
   }
 
   static async saveFile(file: PictureItFile): Promise<boolean> {
-    await postApi(`/api/files/${file.id}`, file)
+    const fileParams: any = file
+    fileParams.content = JSON.stringify(file.content)
+    await postApi(`/api/files/${file.id}`, fileParams)
     return true
   }
 
   static async loadFile(id: string): Promise<PictureItFile> {
-    return await getApi(`/api/files/${id}`).catch((err) => {
+    const file = await getApi(`/api/files/${id}`).catch((err) => {
       if (err.status && err.status == 401) {
         document.location = `${PICTURE_IT_URL}/login?return_to=${encodeURIComponent(document.location.toString())}`
 
@@ -74,6 +76,10 @@ const PictureIt: PictureItApi = class {
 
       throw err
     })
+
+    file.content = JSON.parse(file.content)
+
+    return file
   }
 
   static isPictureIt(): true {
