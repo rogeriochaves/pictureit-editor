@@ -59,7 +59,6 @@ const Timeline = () => {
               name: "New Artwork",
               preview: "",
               scenes: [],
-              type: "VIDEO",
             })
 
             return editor.scene.importFromJSON(defaultTemplate)

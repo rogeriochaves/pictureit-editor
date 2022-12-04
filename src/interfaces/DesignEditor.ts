@@ -26,7 +26,6 @@ export interface IDesign {
   id: string
   name: string
   frame: IFrame
-  type: string
   scenes: any[]
   preview: string
   metadata: object

@@ -201,28 +201,15 @@ export const useExportToJSON = () => {
 
       const updatedScenes = scenes.map((scn) => {
         if (scn.id === currentScene.id) {
-          return {
-            id: currentScene.id,
-            layers: currentScene.layers,
-            name: currentScene.name,
-          }
+          return currentScene
         }
-        return {
-          id: scn.id,
-          layers: scn.layers,
-          name: scn.name,
-        }
+        return scn
       })
 
       if (currentDesign) {
         const graphicTemplate: IDesign = {
-          id: currentDesign.id,
-          type: "GRAPHIC",
-          name: currentDesign.name,
-          frame: currentDesign.frame,
+          ...currentDesign,
           scenes: updatedScenes,
-          metadata: {},
-          preview: "",
         }
 
         return graphicTemplate

@@ -69,7 +69,6 @@ const Navbar = () => {
     if (currentDesign) {
       const presentationTemplate: IDesign = {
         id: currentDesign.id,
-        type: "PRESENTATION",
         name: currentDesign.name,
         frame: currentDesign.frame,
         scenes: updatedScenes,
@@ -103,7 +102,6 @@ const Navbar = () => {
     if (currentDesign) {
       const videoTemplate: IDesign = {
         id: currentDesign.id,
-        type: "VIDEO",
         name: currentDesign.name,
         frame: currentDesign.frame,
         scenes: updatedScenes,

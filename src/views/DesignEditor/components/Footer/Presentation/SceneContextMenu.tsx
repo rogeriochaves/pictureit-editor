@@ -47,7 +47,6 @@ const SceneContextMenu = () => {
         name: "New Artwork",
         preview: "",
         scenes: [],
-        type: "VIDEO",
       })
       const initialDesign = editor.scene.exportToJSON() as any
       const preview = await editor.renderer.render(initialDesign)

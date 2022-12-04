@@ -12,6 +12,7 @@ import { useDebouncedCallback } from "use-debounce"
 import Add from "../../../../../components/Icons/Add"
 import { getDefaultTemplate } from "../../../../../constants/design-editor"
 import { useSaveIfNewFile } from "../../../../../hooks/useSaveLoad"
+import { IDesign } from "../../../../../interfaces/DesignEditor"
 import {
   contextMenuTimelineRequestState,
   currentDesignState,
@@ -23,7 +24,6 @@ import { useRecoilValueLazyLoadable } from "../../../../../utils/lazySelectorFam
 import SceneContextMenu from "./SceneContextMenu"
 import SceneItem from "./SceneItem"
 
-let firstUpdate = false
 const Scenes = () => {
   const scenes = useRecoilValue(scenesState)
   const setScenes = useSetRecoilState(scenesState)
@@ -52,16 +52,12 @@ const Scenes = () => {
 
     const loadedFile = loadRequest.contents?.content
 
-    let importPromise
     if (loadedFile) {
       setCurrentDesign(loadedFile)
-
-      importPromise = editor.scene.importFromJSON({
-        frame: loadedFile.frame,
-        ...loadedFile.scenes[0],
-      })
+      setCurrentScene(loadedFile.scenes[0])
+      setScenes(loadedFile.scenes)
     } else {
-      importPromise = getDefaultTemplate(editor.canvas.canvas, { width: 512, height: 512 }).then((defaultTemplate) => {
+      getDefaultTemplate(editor.canvas.canvas, { width: 512, height: 512 }).then((defaultTemplate) => {
         setCurrentDesign({
           id: nanoid(),
           frame: defaultTemplate.frame,
@@ -69,22 +65,15 @@ const Scenes = () => {
           name: "New Artwork",
           preview: "",
           scenes: [],
-          type: "PRESENTATION",
         })
 
-        return editor.scene.importFromJSON(defaultTemplate)
+        editor.renderer.render(defaultTemplate).then((data) => {
+          setCurrentScene({ ...defaultTemplate, preview: data })
+          setScenes([{ ...defaultTemplate, preview: data }])
+        })
       })
     }
 
-    importPromise
-      .then(() => {
-        const initialDesign = editor.scene.exportToJSON() as any
-        editor.renderer.render(initialDesign).then((data) => {
-          setCurrentScene({ ...initialDesign, preview: data })
-          setScenes([{ ...initialDesign, preview: data }])
-        })
-      })
-      .catch(console.log)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!editor])
 
@@ -112,7 +101,7 @@ const Scenes = () => {
     }
   }, [currentScene, editor, scenes, setScenes, rerenderPreview])
 
-  // When scene is first set
+  // Save new file when scene is first set
   useEffect(() => {
     if (editor) {
       saveIfNewFile()
@@ -121,16 +110,11 @@ const Scenes = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!currentScene])
 
-  // Updates scene when selecting a different one
-  // TODO: is this really necessary? Can't we just inline when updating scene?
+  // Updates canvas when selecting a different scene
   useEffect(() => {
     if (!editor || !currentScene) return
 
-    if (!firstUpdate) {
-      firstUpdate = true
-    } else {
-      editor.scene.importFromJSON(currentScene)
-    }
+    editor.scene.importFromJSON(currentScene)
   }, [editor, currentScene])
 
   const addScene = React.useCallback(async () => {

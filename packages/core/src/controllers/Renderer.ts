@@ -7,61 +7,53 @@ class Renderer {
     return await this.toDataURL(template, {})
   }
 
-  public async renderCanvas(template: IScene) : Promise<HTMLCanvasElement> {
-    return new Promise(async (resolve, reject) => {
-      const staticCanvas = new fabric.StaticCanvas(null)
-      await this.loadTemplate(staticCanvas, template, {})
-      const canvas = staticCanvas.toCanvasElement(1, {
-        top: template.top ?? 0,
-        left: template.left ?? 0,
-        height: staticCanvas.getHeight(),
-        width: staticCanvas.getWidth(),
-      })
+  public async renderCanvas(template: IScene): Promise<HTMLCanvasElement> {
+    const staticCanvas = new fabric.StaticCanvas(null)
+    await this.loadTemplate(staticCanvas, template, {})
 
-      resolve(canvas)
+    return staticCanvas.toCanvasElement(1, {
+      top: template.top ?? 0,
+      left: template.left ?? 0,
+      height: staticCanvas.getHeight(),
+      width: staticCanvas.getWidth(),
     })
   }
 
   public async toDataURL(template: IScene, params: Record<string, any>) {
-    return new Promise(async (resolve, reject) => {
-      const staticCanvas = new fabric.StaticCanvas(null)
-      await this.loadTemplate(staticCanvas, template, params)
-      const data = staticCanvas.toDataURL({
-        top: 0,
-        left: 0,
-        height: staticCanvas.getHeight(),
-        width: staticCanvas.getWidth(),
-      })
+    const staticCanvas = new fabric.StaticCanvas(null)
+    await this.loadTemplate(staticCanvas, template, params)
 
-      resolve(data)
+    return staticCanvas.toDataURL({
+      top: 0,
+      left: 0,
+      height: staticCanvas.getHeight(),
+      width: staticCanvas.getWidth(),
     })
   }
 
-  public renderLayer = (layer: Required<ILayer>, params: {}) => {
-    return new Promise(async (resolve, reject) => {
-      const staticCanvas = new fabric.StaticCanvas(null)
-      await this.loadTemplate(
-        staticCanvas,
-        {
-          id: layer.id,
-          metadata: {},
-          layers: [{ ...layer, top: 0, left: 0 }],
-          frame: {
-            width: layer.width * layer.scaleX,
-            height: layer.height * layer.scaleY,
-          },
+  public renderLayer = async (layer: Required<ILayer>, params: object) => {
+    const staticCanvas = new fabric.StaticCanvas(null)
+    await this.loadTemplate(
+      staticCanvas,
+      {
+        id: layer.id,
+        metadata: {},
+        layers: [{ ...layer, top: 0, left: 0 }],
+        frame: {
+          width: layer.width * layer.scaleX,
+          height: layer.height * layer.scaleY,
         },
-        params
-      )
-      const data = staticCanvas.toDataURL({
-        top: 0,
-        left: 0,
-        height: staticCanvas.getHeight(),
-        width: staticCanvas.getWidth(),
-      })
-      resolve(data)
+      },
+      params
+    )
+    return staticCanvas.toDataURL({
+      top: 0,
+      left: 0,
+      height: staticCanvas.getHeight(),
+      width: staticCanvas.getWidth(),
     })
   }
+
   private async loadTemplate(staticCanvas: fabric.StaticCanvas, template: IScene, params: Record<string, any>) {
     const { frame } = template
     this.setDimensions(staticCanvas, frame)
