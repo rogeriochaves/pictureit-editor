@@ -3,7 +3,14 @@ import { isArray, pick } from "lodash"
 import { nanoid } from "nanoid"
 import Base from "./Base"
 import { IGroup, ILayer, ILayerOptions } from "@layerhub-io/types"
-import { copyStyleProps, defaultBackgroundOptions, defaultFrameOptions, getCopyStyleCursor, LayerType, nonRenderableLayerTypes } from "../common/constants"
+import {
+  copyStyleProps,
+  defaultBackgroundOptions,
+  defaultFrameOptions,
+  getCopyStyleCursor,
+  LayerType,
+  nonRenderableLayerTypes,
+} from "../common/constants"
 import { Direction, GradientOptions, ScaleType, ShadowOptions, Size } from "../common/interfaces"
 import ObjectImporter from "../utils/object-importer"
 import setObjectGradient, { setObjectShadow } from "../utils/fabric"
@@ -260,8 +267,8 @@ class Objects extends Base {
       refObject = this.findOneById(id)
     }
     if (refObject) {
-      let scaleX = width / refObject.width
-      let scaleY = height / refObject.height
+      const scaleX = width / refObject.width
+      const scaleY = height / refObject.height
       const scaleMax = Math.max(scaleX, scaleY)
       const scaleMin = Math.min(scaleX, scaleY)
 
@@ -746,6 +753,7 @@ class Objects extends Base {
   }
 
   public unsetBackgroundImage(): Promise<fabric.StaticImage | null> {
+    // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
       const objects = this.canvas.getObjects()
       const currentBackgroundImage = objects.find((o) => o.type === LayerType.BACKGROUND_IMAGE)
@@ -773,7 +781,7 @@ class Objects extends Base {
 
     if (refObject && refObject.type === LayerType.STATIC_IMAGE) {
       const frame = this.editor.frame.frame
-      let nextImage = await this.unsetBackgroundImage()
+      const nextImage = await this.unsetBackgroundImage()
       if (nextImage) {
         // @ts-ignore
         this.canvas.add(nextImage)

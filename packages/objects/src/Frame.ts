@@ -22,7 +22,7 @@ export class FrameObject extends fabric.Rect {
     return super.toObject(propertiesToInclude)
   }
 
-  static fromObject(options: FrameOptions, callback: Function) {
+  static fromObject(options: FrameOptions, callback: (arg: fabric.Frame) => void) {
     return callback && callback(new fabric.Frame(options))
   }
 }

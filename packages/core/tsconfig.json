@@ -16,5 +16,9 @@
     "rootDir": "src",
     "composite": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "references": [
+    { "path": "../objects" },
+    { "path": "../types" },
+  ],
 }

@@ -125,7 +125,7 @@ class Frame extends Base {
     const canvasWidth = this.canvas.getWidth() - this.config.frameMargin
     const canvasHeight = this.canvas.getHeight() - this.config.frameMargin
     let scaleX = canvasWidth / options.width
-    let scaleY = canvasHeight / options.height
+    const scaleY = canvasHeight / options.height
     if (options.height >= options.width) {
       scaleX = scaleY
       if (canvasWidth < options.width * scaleX) {
