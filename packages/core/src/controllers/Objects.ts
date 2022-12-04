@@ -68,7 +68,7 @@ class Objects extends Base {
   public afterAddHook = async (object: fabric.Object, select: boolean = true) => {
     const { canvas } = this
 
-    this.putInsideFrameIfNear(object)
+    this.putInsideFrameIfNearOrRemoveIfFar(object)
 
     if (select) {
       this.state.setActiveObject(object)
@@ -149,16 +149,37 @@ class Objects extends Base {
     }
   }
 
-  public putInsideFrameIfNear = (object: fabric.Object) => {
+  public putInsideFrameIfNearOrRemoveIfFar = (object: fabric.Object) => {
     if (object instanceof fabric.GenerationFrame) return
 
-    for (const frame of this.canvas.getObjects()) {
-      if (frame instanceof fabric.GenerationFrame && object.intersectsWithObject(frame as fabric.Object)) {
-        this.canvas.remove(object)
-        object.evented = false
-        frame.add(object)
+    const activeObject = this.canvas.getActiveObject()
 
-        break
+    if (
+      object.group instanceof fabric.GenerationFrame &&
+      !object.intersectsWithObject(object.group.getRect() as fabric.Object)
+    ) {
+      object.group.remove(object)
+      this.canvas.add(object)
+    }
+
+    if (!object.group) {
+      for (const frame of this.canvas.getObjects()) {
+        if (frame instanceof fabric.GenerationFrame && object.intersectsWithObject(frame as fabric.Object)) {
+          this.canvas.remove(object)
+          object.evented = false
+          object.canvas = this.canvas
+          if (frame._objects?.indexOf(object) === -1) {
+            frame.add(object)
+            if (activeObject == object) {
+              setTimeout(() => {
+                object.evented = true
+                this.editor.objects.select(object.id)
+              }, 1)
+            }
+          }
+
+          break
+        }
       }
     }
   }

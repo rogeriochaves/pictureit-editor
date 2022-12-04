@@ -80,9 +80,14 @@ class Events extends Base {
     }
   }
   objectModified = (event: fabric.IEvent) => {
-    const { target } = event
+    const { target, transform } = event
     if (target instanceof fabric.Textbox) {
       this.scaleTextbox(target)
+    }
+
+    //@ts-ignore
+    if (target && transform?.action == "drag") {
+      this.editor.objects.putInsideFrameIfNearOrRemoveIfFar(target)
     }
     this.editor.history.save()
   }
