@@ -45,7 +45,9 @@ export const generateImage = createAsyncThunk<
     const num_inference_steps = frame.metadata?.steps || 50
     frame.showLoading((4 + num_inference_steps * 0.1) * 1000)
 
-    const init_image = await renderInitImage(editor, frame)
+    const init_image = frame.metadata?.initImage?.fixed
+      ? frame.metadata?.initImage?.image
+      : await renderInitImage(editor, frame)
 
     api
       .stableDiffusion({
@@ -53,7 +55,7 @@ export const generateImage = createAsyncThunk<
         num_inference_steps,
         guidance_scale: frame.metadata?.guidance || 7.5,
         prompt_strength: 0.8,
-        ...(init_image ? { init_image: init_image, prompt_strength: 0.9 } : {}),
+        ...(init_image ? { init_image } : {}),
       })
       .then(async (result) => {
         if (result.url) {
@@ -72,6 +74,8 @@ export const generateImage = createAsyncThunk<
     return rejectWithValue((err as any).response?.data?.error.data || null)
   }
 })
+
+export const DEFAULT_NOISE = 2
 
 export const renderInitImage = async (
   editor: Editor,
@@ -92,6 +96,8 @@ export const renderInitImage = async (
     layers: [exported],
     metadata: {},
   })
-  addGaussianNoise(canvas.getContext("2d")!, 2)
+
+  const noise = generationFrame.metadata?.initImage?.noise || DEFAULT_NOISE
+  addGaussianNoise(canvas.getContext("2d")!, noise)
   return canvas.toDataURL("image/jpeg")
 }

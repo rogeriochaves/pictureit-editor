@@ -4,6 +4,7 @@ import Common from "./Common"
 import Flip from "./Shared/Flip"
 import useAppContext from "~/hooks/useAppContext"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
+import { Separator } from "./Shared/Separator"
 
 const Path = () => {
   const [state, setState] = React.useState({ fill: "#000000" })
@@ -49,7 +50,10 @@ const Path = () => {
           display: "flex",
           alignItems: "center",
         }}
+        gridGap="0.5rem"
       >
+        <Block>{activeObject?.name}</Block>
+        <Separator />
         <Block onClick={() => setActiveSubMenu("PathFill")}>
           <Block
             $style={{

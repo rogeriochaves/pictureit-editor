@@ -67,6 +67,7 @@ const Generation = () => {
       left: (square.left || 0) - editor.frame.options.left,
       top: (square.top || 0) - editor.frame.options.top,
       fill: transparentPattern,
+      name: "Generation Frame"
     }
     editor.objects.add(options)
 

@@ -1,6 +1,11 @@
 import { fabric } from "fabric"
 import { StaticImageObject } from "./StaticImage"
-import { StaticTextObject } from "./StaticText"
+
+export type InitImage = {
+  image?: string,
+  noise?: number,
+  fixed: boolean,
+}
 
 // @ts-ignore
 export class GenerationFrameObject extends fabric.Group {
@@ -10,6 +15,7 @@ export class GenerationFrameObject extends fabric.Group {
     prompt?: string
     steps?: number
     guidance?: number
+    initImage?: InitImage
   }
   loadingAnimation: () => void | undefined
 

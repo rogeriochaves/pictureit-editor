@@ -17,6 +17,7 @@ export const getDefaultTemplate = async (_canvas: fabric.Canvas, { width, height
         left: 0,
         top: 0,
         fill: await transparentPatternPromise,
+        name: "Generation Frame",
       },
     ],
     metadata: {},
