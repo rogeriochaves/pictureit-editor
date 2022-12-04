@@ -2,7 +2,7 @@ import React from "react"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
 import getSelectionType from "~/utils/get-selection-type"
 import { styled } from "baseui"
-import Items from "./Items"
+import Items, { ToolItems } from "./Items"
 import useAppContext from "~/hooks/useAppContext"
 import { ILayer } from "@layerhub-io/types"
 
@@ -21,7 +21,7 @@ const Container = styled("div", (props) => ({
 
 const Toolbox = () => {
   const [state, setState] = React.useState<ToolboxState>({ toolbox: DEFAULT_TOOLBOX })
-  const { setActiveSubMenu } = useAppContext()
+  const { setActiveSubMenu, activePanel } = useAppContext()
   const activeObject = useActiveObject() as ILayer
   const editor = useEditor()
 
@@ -63,7 +63,7 @@ const Toolbox = () => {
   }, [editor, activeObject])
 
   // @ts-ignore
-  const Component = Items[state.toolbox]
+  const Component = ToolItems[activePanel] || Items[state.toolbox]
 
   return <Container>{Component ? <Component /> : state.toolbox}</Container>
 }

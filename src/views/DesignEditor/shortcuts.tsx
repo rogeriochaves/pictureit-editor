@@ -41,7 +41,7 @@ const Shortcuts = () => {
     for (const shortcut of shortcuts) {
       if (shortcut.isMac !== undefined && !!shortcut.isMac !== isMac) continue
 
-      let combination = {
+      const combination = {
         meta: false,
         ctrl: false,
         shift: false,

@@ -11,33 +11,8 @@ const Drawing = () => {
 
   useEffect(() => {
     setIsSidebarOpen(false)
-  }, [setIsSidebarOpen])
-
-  const objectAddedHandler = useCallback(
-    (e: IEvent) => {
-      const object = e.target!
-      // @ts-ignore
-      object.id = nanoid()
-      object.name = "Free Drawing"
-      object.type = "StaticPath"
-      editor.objects.afterAddHook(object, false)
-    },
-    [editor]
-  )
-
-  useEffect(() => {
-    const canvas = editor.canvas.canvas
-    canvas.isDrawingMode = true
-    canvas.freeDrawingBrush = new fabric.PencilBrush(canvas)
-    canvas.freeDrawingBrush.width = 15
-    canvas.freeDrawingBrush.color = "rgb(255, 0, 0)"
-    canvas.on("object:added", objectAddedHandler)
-
-    return () => {
-      canvas.isDrawingMode = false
-      canvas.off("object:added", objectAddedHandler)
-    }
-  }, [editor, objectAddedHandler])
+    editor.objects.deselect()
+  }, [editor, setIsSidebarOpen])
 
   return null
 }

@@ -23,7 +23,7 @@ const initialState: GenerationState = {
 export const DEFAULT_PROMPT_STRENGTH = 0.8
 export const DEFAULT_GUIDANCE = 7.5
 
-export const generationSlice = createSlice({
+const slice = createSlice({
   name: "generation",
   initialState,
   reducers: {
@@ -36,8 +36,8 @@ export const generationSlice = createSlice({
   },
 })
 
-export const { setGenerationRequest, setHidePopup } = generationSlice.actions
-export const generationReducer = generationSlice.reducer
+export const { setGenerationRequest, setHidePopup } = slice.actions
+export const generationReducer = slice.reducer
 
 export const generateImage = createAsyncThunk<
   void,

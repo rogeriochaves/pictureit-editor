@@ -2,10 +2,12 @@ import express, { Request } from "express"
 import path from "path"
 import cors from "cors"
 import proxy from "express-http-proxy"
+import bodyParser from "body-parser"
 
 const app = express()
 
 app.use(cors())
+app.use(bodyParser.json({ limit: "10mb" }))
 app.use("/", express.static(path.join(__dirname, "public")))
 
 app.use(

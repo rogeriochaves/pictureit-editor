@@ -1,7 +1,7 @@
 import { PropsWithChildren } from "react"
 import { Block } from "baseui/block"
 
-export function ColorSquare(props: PropsWithChildren) {
+export function ColorSquare(props: PropsWithChildren<any>) {
   return (
     <Block
       $style={{
@@ -11,7 +11,7 @@ export function ColorSquare(props: PropsWithChildren) {
         alignItems: "center",
         justifyContent: "center",
         cursor: "pointer",
-        backgroundColor: "#FFF",
+        backgroundColor: props.color ?? "#FFF",
         border: "1px solid #dedede",
       }}
       {...props}

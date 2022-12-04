@@ -29,7 +29,7 @@ const Layers = () => {
   }, [objects])
 
   React.useEffect(() => {
-    let watcher = async () => {
+    const watcher = async () => {
       if (objects) {
         setLayerObjects([...objects])
       }

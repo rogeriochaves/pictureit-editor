@@ -22,7 +22,7 @@ const PanelsList = () => {
     } else {
       setState({ panel: activePanel })
     }
-  }, [activeSubMenu])
+  }, [activePanel, activeSubMenu])
 
   // @ts-ignore
   const Component = panelItems[state.panel]
