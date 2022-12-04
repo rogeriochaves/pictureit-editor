@@ -311,7 +311,7 @@ class ObjectImporter {
         const { fill } = item as IGenerationFrame
 
         // @ts-ignore
-        const element = new fabric.Rect({
+        const element = new fabric.GenerationFrame({
           ...baseOptions,
           type: item.type,
           fill: typeof fill === "object" && fill.source == transparentB64 ? transparentPattern : fill,

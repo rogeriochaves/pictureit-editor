@@ -60,18 +60,13 @@ const Generation = () => {
   }
 
   function mouseUpHandler(_e: IEvent) {
-    const generationFrame = new fabric.Rect({
-      //@ts-ignore
+    const generationFrame = new fabric.GenerationFrame({
       id: nanoid(),
       width: 512,
       height: 512,
       left: square.left,
       top: square.top,
       fill: transparentPattern,
-      selectable: true,
-      hasControls: false,
-      hasBorders: true,
-      type: LayerType.GENERATION_FRAME,
     })
     editor.canvas.canvas.add(generationFrame)
     editor.canvas.canvas.setActiveObject(generationFrame)
