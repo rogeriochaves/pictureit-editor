@@ -5,8 +5,8 @@ import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useSelector } from "react-redux"
+import { generateImage } from "../../../../store/generation"
 import { RootState } from "../../../../store/rootReducer"
-import { generateImage } from "../../../../store/slices/generation/actions"
 import { useAppDispatch } from "../../../../store/store"
 
 const ActionPopup = () => {
