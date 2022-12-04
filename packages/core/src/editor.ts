@@ -13,10 +13,12 @@ import { EditorState } from "./common/interfaces"
 import { defaultEditorConfig } from "./common/constants"
 import Guidelines from "./controllers/Guidelines"
 import { EditorConfig } from "@layerhub-io/types"
+import Frames from "./controllers/Frames"
 
 export class Editor extends EventManager {
   public canvas: Canvas
   public frame: Frame
+  public frames: Frames
   public zoom: Zoom
   public history: History
   public objects: Objects
@@ -59,6 +61,7 @@ export class Editor extends EventManager {
       state: this.state,
     }
     this.frame = new Frame(options)
+    this.frames = new Frames(options, this.frame)
     this.zoom = new Zoom(options)
     this.history = new History(options)
     this.objects = new Objects(options)

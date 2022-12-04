@@ -3,15 +3,17 @@ import { fabric } from "fabric"
 export class FrameObject extends fabric.Rect {
   static type = "Frame"
   initialize(options: FrameOptions) {
+    // eslint-disable-next-line no-console
+    console.log('"new version 3!!"');
     super.initialize({
       ...options,
-      selectable: false,
+      selectable: true,
       hasControls: false,
-      lockMovementY: true,
-      lockMovementX: true,
+      // lockMovementY: true,
+      // lockMovementX: true,
       strokeWidth: 0,
       padding: 0,
-      evented: false,
+      // evented: false,
     })
     return this
   }

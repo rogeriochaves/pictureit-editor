@@ -12,7 +12,8 @@
             "pixabay": "Pixabay",
             "layers": "Layers",
             "drawing": "Drawing",
-            "move": "Move"
+            "move": "Move",
+            "frame": "Frame"
         }
     }
 }
