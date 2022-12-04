@@ -78,7 +78,7 @@ const Shortcuts = () => {
         break
       }
     }
-  }, [editor.history.redo, editor.history.undo, isMac, setActiveTool])
+  }, [editor?.history.redo, editor?.history.undo, isMac, setActiveTool])
 
   useEffect(() => {
     if (!editor) return
