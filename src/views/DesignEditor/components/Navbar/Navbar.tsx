@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { styled, ThemeProvider, DarkTheme } from "baseui"
 import { Theme } from "baseui/theme"
 import { Button, KIND } from "baseui/button"
@@ -14,8 +14,12 @@ import { loadVideoEditorAssets } from "~/utils/video"
 import DesignTitle from "./DesignTitle"
 import { IDesign } from "~/interfaces/DesignEditor"
 import Github from "~/components/Icons/Github"
+import api from "../../../../api"
+import { User } from "../../../../api/adapters/pictureit"
+import { RemoteData } from "../../../../interfaces/common"
+import useAppContext from "../../../../hooks/useAppContext"
 
-const Container = styled<"div", {}, Theme>("div", ({ $theme }) => ({
+const Container = styled<"div", object, Theme>("div", ({ $theme }) => ({
   height: "64px",
   background: $theme.colors.black,
   display: "grid",
@@ -28,7 +32,27 @@ const Navbar = () => {
   const { setDisplayPreview, setScenes, setCurrentDesign, currentDesign, scenes } = useDesignEditorContext()
   const editorType = useEditorType()
   const editor = useEditor()
-  const inputFileRef = React.useRef<HTMLInputElement>(null)
+  const inputFileRef = useRef<HTMLInputElement>(null)
+  const { user, setUser } = useAppContext()
+
+  useEffect(() => {
+    if ("isPictureIt" in api) {
+      setUser({ state: "LOADING" })
+
+      api
+        .user()
+        .then((user) => {
+          if (user) {
+            setUser({ state: "SUCCESS", data: user })
+          } else {
+            setUser({ state: "ERROR", message: "logged out" })
+          }
+        })
+        .catch((e) => {
+          setUser({ state: "ERROR", message: e.toString() })
+        })
+    }
+  }, [setUser])
 
   const parseGraphicJSON = () => {
     const currentScene = editor.scene.exportToJSON()
@@ -134,7 +158,7 @@ const Navbar = () => {
     }
   }
 
-  const makeDownload = (data: Object) => {
+  const makeDownload = (data: object) => {
     const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(data))}`
     const a = document.createElement("a")
     a.href = dataStr
@@ -149,7 +173,7 @@ const Navbar = () => {
       } else if (editorType === "PRESENTATION") {
         return parsePresentationJSON()
       } else {
-      return parseVideoJSON()
+        return parseVideoJSON()
       }
     }
   }
@@ -328,12 +352,12 @@ const Navbar = () => {
           </Button>
 
           <Button
-            style={{ marginLeft: "0.5rem" }}
+            style={{ marginLeft: "0.5rem", minWidth: "100px" }}
             size="compact"
             onClick={() => window.location.replace("https://editor.layerhub.io")}
             kind={KIND.primary}
           >
-            Try PRO
+            {user.state == "SUCCESS" ? user.data.name : "\u00A0"}
           </Button>
         </Block>
       </Container>
