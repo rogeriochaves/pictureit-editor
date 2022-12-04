@@ -6,14 +6,15 @@ import useAppContext from "~/hooks/useAppContext"
 import Loading from "./components/Loading"
 import { editorFonts } from "./constants/fonts"
 import { useAutosaveEffect, usePreventCloseIfNotSaved } from "./hooks/useSaveLoad"
-import { loadFileRequest } from "./state/file"
-import { useRecoilLazyLoadable } from "./utils/lazySelectorFamily"
+import { loadFileRequest, saveFileRequest } from "./state/file"
+import { useRecoilLazyLoadable, useRecoilValueLazyLoadable } from "./utils/lazySelectorFamily"
 
 const Container = ({ children }: { children: React.ReactNode }) => {
   useAutosaveEffect()
   usePreventCloseIfNotSaved()
   const { id } = useParams()
   const [loadRequest, loadFile] = useRecoilLazyLoadable(loadFileRequest)
+  const saveRequest = useRecoilValueLazyLoadable(saveFileRequest)
   const navigate = useNavigate()
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -50,14 +51,15 @@ const Container = ({ children }: { children: React.ReactNode }) => {
   }, [])
 
   useEffect(() => {
-    if (id) {
+    if (id && saveRequest.state !== "hasValue") {
       loadFile(id).then(() => {
         setLoaded(true)
       })
     } else {
       setLoaded(true)
     }
-  }, [id, loadFile])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const loadFonts = () => {
     const promisesList = editorFonts.map((font) => {
