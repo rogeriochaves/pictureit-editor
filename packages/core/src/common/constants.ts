@@ -1,4 +1,5 @@
 import { EditorConfig } from "@layerhub-io/types"
+import { fabric } from "fabric"
 
 export const PROPERTIES_TO_INCLUDE = [
   "id",
@@ -45,12 +46,18 @@ export const defaultEditorConfig: EditorConfig = {
   },
 }
 
+export const transparentPattern = new fabric.Pattern({
+  source:
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAQMAAABtzGvEAAAABlBMVEX////y8vR/2MH6AAAAFUlEQVQY02MAgv///w9+auBdQBQFAChSj3FVQCgvAAAAAElFTkSuQmCC",
+  repeat: "repeat",
+})
+
 export const defaultFrameOptions = {
   width: 1200,
   height: 1200,
   id: "frame",
   name: "Initial Frame",
-  fill: "#ffffff",
+  fill: transparentPattern,
   hoverCursor: "default",
 }
 
@@ -72,7 +79,7 @@ export enum LayerType {
 export const defaultBackgroundOptions = {
   width: 1200,
   height: 1200,
-  fill: "#ffffff",
+  fill: "transparent",
   id: "background",
   name: "Initial Frame",
 }

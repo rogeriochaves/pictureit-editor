@@ -59,7 +59,7 @@ class Renderer {
         staticCanvas.add(element)
       } else {
         console.log("UNABLE TO LOAD LAYER: ", layer)
-        console.trace();
+        console.trace()
       }
     }
   }

@@ -4,12 +4,9 @@ import Canvas from "./components/Canvas"
 import Footer from "./components/Footer"
 import EditorContainer from "./components/EditorContainer"
 import ContextMenu from "./components/ContextMenu"
-import { useEditor } from "@layerhub-io/react"
-import Shortcuts from "./shortcuts"
+import Shortcuts from "./Shortcuts"
 
 const GraphicEditor = () => {
-  const editor = useEditor()
-
   return (
     <EditorContainer>
       <Shortcuts />

@@ -43,7 +43,7 @@ const Common = () => {
     }
   }
 
-  if (!editor) return
+  if (!editor) return null
 
   return (
     <Container>

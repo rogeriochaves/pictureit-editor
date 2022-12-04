@@ -3,7 +3,7 @@ import { isArray, pick } from "lodash"
 import { nanoid } from "nanoid"
 import Base from "./Base"
 import { ILayer, ILayerOptions } from "@layerhub-io/types"
-import { copyStyleProps, getCopyStyleCursor, LayerType } from "../common/constants"
+import { copyStyleProps, defaultBackgroundOptions, defaultFrameOptions, getCopyStyleCursor, LayerType } from "../common/constants"
 import { Direction, GradientOptions, ScaleType, ShadowOptions, Size } from "../common/interfaces"
 import ObjectImporter from "../utils/object-importer"
 import setObjectGradient, { setObjectShadow } from "../utils/fabric"
@@ -127,7 +127,7 @@ class Objects extends Base {
       }
     })
     frame.set({
-      fill: "#ffffff",
+      fill: defaultFrameOptions.fill,
     })
     this.canvas.renderAll()
   }
@@ -141,7 +141,7 @@ class Objects extends Base {
       }
     })
     background?.set({
-      fill: "#ffffff",
+      fill: defaultBackgroundOptions.fill,
     })
     this.canvas.renderAll()
     this.editor.history.reset()
