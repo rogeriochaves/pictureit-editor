@@ -20,7 +20,7 @@ class Scene extends Base {
     const frame = this.editor.frame.options
     const template: IScene = {
       id: this.id ? this.id : nanoid(),
-      name: this.name ? this.name : "Untitled design",
+      name: this.name ? this.name : "New Artwork",
       layers: [],
       frame: {
         width: frame.width,

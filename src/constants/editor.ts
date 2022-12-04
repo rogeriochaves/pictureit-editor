@@ -14,7 +14,7 @@ export enum SubMenuType {
 export const SAMPLE_TEMPLATES = [
   {
     id: "0sXf_YEww2RXXCjdNkrWh",
-    name: "Untitled design",
+    name: "New Artwork",
     layers: [
       {
         id: "background",
@@ -201,7 +201,7 @@ export const SAMPLE_TEMPLATES = [
   },
   {
     id: "sRQQYw0OOnctiJUBsMg6S",
-    name: "Untitled design",
+    name: "New Artwork",
     layers: [
       {
         id: "background",
@@ -371,7 +371,7 @@ export const SAMPLE_TEMPLATES = [
   },
   {
     id: "x2shx-AJICr0dZo32dq9y",
-    name: "Untitled design",
+    name: "New Artwork",
     layers: [
       {
         id: "background",

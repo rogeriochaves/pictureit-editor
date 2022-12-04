@@ -10,7 +10,7 @@ interface State {
 }
 
 const DesignTitle = () => {
-  const [state, setState] = React.useState<State>({ name: "Untitled Design", width: 0 })
+  const [state, setState] = React.useState<State>({ name: "New Artwork", width: 0 })
   const { currentDesign, setCurrentDesign } = useDesignEditorContext()
 
   const handleInputChange = (name: string) => {

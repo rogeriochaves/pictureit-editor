@@ -6,6 +6,7 @@ import Scenes from "./Scenes"
 
 const Container = styled<"div", {}, Theme>("div", ({ $theme }) => ({
   background: $theme.colors.white,
+  borderTop: "1px solid #e7e8f3",
 }))
 
 const Graphic = () => {

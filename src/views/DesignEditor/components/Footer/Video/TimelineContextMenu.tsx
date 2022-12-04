@@ -53,7 +53,7 @@ const TimelineContextMenu = () => {
         id: nanoid(),
         frame: defaultTemplate.frame,
         metadata: {},
-        name: "Untitled Design",
+        name: "New Artwork",
         preview: "",
         scenes: [],
         type: "VIDEO",
