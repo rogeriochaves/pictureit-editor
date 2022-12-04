@@ -19,6 +19,7 @@ import BringToFront from "~/components/Icons/BringToFront"
 import SendToBack from "~/components/Icons/SendToBack"
 import AlignBottom from "~/components/Icons/AlignBottom"
 import Opacity from "./Shared/Opacity"
+import Flip from "./Shared/Flip"
 
 const Common = () => {
   const [state, setState] = React.useState({ isGroup: false, isMultiple: false })
@@ -78,6 +79,7 @@ const Common = () => {
       {(state.isGroup || !state.isMultiple) && <CommonLayers />}
 
       <CommonAlign />
+      <Flip />
       <Opacity />
       <LockUnlock />
       <StatefulTooltip placement={PLACEMENT.bottom} showArrow={true} accessibilityType="tooltip" content="Duplicate">

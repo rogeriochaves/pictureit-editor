@@ -62,7 +62,7 @@ const Flip = () => {
       <Block>
         <StatefulTooltip placement={PLACEMENT.bottom} showArrow={true} accessibilityType="tooltip" content="Layers">
           <Button size={SIZE.compact} kind={KIND.tertiary}>
-            Flip
+            <FlipHorizontal size={24} />
           </Button>
         </StatefulTooltip>
       </Block>
