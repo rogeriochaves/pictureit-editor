@@ -2,6 +2,7 @@ import { Block } from "baseui/block"
 import { Button } from "baseui/button"
 import { Modal, ModalBody, ModalButton, ModalFooter, ModalHeader, ROLE, SIZE } from "baseui/modal"
 import { useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from "recoil"
+import { PICTURE_IT_URL } from "../../api/adapters/pictureit"
 import GreenCheckmark from "../../components/Icons/GreenCheckmark"
 import { paymentRequiredState } from "../../state/generateImage"
 import { currentUserQuery } from "../../state/user"
@@ -39,7 +40,7 @@ const PaymentRequired = () => {
   const setPaymentRequired = useSetRecoilState(paymentRequiredState)
 
   const redirect = () => {
-    document.location = `https://pictureit.art/update_subscription`
+    document.location = `${PICTURE_IT_URL}/update_subscription`
   }
 
   return (
@@ -79,9 +80,18 @@ const PaymentRequired = () => {
         </Block>
       </ModalBody>
       <ModalFooter>
-        <Block display="flex" $style={{width: "100%"}} flexDirection="column" gridGap="12px" justifyContent="space-between" alignItems="center">
+        <Block
+          display="flex"
+          $style={{ width: "100%" }}
+          flexDirection="column"
+          gridGap="12px"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           <Block $style={{ fontSize: "13px", color: "rgb(100, 100, 100)" }}>* $0.00345 per AI usage second</Block>
-          <Button onClick={redirect} style={{ width: "100%", marginBottom: "12px" }}>Setup Payment with Stripe</Button>
+          <Button onClick={redirect} style={{ width: "100%", marginBottom: "12px" }}>
+            Setup Payment with Stripe
+          </Button>
         </Block>
       </ModalFooter>
     </Modal>
@@ -90,7 +100,7 @@ const PaymentRequired = () => {
 
 const SignInAgain = () => {
   const redirect = () => {
-    document.location = `https://pictureit.art/login?return_to=${encodeURIComponent(document.location.toString())}`
+    document.location = `${PICTURE_IT_URL}/login?return_to=${encodeURIComponent(document.location.toString())}`
   }
 
   return (

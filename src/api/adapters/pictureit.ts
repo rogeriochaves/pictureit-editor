@@ -7,7 +7,9 @@ import {
 } from "../index"
 import { proxyFetch } from "../proxyFetch"
 
-const pictureItFetch = proxyFetch(import.meta.env.VITE_ENV_PICTURE_IT_URL || "https://pictureit.art")
+export const PICTURE_IT_URL = import.meta.env.VITE_ENV_PICTURE_IT_URL || "https://pictureit.art"
+
+const pictureItFetch = proxyFetch(PICTURE_IT_URL)
 
 interface IsPictureIt {
   isPictureIt(): true

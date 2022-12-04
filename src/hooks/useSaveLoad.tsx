@@ -5,7 +5,7 @@ import { debounce } from "lodash"
 import { nanoid } from "nanoid"
 import { useCallback, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
+import { useRecoilState, useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from "recoil"
 import api from "../api"
 import { IDesign } from "../interfaces/DesignEditor"
 import { currentDesignState, currentSceneState, scenesState } from "../state/designEditor"
@@ -16,6 +16,8 @@ import {
   saveFileRequest,
   waitingForFileSaveDebounceState,
 } from "../state/file"
+import { paymentRequiredState } from "../state/generateImage"
+import { currentUserQuery } from "../state/user"
 import { useCallRecoilLazyLoadable, useRecoilValueLazyLoadable } from "../utils/lazySelectorFamily"
 
 export const useAutosaveEffect = () => {
@@ -65,11 +67,17 @@ export const usePreventCloseIfNotSaved = () => {
   const waitingForFileSaveDebounce = useRecoilValue(waitingForFileSaveDebounceState)
   const changesWithoutExporting = useRecoilValue(changesWithoutExportingState)
   const saveRequest = useRecoilValueLazyLoadable(saveFileRequest)
+  const user = useRecoilValueLoadable(currentUserQuery)
+  const paymentRequired = useRecoilValue(paymentRequiredState)
 
   const preventClosingIfNotSaved = useCallback(
     (event: BeforeUnloadEvent) => {
       if ("isPictureIt" in api) {
-        if (waitingForFileSaveDebounce || saveRequest.state != "hasValue") {
+        if (
+          !paymentRequired &&
+          user.state != "hasError" &&
+          (waitingForFileSaveDebounce || saveRequest.state != "hasValue")
+        ) {
           const message = "Your changes were not saved yet, are you sure you want to close?"
           event.returnValue = message
           return message
@@ -82,7 +90,7 @@ export const usePreventCloseIfNotSaved = () => {
         }
       }
     },
-    [changesWithoutExporting, saveRequest.state, waitingForFileSaveDebounce]
+    [changesWithoutExporting, paymentRequired, saveRequest.state, user.state, waitingForFileSaveDebounce]
   )
 
   useEffect(() => {

@@ -2,7 +2,9 @@ import { useEditor } from "@layerhub-io/react"
 import { IScene } from "@layerhub-io/types"
 import { DarkTheme, styled, ThemeProvider } from "baseui"
 import { Block } from "baseui/block"
-import { Button, KIND } from "baseui/button"
+import { Button, KIND, SIZE } from "baseui/button"
+import { StatefulMenu } from "baseui/menu"
+import { PLACEMENT, StatefulPopover } from "baseui/popover"
 import { Theme } from "baseui/theme"
 import React, { useRef } from "react"
 import { useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from "recoil"
@@ -14,6 +16,7 @@ import { IDesign } from "~/interfaces/DesignEditor"
 import { loadTemplateFonts } from "~/utils/fonts"
 import { loadVideoEditorAssets } from "~/utils/video"
 import api from "../../../../api"
+import { PICTURE_IT_URL } from "../../../../api/adapters/pictureit"
 import { useExportToJSON } from "../../../../hooks/useSaveLoad"
 import { editorTypeState } from "../../../../state/designEditor"
 import { changesWithoutExportingState } from "../../../../state/file"
@@ -239,14 +242,6 @@ const Navbar = () => {
 
   const OpenSourceNavbar = () => (
     <Block $style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
-      <input
-        multiple={false}
-        onChange={handleFileInput}
-        type="file"
-        id="file"
-        ref={inputFileRef}
-        style={{ display: "none" }}
-      />
       <Button
         size="compact"
         onClick={handleInputFileRefClick}
@@ -291,7 +286,7 @@ const Navbar = () => {
         <Play size={24} />
       </Button>
 
-      <Button size="compact" onClick={() => window.location.replace("https://github.com/")} kind={KIND.tertiary}>
+      <Button size="compact" onClick={() => (document.location = "https://github.com/")} kind={KIND.tertiary}>
         <Github size={24} />
       </Button>
     </Block>
@@ -326,13 +321,79 @@ const Navbar = () => {
     </Block>
   )
 
+  const FilesMenu = () => (
+    <Block $style={{ width: "36px" }}>
+      <StatefulPopover
+        showArrow={false}
+        placement={PLACEMENT.bottomLeft}
+        content={() => (
+          <StatefulMenu
+            onItemSelect={({ item }) => {
+              if (item.action == "files") {
+                document.location = `${PICTURE_IT_URL}/files`
+              }
+            }}
+            items={[
+              { label: "Back to files", action: "files" },
+              { label: "File", arrow: true, action: "submenu-file" },
+            ]}
+            overrides={{
+              Option: {
+                props: {
+                  getItemLabel: (item: any) =>
+                    item.arrow ? (
+                      <Block display="flex" justifyContent="space-between">
+                        <Block>{item.label}</Block>
+                        <Block>▸</Block>
+                      </Block>
+                    ) : (
+                      item.label
+                    ),
+                  getChildMenu: (item: any) => {
+                    if (item.action === "submenu-file") {
+                      return (
+                        <StatefulMenu
+                          onItemSelect={({ item }) => {
+                            if (item.action == "export") {
+                              makeDownloadTemplate()
+                            } else if (item.action == "import") {
+                              handleInputFileRefClick()
+                            }
+                          }}
+                          items={[
+                            { label: "Save local copy", action: "export" },
+                            { label: "Open local file", action: "import" },
+                          ]}
+                        />
+                      )
+                    }
+                  },
+                },
+              },
+            }}
+          />
+        )}
+      >
+        <Button kind={KIND.tertiary} size={SIZE.compact} style={{ width: "auto" }}>
+          <Logo size={36} />
+        </Button>
+      </StatefulPopover>
+    </Block>
+  )
+
   return (
     // @ts-ignore
     <ThemeProvider theme={DarkTheme}>
-      <Container>
-        <div style={{ color: "#ffffff" }}>
-          <Logo size={36} />
-        </div>
+      <Container $style={{ paddingLeft: "12px" }}>
+        <input
+          multiple={false}
+          onChange={handleFileInput}
+          type="file"
+          id="file"
+          ref={inputFileRef}
+          style={{ display: "none" }}
+        />
+        {"isPictureIt" in api ? <FilesMenu /> : <Logo size={36} />}
         <DesignTitle />
         {"isPictureIt" in api ? <PictureItNavbar /> : <OpenSourceNavbar />}
       </Container>
