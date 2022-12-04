@@ -60,17 +60,16 @@ const Generation = () => {
   }
 
   function mouseUpHandler(_e: IEvent) {
-    const generationFrame = new fabric.GenerationFrame({
-      id: nanoid(),
+    const options = {
+      type: LayerType.GENERATION_FRAME,
       width: 512,
       height: 512,
       left: square.left,
       top: square.top,
       fill: transparentPattern,
-    })
-    editor.canvas.canvas.add(generationFrame)
-    editor.canvas.canvas.setActiveObject(generationFrame)
-    editor.canvas.canvas.fire("selection:updated")
+    }
+    editor.objects.add(options)
+
     setTimeout(() => {
       const prompt = document.getElementById("actionPopupPrompt");
       if (prompt) {

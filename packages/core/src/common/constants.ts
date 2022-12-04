@@ -18,6 +18,7 @@ export const PROPERTIES_TO_INCLUDE = [
   "fontURL",
   "duration",
   "preview",
+  "fill"
 ]
 
 export const defaultEditorConfig: EditorConfig = {

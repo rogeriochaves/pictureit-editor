@@ -42,7 +42,6 @@ class Objects extends Base {
       }
     } else {
       canvas.add(object)
-      object.center()
     }
 
     this.state.setActiveObject(object)
