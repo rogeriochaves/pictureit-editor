@@ -867,7 +867,27 @@ class Objects extends Base {
       return
     }
 
-    activeObject.toGroup()
+    const objects = (activeObject as any)._objects.concat()
+    for (const object of objects) {
+      object.evented = false
+    }
+    const options = fabric.Object.prototype.toObject.call(activeObject)
+    options.subTargetCheck = true
+    options.interactive = true
+    const newGroup = new fabric.Group([])
+    delete options.type
+    newGroup.set(options)
+    activeObject.removeAll()
+    newGroup.add(...objects)
+    for (const object of objects) {
+      this.canvas.remove(object)
+      // newGroup.enterGroup(object)
+    }
+    const canvas = this.canvas
+    canvas.add(newGroup)
+    canvas._activeObject = newGroup
+    newGroup.setCoords()
+
     this.canvas.requestRenderAll()
     this.editor.history.save()
 
@@ -882,7 +902,6 @@ class Objects extends Base {
   }
 
   public ungroup = () => {
-    const frame = this.editor.frame.frame
     const activeObject = this.canvas.getActiveObject() as fabric.ActiveSelection
     if (!activeObject) {
       return
@@ -891,12 +910,30 @@ class Objects extends Base {
       return
     }
 
-    activeObject.clipPath = null
-    const activeSelection = activeObject.toActiveSelection()
-    // @ts-ignore
-    activeSelection._objects.forEach((object) => {
-      object.clipPath = frame
-    })
+    const activeSelection = new fabric.ActiveSelection([])
+    const objects = activeObject._objects || []
+    const options = activeObject.toObject()
+    this.canvas.remove(activeObject as fabric.Object)
+    for (const object of objects) {
+      //@ts-ignore
+      activeObject.exitGroup(object)
+      object.dirty = true
+      object.evented = true
+      object.canvas = this.canvas
+      this.canvas.add(object)
+    }
+
+    // FIXME: weirdly, after ungroup, multiple selection gets a tight border, then expands again after moving
+    options.subTargetCheck = false
+    options.interactive = false
+    activeSelection.set(options)
+    activeSelection.type = "activeSelection"
+    activeSelection.canvas = this.canvas
+    activeSelection.add(...objects)
+
+    this.canvas._activeObject = activeSelection as fabric.Object
+    activeSelection.setCoords();
+
     this.state.setActiveObject(activeSelection)
     this.canvas.requestRenderAll()
     this.editor.history.save()
