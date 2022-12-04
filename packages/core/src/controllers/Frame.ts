@@ -23,7 +23,7 @@ class Frame extends Base {
       evented: false,
       fontSize: 22,
       fill: defaultFrameOptions.stroke,
-      fontFamily: "Uber Move Text",
+      fontFamily: "Uber Move Text, sans-serif",
       ...this.labelPosition(frame),
     })
 

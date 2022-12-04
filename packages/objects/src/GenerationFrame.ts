@@ -57,7 +57,7 @@ export class GenerationFrameObject extends fabric.Group {
               left: this.left,
               width: this.width,
               text: "Error loading image",
-              fontFamily: "sans-serif",
+              fontFamily: "Uber Move Text, sans-serif",
               fontSize: 18,
               editable: false,
               textAlign: "center",
