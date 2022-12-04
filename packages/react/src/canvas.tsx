@@ -12,7 +12,7 @@ export const Canvas = (props: Props) => {
   const containerRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
-    if ((import.meta as any).hot.data.editor) {
+    if ((import.meta as any).hot?.data?.editor) {
       (import.meta as any).hot.data.editor.destroy()
     }
     const container = containerRef.current as HTMLDivElement

@@ -1,10 +1,10 @@
 {
-  "name": "react-editor",
+  "name": "pictureit-editor",
   "private": true,
   "version": "0.0.0",
   "scripts": {
     "dev": "mkdir -p dist; touch dist/proxyServer.js; concurrently 'tsc --esModuleInterop --outDir ./dist --watch src/proxyServer.ts' 'nodemon -q dist/proxyServer.js' 'vite'",
-    "build": "vite build",
+    "build": "VITE_ENV_PROXY=disable vite build",
     "preview": "vite preview",
     "packages:build": "npm run build --workspaces",
     "lint": "eslint"
