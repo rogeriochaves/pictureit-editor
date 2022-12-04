@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from "react"
 import InformationCircleOutline from "~/components/Icons/InformationCircleOutline"
 import Underline from "~/components/Icons/Underline"
@@ -10,8 +9,6 @@ import { Button } from "baseui/button"
 import { ChevronRight } from "baseui/icon"
 import useAppContext from "~/hooks/useAppContext"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
-import { useSelector } from "react-redux"
-import { selectFonts } from "~/store/slices/fonts/selectors"
 import { getTextOptions } from "~/utils/object-options"
 import { fontStyleLabels } from "~/constants/fonts"
 import { Select } from "baseui/select"
@@ -20,7 +17,7 @@ import { TextOptions } from "~/interfaces/editor"
 import { defaultTextOptions } from "~/constants/contants"
 
 const TextProperties = () => {
-  const fonts = useSelector(selectFonts)
+  const fonts = [] as any
   const [state, setState] = React.useState<TextOptions>(defaultTextOptions)
   const { setActiveSubMenu } = useAppContext()
   const activeObject = useActiveObject() as any
@@ -31,7 +28,7 @@ const TextProperties = () => {
       const textOptions = getTextOptions(activeObject)
       const isGroup = textOptions.isGroup
       const active = textOptions.fontFamily.split("__")[1]
-      const font = fonts.find((f) => f.family === textOptions.fontFamily.split("__")[0].split("_").join(" "))
+      const font = fonts.find((f: any) => f.family === textOptions.fontFamily.split("__")[0].split("_").join(" "))
       if (!font) {
         setState(defaultTextOptions)
         return
@@ -40,8 +37,8 @@ const TextProperties = () => {
       const styles = Object.keys(font.files)
         .map((file: string) => ({
           value: file,
-          label: fontStyleLabels[file].label,
-          id: fontStyleLabels[file].id,
+          label: (fontStyleLabels as any)[file].label,
+          id: (fontStyleLabels as any)[file].id,
           url: font.files[file],
           family: font.family,
         }))
@@ -53,8 +50,8 @@ const TextProperties = () => {
         styles,
         fontFamily: font.family,
         activeStyle: {
-          label: fontStyleLabels[active].label,
-          id: fontStyleLabels[active].id,
+          label: (fontStyleLabels as any)[active].label,
+          id: (fontStyleLabels as any)[active].id,
         },
         fill: isGroup ? "#000000" : isNotGradient ? textOptions.fill : "#000000",
       })
