@@ -1,24 +1,133 @@
 import { Editor } from "@layerhub-io/core"
 import { useEditor } from "@layerhub-io/react"
 import { IScene } from "@layerhub-io/types"
+import { debounce } from "lodash"
 import { nanoid } from "nanoid"
 import { useCallback, useEffect } from "react"
-import { useParams, useNavigate } from "react-router-dom"
-import { useRecoilValue } from "recoil"
+import { useNavigate, useParams } from "react-router-dom"
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import { IDesign } from "../interfaces/DesignEditor"
-import { currentDesignState, scenesState } from "../state/designEditor"
-import { saveFileRequest } from "../state/file"
-import { useRecoilLazyLoadable } from "../utils/lazySelectorFamily"
+import { currentDesignState, currentSceneState, scenesState } from "../state/designEditor"
+import {
+  exponentialBackoffSaveRetryState,
+  MAX_RETRY_SAVE_TIME,
+  saveFileRequest,
+  waitingForFileSaveDebounceState
+} from "../state/file"
+import { useCallRecoilLazyLoadable, useRecoilValueLazyLoadable } from "../utils/lazySelectorFamily"
 
 export const useAutosaveEffect = () => {
+  const { id } = useParams()
+  const editor = useEditor()
+  const currentScene = useRecoilValue(currentSceneState)
+  const saveWithRetries = useSaveWithRetries()
+  const setWaitingForFileSaveDebounce = useSetRecoilState(waitingForFileSaveDebounceState)
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const onModifiedDebounced = useCallback(
+    debounce(() => {
+      if (!id) return
+
+      setWaitingForFileSaveDebounce(false)
+      saveWithRetries(editor, id)
+    }, 3000),
+    [editor, id, saveWithRetries, setWaitingForFileSaveDebounce]
+  )
+
+  const onModified = useCallback(() => {
+    setWaitingForFileSaveDebounce(true)
+    onModifiedDebounced()
+  }, [onModifiedDebounced, setWaitingForFileSaveDebounce])
+
+  useEffect(() => {
+    if (!editor || !currentScene || !id) return
+
+    editor.canvas.canvas.on("object:modified", onModified)
+    editor.canvas.canvas.on("object:added", onModified)
+    editor.canvas.canvas.on("object:removed", onModified)
+
+    return () => {
+      editor.canvas.canvas.off("object:modified", onModified)
+      editor.canvas.canvas.off("object:added", onModified)
+      editor.canvas.canvas.off("object:removed", onModified)
+    }
+  }, [currentScene, editor, id, onModified])
+}
+
+export const usePreventCloseIfNotSaved = () => {
+  const waitingForFileSaveDebounce = useRecoilValue(waitingForFileSaveDebounceState)
+  const saveRequest = useRecoilValueLazyLoadable(saveFileRequest)
+
+  const preventClosingIfNotSaved = useCallback(
+    (event: BeforeUnloadEvent) => {
+      if (waitingForFileSaveDebounce || saveRequest.state != "hasValue") {
+        const message = "Your changes were not saved yet, are you sure you want to close?"
+        event.returnValue = message
+        return message
+      }
+    },
+    [saveRequest, waitingForFileSaveDebounce]
+  )
+
+  useEffect(() => {
+    window.addEventListener("beforeunload", preventClosingIfNotSaved)
+    return () => {
+      window.removeEventListener("beforeunload", preventClosingIfNotSaved)
+    }
+  }, [preventClosingIfNotSaved])
+}
+
+const useSaveWithRetries = () => {
+  const save = useSave()
+  const [exponentialBackoffSaveRetry, setExponentialBackoffSaveRetry] = useRecoilState(exponentialBackoffSaveRetryState)
+
+  const saveWithRetries = useCallback(
+    (editor: Editor, id: string, backoff?: number) => {
+      if (exponentialBackoffSaveRetry) {
+        clearTimeout(exponentialBackoffSaveRetry.timeoutRef)
+        setExponentialBackoffSaveRetry(undefined)
+      }
+
+      save(editor, id)
+        .then((result) => {
+          setExponentialBackoffSaveRetry(undefined)
+
+          return result
+        })
+        .catch((err) => {
+          const newBackoffTime = backoff ? backoff * 2 : 1000
+          if (newBackoffTime >= MAX_RETRY_SAVE_TIME) {
+            setExponentialBackoffSaveRetry(undefined)
+            throw err
+          }
+
+          const timeoutRef = setTimeout(() => {
+            saveWithRetries(editor, id, newBackoffTime)
+          }, newBackoffTime)
+
+          setExponentialBackoffSaveRetry({
+            timeoutRef,
+            backoff: newBackoffTime,
+          })
+
+          throw err
+        })
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [save]
+  )
+
+  return saveWithRetries
+}
+
+export const useSaveIfNewFile = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const editor = useEditor()
   const save = useSave()
 
-  useEffect(() => {
-    // TODO: check if picture it
-    if (!id && editor) {
+  return useCallback(() => {
+    if (!id) {
       const newId = nanoid()
 
       save(editor, newId).then((isSaved) => {
@@ -27,13 +136,11 @@ export const useAutosaveEffect = () => {
         }
       })
     }
-  }, [id, editor, save, navigate])
-
-  return []
+  }, [editor, id, navigate, save])
 }
 
 export const useSave = () => {
-  const [_saveRequest, saveFile] = useRecoilLazyLoadable(saveFileRequest)
+  const saveFile = useCallRecoilLazyLoadable(saveFileRequest)
   const exportToJSON = useExportToJSON()
 
   return useCallback(

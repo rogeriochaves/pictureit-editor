@@ -67,13 +67,31 @@ export const useRecoilLazyLoadable = <T, P>(
   const setRequestsValue = useSetRecoilState(lazySelector.requests)
   const get = useRecoilValueLoadable(lazySelector.get)
 
-  const call = useRecoilCallback(({ refresh, set }) => (params: P) => {
-    const newValue = lazySelector.call({ id: lazySelector.id, refresh, set })(params)
-    setRequestsValue(newValue)
+  const call = useRecoilCallback(
+    ({ refresh, set }) =>
+      (params: P) => {
+        const newValue = lazySelector.call({ id: lazySelector.id, refresh, set })(params)
+        setRequestsValue(newValue)
 
-    return newValue
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lazySelector.id, lazySelector.call, setRequestsValue])
+        return newValue
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      },
+    [lazySelector.id, lazySelector.call, setRequestsValue]
+  )
 
   return [get, call]
+}
+
+export const useRecoilValueLazyLoadable = <T, P>(lazySelector: LazySelector<T, P>): Loadable<T | undefined> => {
+  const [value, _call] = useRecoilLazyLoadable(lazySelector)
+
+  return value
+}
+
+export const useCallRecoilLazyLoadable = <T, P>(
+  lazySelector: LazySelector<T, P>
+): ((params: P) => Promise<T | undefined>) => {
+  const [_value, call] = useRecoilLazyLoadable(lazySelector)
+
+  return call
 }

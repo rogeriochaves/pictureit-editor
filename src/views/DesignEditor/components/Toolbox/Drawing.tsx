@@ -9,7 +9,6 @@ import { HexColorPicker } from "react-colorful"
 import { StatefulTooltip } from "baseui/tooltip"
 import { Button, KIND, SIZE } from "baseui/button"
 import { ColorSquare } from "./Shared/ColorSquare"
-import { debounce } from "lodash"
 
 const Path = () => {
   const [state, setState] = React.useState({ stroke: "transparent" })

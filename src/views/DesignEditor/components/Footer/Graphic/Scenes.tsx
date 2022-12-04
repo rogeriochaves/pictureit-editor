@@ -6,11 +6,17 @@ import { IScene } from "@layerhub-io/types"
 import { useStyletron } from "baseui"
 import { Block } from "baseui/block"
 import { nanoid } from "nanoid"
-import React from "react"
+import React, { useEffect } from "react"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import Add from "../../../../../components/Icons/Add"
 import { getDefaultTemplate } from "../../../../../constants/design-editor"
-import { contextMenuTimelineRequestState, currentDesignState, currentSceneState, scenesState } from "../../../../../state/designEditor"
+import { useSaveIfNewFile } from "../../../../../hooks/useSaveLoad"
+import {
+  contextMenuTimelineRequestState,
+  currentDesignState,
+  currentSceneState,
+  scenesState,
+} from "../../../../../state/designEditor"
 import SceneContextMenu from "./SceneContextMenu"
 import SceneItem from "./SceneItem"
 
@@ -26,6 +32,7 @@ const Scenes = () => {
   const frame = useFrame()
   const [draggedScene, setDraggedScene] = React.useState<IScene | null>(null)
   const contextMenuTimelineRequest = useRecoilValue(contextMenuTimelineRequestState)
+  const saveIfNewFile = useSaveIfNewFile()
 
   const sensors = [
     useSensor(PointerSensor, {
@@ -69,7 +76,7 @@ const Scenes = () => {
     [editor]
   )
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (editor) {
       if (currentScene) {
         if (!firstUpdate) {
@@ -97,12 +104,14 @@ const Scenes = () => {
             editor.renderer.render(initialDesign).then((data) => {
               setCurrentScene({ ...initialDesign, preview: data })
               setScenes([{ ...initialDesign, preview: data }])
+              saveIfNewFile()
             })
           })
           .catch(console.log)
       }
     }
-  }, [editor, currentScene, setCurrentDesign, setScenes, setCurrentScene, updateCurrentScene])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor, currentScene])
 
   const addScene = React.useCallback(async () => {
     setCurrentPreview("")

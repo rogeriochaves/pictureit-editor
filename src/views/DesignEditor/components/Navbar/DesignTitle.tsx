@@ -1,11 +1,21 @@
 import { Block } from "baseui/block"
 import CloudCheck from "~/components/Icons/CloudCheck"
 import { StatefulTooltip } from "baseui/tooltip"
-import { useRecoilState } from "recoil"
+import { useRecoilState, useRecoilValue } from "recoil"
 import { currentDesignState } from "../../../../state/designEditor"
+import { exponentialBackoffSaveRetryState, saveFileRequest } from "../../../../state/file"
+import { useRecoilLazyLoadable } from "../../../../utils/lazySelectorFamily"
+import Refresh from "../../../../components/Icons/Refresh"
+import { Alert } from "baseui/icon"
 
 const DesignTitle = () => {
   const [currentDesign, setCurrentDesign] = useRecoilState(currentDesignState)
+  const [saveRequest, _saveFile] = useRecoilLazyLoadable(saveFileRequest)
+  const hasSaveStarted = !(saveRequest.state == "hasValue" && saveRequest.contents === undefined)
+  const exponentialBackoffSaveRetry = useRecoilValue(exponentialBackoffSaveRetryState)
+  const retryMessage = exponentialBackoffSaveRetry
+    ? `Failed to save file, retrying in ${exponentialBackoffSaveRetry.backoff / 1000}s`
+    : "Failed to save file, please check your internet connection"
 
   const handleInputChange = (name: string) => {
     setCurrentDesign({ ...currentDesign, name })
@@ -42,28 +52,44 @@ const DesignTitle = () => {
         </div>
       </Block>
 
-      <StatefulTooltip
-        showArrow={true}
-        overrides={{
-          Inner: {
-            style: {
-              backgroundColor: "#ffffff",
+      {hasSaveStarted && (
+        <StatefulTooltip
+          showArrow={true}
+          overrides={{
+            Inner: {
+              style: {
+                backgroundColor: "#ffffff",
+              },
             },
-          },
-        }}
-        content={() => <Block backgroundColor="#ffffff">All changes are saved</Block>}
-      >
-        <Block
-          $style={{
-            cursor: "pointer",
-            padding: "10px",
-            display: "flex",
-            color: "#ffffff",
           }}
+          content={() => (
+            <Block backgroundColor="#ffffff">
+              {saveRequest.state == "loading"
+                ? "Saving changes..."
+                : saveRequest.state == "hasError"
+                ? retryMessage
+                : "All changes are saved"}
+            </Block>
+          )}
         >
-          <CloudCheck size={24} />
-        </Block>
-      </StatefulTooltip>
+          <Block
+            $style={{
+              cursor: "pointer",
+              padding: "10px",
+              display: "flex",
+              color: "#ffffff",
+            }}
+          >
+            {saveRequest.state == "loading" ? (
+              <Refresh size={16} />
+            ) : saveRequest.state == "hasError" ? (
+              <Alert size={24} />
+            ) : (
+              <CloudCheck size={24} />
+            )}
+          </Block>
+        </StatefulTooltip>
+      )}
     </Block>
   )
 }
