@@ -1,5 +1,6 @@
 import { Modal, ModalBody, ModalButton, ModalFooter, ModalHeader, ROLE, SIZE } from "baseui/modal"
-import useAppContext from "../../hooks/useAppContext"
+import { useRecoilValueLoadable } from "recoil"
+import { currentUserQuery } from "../../contexts/user"
 import Canvas from "./components/Canvas"
 import EditorContainer from "./components/EditorContainer"
 import Footer from "./components/Footer"
@@ -9,11 +10,11 @@ import Toolbox from "./components/Toolbox"
 import Shortcuts from "./Shortcuts"
 
 const GraphicEditor = () => {
-  const { user } = useAppContext()
+  const user = useRecoilValueLoadable(currentUserQuery)
 
   return (
     <EditorContainer>
-      {user.state == "ERROR" && <SignInAgain />}
+      {user.state == "hasError" && <SignInAgain />}
       <Shortcuts />
       <Navbar />
       <div style={{ display: "flex", flex: 1 }}>

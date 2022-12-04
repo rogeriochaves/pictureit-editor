@@ -1,23 +1,21 @@
-import React, { useEffect, useRef, useState } from "react"
-import { styled, ThemeProvider, DarkTheme } from "baseui"
-import { Theme } from "baseui/theme"
-import { Button, KIND } from "baseui/button"
-import Logo from "~/components/Icons/Logo"
-import useDesignEditorContext from "~/hooks/useDesignEditorContext"
-import Play from "~/components/Icons/Play"
-import { Block } from "baseui/block"
 import { useEditor } from "@layerhub-io/react"
-import useEditorType from "~/hooks/useEditorType"
 import { IScene } from "@layerhub-io/types"
+import { DarkTheme, styled, ThemeProvider } from "baseui"
+import { Block } from "baseui/block"
+import { Button, KIND } from "baseui/button"
+import { Theme } from "baseui/theme"
+import React, { useRef } from "react"
+import { useRecoilValueLoadable } from "recoil"
+import Github from "~/components/Icons/Github"
+import Logo from "~/components/Icons/Logo"
+import Play from "~/components/Icons/Play"
+import useDesignEditorContext from "~/hooks/useDesignEditorContext"
+import useEditorType from "~/hooks/useEditorType"
+import { IDesign } from "~/interfaces/DesignEditor"
 import { loadTemplateFonts } from "~/utils/fonts"
 import { loadVideoEditorAssets } from "~/utils/video"
+import { currentUserQuery } from "../../../../contexts/user"
 import DesignTitle from "./DesignTitle"
-import { IDesign } from "~/interfaces/DesignEditor"
-import Github from "~/components/Icons/Github"
-import api from "../../../../api"
-import { User } from "../../../../api/adapters/pictureit"
-import { RemoteData } from "../../../../interfaces/common"
-import useAppContext from "../../../../hooks/useAppContext"
 
 const Container = styled<"div", object, Theme>("div", ({ $theme }) => ({
   height: "64px",
@@ -33,26 +31,7 @@ const Navbar = () => {
   const editorType = useEditorType()
   const editor = useEditor()
   const inputFileRef = useRef<HTMLInputElement>(null)
-  const { user, setUser } = useAppContext()
-
-  useEffect(() => {
-    if ("isPictureIt" in api) {
-      setUser({ state: "LOADING" })
-
-      api
-        .user()
-        .then((user) => {
-          if (user) {
-            setUser({ state: "SUCCESS", data: user })
-          } else {
-            setUser({ state: "ERROR", message: "logged out" })
-          }
-        })
-        .catch((e) => {
-          setUser({ state: "ERROR", message: e.toString() })
-        })
-    }
-  }, [setUser])
+  const user = useRecoilValueLoadable(currentUserQuery)
 
   const parseGraphicJSON = () => {
     const currentScene = editor.scene.exportToJSON()
@@ -351,14 +330,16 @@ const Navbar = () => {
             <Github size={24} />
           </Button>
 
-          <Button
-            style={{ marginLeft: "0.5rem", minWidth: "100px" }}
-            size="compact"
-            onClick={() => window.location.replace("https://editor.layerhub.io")}
-            kind={KIND.primary}
-          >
-            {user.state == "SUCCESS" ? user.data.name : "\u00A0"}
-          </Button>
+          {user.getValue() && (
+            <Button
+              style={{ marginLeft: "0.5rem", minWidth: "100px" }}
+              size="compact"
+              onClick={() => window.location.replace("https://editor.layerhub.io")}
+              kind={KIND.primary}
+            >
+              {user.state == "hasValue" ? user.getValue()?.name : "\u00A0"}
+            </Button>
+          )}
         </Block>
       </Container>
     </ThemeProvider>

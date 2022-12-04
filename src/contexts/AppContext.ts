@@ -1,8 +1,6 @@
-import { PanelType } from "~/constants/app-options"
-import { User } from "../api/adapters/pictureit"
-import { RemoteData } from "../interfaces/common"
-import { atom, RecoilState } from "recoil"
 import { Template } from "@layerhub-io/core"
+import { atom, RecoilState } from "recoil"
+import { PanelType } from "../constants/app-options"
 
 export const isMobileState: RecoilState<boolean | undefined> = atom({
   key: "isMobileState",
@@ -37,9 +35,4 @@ export const activeSubMenuState: RecoilState<string | null> = atom({
 export const currentTemplateState: RecoilState<any> = atom({
   key: "currentTemplateState",
   default: null,
-})
-
-export const userState: RecoilState<RemoteData<User>> = atom({
-  key: "userState",
-  default: { state: "NOT_ASKED" } as RemoteData<User>,
 })
