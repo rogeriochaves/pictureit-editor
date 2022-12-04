@@ -1,5 +1,4 @@
 import React from "react"
-import { Input } from "baseui/input"
 import { Block } from "baseui/block"
 import CloudCheck from "~/components/Icons/CloudCheck"
 import { StatefulTooltip } from "baseui/tooltip"
@@ -11,26 +10,23 @@ interface State {
 }
 
 const DesignTitle = () => {
-  const [state, setState] = React.useState<State>({ name: "My first design.", width: 0 })
+  const [state, setState] = React.useState<State>({ name: "Untitled Design", width: 0 })
   const { currentDesign, setCurrentDesign } = useDesignEditorContext()
-  const inputTitleRef = React.useRef<Input>(null)
-  const spanRef = React.useRef<HTMLDivElement | null>(null)
 
   const handleInputChange = (name: string) => {
-    setState({ ...state, name: name, width: spanRef.current?.clientWidth! })
+    setState({ ...state, name: name })
     setCurrentDesign({ ...currentDesign, name })
   }
 
   React.useEffect(() => {
     const name = currentDesign.name
     if (name || name === "") {
-      spanRef.current!.innerHTML = name
-      setState({ ...state, name: name, width: spanRef.current?.clientWidth! + 20 })
+      setState({ ...state, name: name })
     }
   }, [currentDesign.name])
 
   React.useEffect(() => {
-    setState({ ...state, width: spanRef.current?.clientWidth! + 20 })
+    setState({ ...state })
   }, [state.name])
 
   return (
@@ -43,55 +39,25 @@ const DesignTitle = () => {
         opacity: 1,
       }}
     >
-      <Block $style={{ display: "flex", position: "absolute", top: "-10px", left: "50%", width: "100%" }}>
-        <Block
-          $style={{
-            fontFamily: "Uber Move Text",
-            position: "absolute",
-            top: "-10px",
-            left: "50%",
-            fontSize: "14px",
-            fontWeight: 500,
-          }}
-          ref={spanRef}
-        >
+      <Block display="flex">
+        <div style={{ position: "relative", color: "transparent", maxWidth: "200px", whiteSpace: "nowrap" }}>
+          <input
+            style={{
+              position: "absolute",
+              width: "100%",
+              fontSize: "16px",
+              fontFamily: "Uber Move Text",
+              background: "none",
+              padding: "0",
+              color: "#FFF",
+              border: "none",
+              outline: "none"
+            }}
+            value={state.name}
+            onChange={(e: any) => handleInputChange(e.target.value)}
+          />
           {state.name}
-        </Block>
-      </Block>
-      <Block width={`${state.width}px`} display="flex">
-        <Input
-          onChange={(e: any) => handleInputChange(e.target.value)}
-          overrides={{
-            Root: {
-              style: {
-                backgroundColor: "transparent",
-                borderTopStyle: "none",
-                borderBottomStyle: "none",
-                borderRightStyle: "none",
-                borderLeftStyle: "none",
-              },
-            },
-            InputContainer: {
-              style: {
-                backgroundColor: "transparent",
-                paddingRight: 0,
-              },
-            },
-            Input: {
-              style: {
-                fontWeight: 500,
-                fontSize: "14px",
-                width: `${state.width}px`,
-                fontFamily: "Uber Move Text",
-                backgroundColor: "transparent",
-                color: "#ffffff",
-                paddingRight: 0,
-              },
-            },
-          }}
-          value={state.name}
-          ref={inputTitleRef}
-        />
+        </div>
       </Block>
 
       <StatefulTooltip
