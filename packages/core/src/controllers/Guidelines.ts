@@ -87,12 +87,17 @@ class Guidelines extends Base {
         activeObjectLeft = activeObjectCenter.x,
         activeObjectTop = activeObjectCenter.y,
         activeObjectBoundingRect = activeObject.getBoundingRect(),
-        activeObjectHeight = activeObjectBoundingRect.height / viewportTransform[3],
-        activeObjectWidth = activeObjectBoundingRect.width / viewportTransform[0],
+        activeObjectGroup = activeObject.group,
+        widthViewportTransform = activeObjectGroup?.scaleX ?? viewportTransform[0],
+        heightViewportTransform = activeObjectGroup?.scaleY ?? viewportTransform[3],
+        activeObjectWidth = activeObjectBoundingRect.width / widthViewportTransform,
+        activeObjectHeight = activeObjectBoundingRect.height / heightViewportTransform,
+        snapActiveObjectWidth = activeObjectGroup ? activeObjectBoundingRect.width : activeObjectWidth,
+        snapActiveObjectHeight = activeObjectGroup ? activeObjectBoundingRect.height : activeObjectHeight,
         //@ts-ignore
         transform = canvas._currentTransform,
-        groupAdjustLeft = activeObject.group?.getCenterPoint()?.x ?? 0,
-        groupAdjustTop = activeObject.group?.getCenterPoint()?.y ?? 0
+        groupAdjustLeft = activeObjectGroup?.getCenterPoint()?.x ?? 0,
+        groupAdjustTop = activeObjectGroup?.getCenterPoint()?.y ?? 0
 
       let horizontalInTheRange = false,
         verticalInTheRange = false
@@ -172,7 +177,7 @@ class Guidelines extends Base {
             })
           }
 
-          snapLeft = objectLeft - objectWidth / 2 + activeObjectWidth / 2
+          snapLeft = objectLeft - objectWidth / 2 + snapActiveObjectWidth / 2
         }
 
         // snap by the right edge
@@ -199,7 +204,7 @@ class Guidelines extends Base {
             })
           }
 
-          snapLeft = objectLeft + objectWidth / 2 - activeObjectWidth / 2
+          snapLeft = objectLeft + objectWidth / 2 - snapActiveObjectWidth / 2
         }
 
         // snap by the vertical center line
@@ -253,7 +258,7 @@ class Guidelines extends Base {
             })
           }
 
-          snapTop = objectTop - objectHeight / 2 + activeObjectHeight / 2
+          snapTop = objectTop - objectHeight / 2 + snapActiveObjectHeight / 2
         }
 
         // snap by the bottom edge
@@ -280,7 +285,7 @@ class Guidelines extends Base {
             })
           }
 
-          snapTop = objectTop + objectHeight / 2 - activeObjectHeight / 2
+          snapTop = objectTop + objectHeight / 2 - snapActiveObjectHeight / 2
         }
       }
 
@@ -295,8 +300,8 @@ class Guidelines extends Base {
       if (snapLeft !== undefined || snapTop !== undefined) {
         activeObject.setPositionByOrigin(
           new fabric.Point(
-            (snapLeft || activeObjectLeft) - groupAdjustLeft,
-            (snapTop || activeObjectTop) - groupAdjustTop
+            ((snapLeft || activeObjectLeft) - groupAdjustLeft) / (activeObjectGroup?.scaleX ?? 1),
+            ((snapTop || activeObjectTop) - groupAdjustTop) / (activeObjectGroup?.scaleY ?? 1)
           ),
           "center",
           "center"
