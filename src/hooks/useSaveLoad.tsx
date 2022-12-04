@@ -1,9 +1,8 @@
-import { Editor } from "@layerhub-io/core"
 import { useEditor } from "@layerhub-io/react"
 import { IScene } from "@layerhub-io/types"
 import { debounce } from "lodash"
 import { nanoid } from "nanoid"
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from "recoil"
 import api from "../api"
@@ -19,37 +18,44 @@ import {
 import { paymentRequiredState } from "../state/generateImage"
 import { currentUserQuery } from "../state/user"
 import { useCallRecoilLazyLoadable, useRecoilValueLazyLoadable } from "../utils/lazySelectorFamily"
+import { useDebouncedCallback } from "use-debounce"
 
 export const useAutosaveEffect = () => {
   const { id } = useParams()
   const editor = useEditor()
   const currentScene = useRecoilValue(currentSceneState)
+  const currentDesign = useRecoilValue(currentDesignState)
   const saveWithRetries = useSaveWithRetries()
   const setWaitingForFileSaveDebounce = useSetRecoilState(waitingForFileSaveDebounceState)
   const setChangesWithoutExporting = useSetRecoilState(changesWithoutExportingState)
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onModifiedDebounced = useCallback(
-    debounce(() => {
-      if (!id) return
+  const debouncedSave = useDebouncedCallback(() => {
+    if (!id) return
 
-      setWaitingForFileSaveDebounce(false)
-
-      if ("isPictureIt" in api) {
-        saveWithRetries(editor, id)
-      }
-    }, 3000),
-    [editor, id, saveWithRetries, setWaitingForFileSaveDebounce]
-  )
+    setWaitingForFileSaveDebounce(false)
+    saveWithRetries(id)
+  }, 3000)
 
   const onModified = useCallback(() => {
-    setWaitingForFileSaveDebounce(true)
+    if (!editor || !currentScene || !id) return
+
     setChangesWithoutExporting(true)
-    onModifiedDebounced()
-  }, [onModifiedDebounced, setChangesWithoutExporting, setWaitingForFileSaveDebounce])
+    if ("isPictureIt" in api) {
+      setWaitingForFileSaveDebounce(true)
+      debouncedSave()
+    }
+  }, [currentScene, debouncedSave, editor, id, setChangesWithoutExporting, setWaitingForFileSaveDebounce])
+
+  // On name change
+  useEffect(() => {
+    // skip first
+    return () => {
+      onModified()
+    }
+  }, [currentDesign.name, onModified])
 
   useEffect(() => {
-    if (!editor || !currentScene || !id) return
+    if (!editor) return
 
     editor.canvas.canvas.on("object:modified", onModified)
     editor.canvas.canvas.on("object:added", onModified)
@@ -106,13 +112,13 @@ const useSaveWithRetries = () => {
   const [exponentialBackoffSaveRetry, setExponentialBackoffSaveRetry] = useRecoilState(exponentialBackoffSaveRetryState)
 
   const saveWithRetries = useCallback(
-    (editor: Editor, id: string, backoff?: number) => {
+    (id: string, backoff?: number) => {
       if (exponentialBackoffSaveRetry) {
         clearTimeout(exponentialBackoffSaveRetry.timeoutRef)
         setExponentialBackoffSaveRetry(undefined)
       }
 
-      save(editor, id)
+      save(id)
         .then((result) => {
           setExponentialBackoffSaveRetry(undefined)
 
@@ -126,7 +132,7 @@ const useSaveWithRetries = () => {
           }
 
           const timeoutRef = setTimeout(() => {
-            saveWithRetries(editor, id, newBackoffTime)
+            saveWithRetries(id, newBackoffTime)
           }, newBackoffTime)
 
           setExponentialBackoffSaveRetry({
@@ -154,21 +160,22 @@ export const useSaveIfNewFile = () => {
     if (!id) {
       const newId = nanoid()
 
-      save(editor, newId).then((isSaved) => {
+      save(newId).then((isSaved) => {
         if (isSaved) {
           navigate(`/editor/${newId}`, { replace: true })
         }
       })
     }
-  }, [editor, id, navigate, save])
+  }, [id, navigate, save])
 }
 
 export const useSave = () => {
+  const editor = useEditor()
   const saveFile = useCallRecoilLazyLoadable(saveFileRequest)
   const exportToJSON = useExportToJSON()
 
   return useCallback(
-    async (editor: Editor, id: string) => {
+    async (id: string) => {
       const currentScene = editor.scene.exportToJSON()
       const content = exportToJSON(currentScene)
       const preview = (await editor.renderer.render(currentScene)) as string
@@ -180,7 +187,7 @@ export const useSave = () => {
         content: JSON.stringify(content),
       })
     },
-    [exportToJSON, saveFile]
+    [editor, exportToJSON, saveFile]
   )
 }
 

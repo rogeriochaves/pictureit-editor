@@ -384,7 +384,7 @@ const Navbar = () => {
   return (
     // @ts-ignore
     <ThemeProvider theme={DarkTheme}>
-      <Container $style={{ paddingLeft: "12px" }}>
+      <Container $style={{ padding: "0 1.25rem 0 12px" }}>
         <input
           multiple={false}
           onChange={handleFileInput}
