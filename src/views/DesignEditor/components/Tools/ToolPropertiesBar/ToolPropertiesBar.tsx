@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import { useEffect, useState } from "react"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
 import getSelectionType from "~/utils/get-selection-type"
 import { styled } from "baseui"
@@ -9,7 +9,7 @@ import { useRecoilValue } from "recoil"
 
 const DEFAULT_TOOLBOX = "Canvas"
 
-interface ToolboxState {
+interface ToolPropertiesBarState {
   toolbox: string
 }
 
@@ -20,13 +20,13 @@ const Container = styled("div", (props) => ({
   borderBottom: "1px solid #e7e8f3",
 }))
 
-const Toolbox = () => {
-  const [state, setState] = useState<ToolboxState>({ toolbox: DEFAULT_TOOLBOX })
+const ToolPropertiesBar = () => {
+  const [state, setState] = useState<ToolPropertiesBarState>({ toolbox: DEFAULT_TOOLBOX })
   const activeTool = useRecoilValue(activeToolState)
   const activeObject = useActiveObject() as ILayer
   const editor = useEditor()
 
-  React.useEffect(() => {
+  useEffect(() => {
     const selectionType = getSelectionType(activeObject)
     if (selectionType) {
       if (selectionType.length > 1) {
@@ -39,7 +39,7 @@ const Toolbox = () => {
     }
   }, [activeObject])
 
-  React.useEffect(() => {
+  useEffect(() => {
     const watcher = async () => {
       if (activeObject) {
         // @ts-ignore
@@ -63,9 +63,13 @@ const Toolbox = () => {
   }, [editor, activeObject])
 
   // @ts-ignore
-  const Component = ToolItems[activeTool] || Items[state.toolbox]
+  const ToolProperties = ToolItems[activeTool] || Items[state.toolbox]
 
-  return <Container>{Component ? <Component /> : state.toolbox}</Container>
+  return (
+    <Container>
+      <ToolProperties />
+    </Container>
+  )
 }
 
-export default Toolbox
+export default ToolPropertiesBar

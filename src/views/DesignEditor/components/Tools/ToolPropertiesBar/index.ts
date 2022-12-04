@@ -1,2 +1,2 @@
-import ToolProperties from "./ToolProperties"
-export default ToolProperties
+import ToolPropertiesBar from "./ToolPropertiesBar"
+export default ToolPropertiesBar
