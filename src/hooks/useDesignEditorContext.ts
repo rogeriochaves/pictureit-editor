@@ -1,6 +1,5 @@
 import { useRecoilState } from "recoil"
 import {
-  contextMenuSceneRequestState,
   contextMenuTimelineRequestState,
   currentDesignState,
   currentSceneState,
@@ -19,7 +18,6 @@ const useDesignEditorContext = () => {
   const [scenes, setScenes] = useRecoilState(scenesState)
   const [maxTime, setMaxTime] = useRecoilState(maxTimeState)
   const [contextMenuTimelineRequest, setContextMenuTimelineRequest] = useRecoilState(contextMenuTimelineRequestState)
-  const [contextMenuSceneRequest, setContextMenuSceneRequest] = useRecoilState(contextMenuSceneRequestState)
   const [currentDesign, setCurrentDesign] = useRecoilState(currentDesignState)
 
   return {
@@ -27,18 +25,16 @@ const useDesignEditorContext = () => {
     setEditorType,
     displayPlayback,
     setDisplayPlayback,
-    setDisplayPreview,
     displayPreview,
+    setDisplayPreview,
     currentScene,
     setCurrentScene,
-    setScenes,
     scenes,
+    setScenes,
     maxTime,
     setMaxTime,
     contextMenuTimelineRequest,
     setContextMenuTimelineRequest,
-    contextMenuSceneRequest,
-    setContextMenuSceneRequest,
     currentDesign,
     setCurrentDesign,
   }
