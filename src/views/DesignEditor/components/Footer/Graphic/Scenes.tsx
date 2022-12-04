@@ -6,13 +6,12 @@ import { IScene } from "@layerhub-io/types"
 import { useStyletron } from "baseui"
 import { Block } from "baseui/block"
 import { nanoid } from "nanoid"
-import React, { useEffect } from "react"
+import React, { useCallback, useEffect } from "react"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import { useDebouncedCallback } from "use-debounce"
 import Add from "../../../../../components/Icons/Add"
 import { getDefaultTemplate } from "../../../../../constants/design-editor"
 import { useSaveIfNewFile } from "../../../../../hooks/useSaveLoad"
-import { IDesign } from "../../../../../interfaces/DesignEditor"
 import {
   contextMenuTimelineRequestState,
   currentDesignState,
@@ -79,7 +78,7 @@ const Scenes = () => {
 
   const rerenderPreview = useDebouncedCallback(async () => {
     const updatedTemplate = editor.scene.exportToJSON()
-    const updatedPreview = (await editor.renderer.render(updatedTemplate!)) as string
+    const updatedPreview = await editor.renderer.render(updatedTemplate)
     setScenes(
       scenes.map((scene) => {
         if (scene.id == currentScene?.id) {
@@ -122,7 +121,7 @@ const Scenes = () => {
     const updatedPreview = await editor.renderer.render(updatedTemplate!)
 
     const updatedPages = scenes.map((p) => {
-      if (p.id === updatedTemplate!.id) {
+      if (p.id === updatedTemplate.id) {
         return { ...updatedTemplate, preview: updatedPreview }
       }
       return p
@@ -136,24 +135,24 @@ const Scenes = () => {
     setCurrentScene(newPage)
   }, [editor, scenes, currentDesign, setScenes, setCurrentScene])
 
-  const changePage = React.useCallback(
+  const changePage = useCallback(
     async (page: any) => {
-      if (editor) {
-        const updatedTemplate = editor.scene.exportToJSON()
-        const updatedPreview = await editor.renderer.render(updatedTemplate)
+      if (!editor) return
+      if (currentScene?.id == page.id) return
 
-        const updatedPages = scenes.map((p) => {
-          if (p.id === updatedTemplate.id) {
-            return { ...updatedTemplate, preview: updatedPreview }
-          }
-          return p
-        }) as any[]
+      const updatedTemplate = editor.scene.exportToJSON()
 
-        setScenes(updatedPages)
-        setCurrentScene(page)
-      }
+      const updatedPages = scenes.map((p) => {
+        if (p.id === updatedTemplate.id) {
+          return { ...updatedTemplate, preview: p.preview }
+        }
+        return p
+      })
+
+      setScenes(updatedPages)
+      setCurrentScene(page)
     },
-    [editor, scenes, setScenes, setCurrentScene]
+    [editor, currentScene, scenes, setScenes, setCurrentScene]
   )
 
   const handleDragStart = (event: any) => {

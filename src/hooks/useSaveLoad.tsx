@@ -1,10 +1,9 @@
 import { useEditor } from "@layerhub-io/react"
-import { IScene } from "@layerhub-io/types"
-import { debounce } from "lodash"
 import { nanoid } from "nanoid"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from "recoil"
+import { useDebouncedCallback } from "use-debounce"
 import api from "../api"
 import { IDesign } from "../interfaces/DesignEditor"
 import { currentDesignState, currentSceneState, scenesState } from "../state/designEditor"
@@ -13,12 +12,11 @@ import {
   exponentialBackoffSaveRetryState,
   MAX_RETRY_SAVE_TIME,
   saveFileRequest,
-  waitingForFileSaveDebounceState,
+  waitingForFileSaveDebounceState
 } from "../state/file"
 import { paymentRequiredState } from "../state/generateImage"
 import { currentUserQuery } from "../state/user"
 import { useCallRecoilLazyLoadable, useRecoilValueLazyLoadable } from "../utils/lazySelectorFamily"
-import { useDebouncedCallback } from "use-debounce"
 
 export const useAutosaveEffect = () => {
   const { id } = useParams()
@@ -169,54 +167,43 @@ export const useSaveIfNewFile = () => {
 }
 
 export const useSave = () => {
-  const editor = useEditor()
+  const scenes = useRecoilValue(scenesState)
   const saveFile = useCallRecoilLazyLoadable(saveFileRequest)
   const exportToJSON = useExportToJSON()
 
   return useCallback(
-    async (id: string) => {
-      const currentScene = editor.scene.exportToJSON()
-      const content = exportToJSON(currentScene)
-      const preview = (await editor.renderer.render(currentScene)) as string
+    (id: string) => {
+      const content = exportToJSON()
 
       return saveFile({
         id: id,
         name: content.name,
-        preview: preview,
+        preview: scenes[0].preview || "",
         content: content,
       })
     },
-    [editor, exportToJSON, saveFile]
+    [exportToJSON, saveFile, scenes]
   )
 }
 
-export const useExportToJSON = () => {
+export const useExportToJSON = (): (() => IDesign) => {
   const editor = useEditor()
   const scenes = useRecoilValue(scenesState)
   const currentDesign = useRecoilValue(currentDesignState)
 
-  return useCallback(
-    (exportedScene?: IScene) => {
-      const currentScene = exportedScene || editor.scene.exportToJSON()
+  return useCallback(() => {
+    const currentScene = editor.scene.exportToJSON()
 
-      const updatedScenes = scenes.map((scn) => {
-        if (scn.id === currentScene.id) {
-          return currentScene
-        }
-        return scn
-      })
-
-      if (currentDesign) {
-        const graphicTemplate: IDesign = {
-          ...currentDesign,
-          scenes: updatedScenes,
-        }
-
-        return graphicTemplate
-      } else {
-        throw "NO CURRENT DESIGN"
+    const updatedScenes = scenes.map((scn) => {
+      if (scn.id === currentScene.id) {
+        return { ...currentScene, preview: scn.preview }
       }
-    },
-    [currentDesign, editor, scenes]
-  )
+      return scn
+    })
+
+    return {
+      ...currentDesign,
+      scenes: updatedScenes,
+    }
+  }, [currentDesign, editor, scenes])
 }
