@@ -11,7 +11,7 @@ import { scenesState } from "../../../../state/designEditor"
 const Presentation = () => {
   const [slides, setSlides] = React.useState<{ id: string; preview: string }[]>([])
   const scenes = useRecoilValue(scenesState)
-  const editor = useEditor()
+  const editor = useEditor()!
   const [loading, setLoading] = React.useState(true)
 
   const loadSlides = React.useCallback(

@@ -13,7 +13,7 @@ import { toBase64 } from "~/utils/data"
 export default function Uploads () {
   const inputFileRef = React.useRef<HTMLInputElement>(null)
   const [uploads, setUploads] = React.useState<any[]>([])
-  const editor = useEditor()
+  const editor = useEditor()!
 
   const handleDropFiles = async (files: FileList) => {
     const file = files[0]

@@ -55,7 +55,7 @@ const initialOptions: TextState = {
 const Text = () => {
   const [state, setState] = React.useState<TextState>(initialOptions)
   const activeObject = useActiveObject() as Required<IStaticText>
-  const editor = useEditor()
+  const editor = useEditor()!
 
   React.useEffect(() => {
     if (activeObject && activeObject.type === "StaticText") {
@@ -309,7 +309,7 @@ const Text = () => {
 }
 
 const TextFontSize = () => {
-  const editor = useEditor()
+  const editor = useEditor()!
   const activeObject = useActiveObject()
   const [value, setValue] = React.useState(12)
 
@@ -408,7 +408,7 @@ const TextFontSize = () => {
 
 const TextLetterCase = () => {
   const [state, setState] = React.useState<{ upper: boolean }>({ upper: false })
-  const editor = useEditor()
+  const editor = useEditor()!
   return (
     <StatefulTooltip placement={PLACEMENT.bottom} showArrow={true} accessibilityType="tooltip" content="Letter case">
       <Button

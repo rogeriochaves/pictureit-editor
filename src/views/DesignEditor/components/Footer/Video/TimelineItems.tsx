@@ -13,7 +13,7 @@ const TimelineItems = () => {
   const [scenes, setScenes] = useRecoilState(scenesState)
   const currentScene = useRecoilValue(currentSceneState)
   const [currentPreview, setCurrentPreview] = useRecoilState(currentPreviewState)
-  const editor = useEditor()
+  const editor = useEditor()!
   const frame = useFrame()
   const [draggedScene, setDraggedScene] = React.useState<IScene | null>(null)
 

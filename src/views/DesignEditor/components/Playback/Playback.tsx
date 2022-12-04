@@ -7,7 +7,7 @@ import { useRecoilValue } from "recoil"
 import { scenesState } from "../../../../state/designEditor"
 
 const Playback = () => {
-  const editor = useEditor()
+  const editor = useEditor()!
   const controller = React.useRef<Controller>()
   const frameBoundingRect = editor.frame.getBoundingClientRect()
   const [initialized, setInitialized] = React.useState(false)

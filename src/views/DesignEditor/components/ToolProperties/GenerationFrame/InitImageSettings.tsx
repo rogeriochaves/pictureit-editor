@@ -16,7 +16,7 @@ import { DEFAULT_PROMPT_STRENGTH, renderInitImage, renderNewInitImage } from "..
 import { ColorSquare } from "../Shared/ColorSquare"
 
 export const InitImageSettings = () => {
-  const editor = useEditor()
+  const editor = useEditor()!
   const activeObject = useActiveObject<fabric.GenerationFrame | undefined>()
   const [localNoise, setLocalNoise] = useState<number>(activeObject?.getNoise?.() ?? 0)
   const [localPromptStrength, setLocalPromptStrength] = useState<number>(

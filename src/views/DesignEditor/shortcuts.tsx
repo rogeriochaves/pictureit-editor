@@ -9,6 +9,8 @@ const Shortcuts = () => {
   const setActiveTool = useSetRecoilState(activeToolState)
 
   const handleShortcuts = useCallback((event: KeyboardEvent) => {
+    if (!editor) return
+
     const shortcuts = [
       {
         keys: ["CMD", "Z"],
@@ -78,7 +80,7 @@ const Shortcuts = () => {
         break
       }
     }
-  }, [editor?.history.redo, editor?.history.undo, isMac, setActiveTool])
+  }, [editor, isMac, setActiveTool])
 
   useEffect(() => {
     if (!editor) return

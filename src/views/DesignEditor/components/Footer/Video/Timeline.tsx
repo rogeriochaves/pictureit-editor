@@ -22,7 +22,7 @@ const Timeline = () => {
   const [currentDesign, setCurrentDesign] = useRecoilState(currentDesignState)
   const setCurrentPreview = useSetRecoilState(currentPreviewState)
   const contextMenuTimelineRequest = useRecoilValue(contextMenuTimelineRequestState)
-  const editor = useEditor()
+  const editor = useEditor()!
   const [css] = useStyletron()
 
   React.useEffect(() => {

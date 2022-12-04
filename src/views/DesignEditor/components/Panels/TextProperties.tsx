@@ -19,7 +19,7 @@ const TextProperties = () => {
   const fonts = [] as any
   const [state, setState] = React.useState<TextOptions>(defaultTextOptions)
   const activeObject = useActiveObject() as any
-  const editor = useEditor()
+  const editor = useEditor()!
 
   React.useEffect(() => {
     if (activeObject) {

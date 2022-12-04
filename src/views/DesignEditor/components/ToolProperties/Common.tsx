@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { Button, SIZE, KIND } from "baseui/button"
 import { Checkbox } from "baseui/checkbox"
 import { Block } from "baseui/block"
@@ -25,7 +25,7 @@ const Common = () => {
   const [state, setState] = React.useState({ isGroup: false, isMultiple: false })
   const activeObject = useActiveObject() as any
 
-  const editor = useEditor()
+  const editor = useEditor()!
 
   React.useEffect(() => {
     if (activeObject) {
@@ -97,16 +97,17 @@ const Common = () => {
 }
 
 const CommonLayers = () => {
-  const editor = useEditor()
-  const [checked, setChecked] = React.useState(true)
+  const editor = useEditor()!
+  const [checked, setChecked] = useState(true)
   const activeObject = useActiveObject()
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (activeObject) {
       //  @ts-ignore
       setChecked(!!activeObject.clipPath)
     }
   }, [activeObject])
+
   return (
     <StatefulPopover
       placement={PLACEMENT.bottomRight}
@@ -180,7 +181,7 @@ const CommonLayers = () => {
 }
 
 const CommonAlign = () => {
-  const editor = useEditor()
+  const editor = useEditor()!
   return (
     <StatefulPopover
       placement={PLACEMENT.bottomRight}
@@ -222,7 +223,7 @@ const CommonAlign = () => {
 
 const LockUnlock = () => {
   const [state, setState] = React.useState<{ locked: boolean }>({ locked: false })
-  const editor = useEditor()
+  const editor = useEditor()!
   const activeObject = useActiveObject()
 
   React.useEffect(() => {

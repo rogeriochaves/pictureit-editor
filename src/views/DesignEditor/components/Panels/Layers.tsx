@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { useEditor, useObjects } from "@layerhub-io/react"
 import { Block } from "baseui/block"
 import AngleDoubleLeft from "~/components/Icons/AngleDoubleLeft"
@@ -19,27 +19,28 @@ const Layers = () => {
   const [layerObjects, setLayerObjects] = React.useState<any[]>([])
   const setActivePanel = useSetRecoilState(activePanelState)
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (objects) {
       setLayerObjects(objects)
     }
   }, [objects])
 
-  React.useEffect(() => {
+  useEffect(() => {
+    if (!editor) return
+
     const watcher = async () => {
       if (objects) {
         setLayerObjects([...objects])
       }
     }
-    if (editor) {
-      editor.on("history:changed", watcher)
-    }
+
+    editor.on("history:changed", watcher)
     return () => {
-      if (editor) {
-        editor.off("history:changed", watcher)
-      }
+      editor.off("history:changed", watcher)
     }
   }, [editor, objects])
+
+  if (!editor) return null
 
   return (
     <Block $style={{ flex: 1, display: "flex", flexDirection: "column" }}>

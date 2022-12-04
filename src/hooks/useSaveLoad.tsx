@@ -195,7 +195,7 @@ export const useExportToJSON = (): (() => IDesign) => {
   const currentDesign = useRecoilValue(currentDesignState)
 
   return useCallback(() => {
-    const currentScene = editor.scene.exportToJSON()
+    const currentScene = editor!.scene.exportToJSON()
 
     const updatedScenes = scenes.map((scn) => {
       if (scn.id === currentScene.id) {

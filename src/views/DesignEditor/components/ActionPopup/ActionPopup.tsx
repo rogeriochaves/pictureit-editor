@@ -79,6 +79,8 @@ const ActionPopup = () => {
   }, [editor, onClick, onModified, onMove])
 
   const onGenerateImage = useCallback(async () => {
+    if (!editor) return
+
     const targetId = popup?.target.id
     if (!targetId) return
     if (!popup.target.metadata?.prompt) return

@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { Block } from "baseui/block"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
 
@@ -7,23 +7,21 @@ const Canvas = () => {
   const editor = useEditor()
   const activeObject = useActiveObject() as any
 
-  React.useEffect(() => {
-    if (editor) {
-      setState({ fill: editor.canvas.backgroundColor as string })
-    }
+  useEffect(() => {
+    if (!editor) return
+
+    setState({ fill: editor.canvas.backgroundColor as string })
   }, [editor])
 
-  React.useEffect(() => {
+  useEffect(() => {
+    if (!editor) return
+
     const watcher = async () => {
       setState({ fill: editor.canvas.backgroundColor as string })
     }
-    if (editor) {
-      editor.on("canvas:updated", watcher)
-    }
+    editor.on("canvas:updated", watcher)
     return () => {
-      if (editor) {
-        editor.off("canvas:updated", watcher)
-      }
+      editor.off("canvas:updated", watcher)
     }
   }, [editor, activeObject])
 

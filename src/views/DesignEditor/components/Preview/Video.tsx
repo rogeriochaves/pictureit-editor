@@ -7,7 +7,7 @@ import { useRecoilValue } from "recoil"
 import { scenesState } from "../../../../state/designEditor"
 
 const Video = () => {
-  const editor = useEditor()
+  const editor = useEditor()!
   const pages = useRecoilValue(scenesState)
   const [loading, setLoading] = React.useState(true)
   const [state, setState] = React.useState({

@@ -8,7 +8,7 @@ import FlipHorizontal from "~/components/Icons/FlipHorizontal"
 import FlipVertical from "~/components/Icons/FlipVertical"
 
 const Flip = () => {
-  const editor = useEditor()
+  const editor = useEditor()!
   const activeObject = useActiveObject() as any
   const [state, setState] = React.useState({ flipX: false, flipY: false })
 

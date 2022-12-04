@@ -98,6 +98,8 @@ const Scenes = () => {
   }, [!!editor])
 
   const rerenderPreview = useDebouncedCallback(async () => {
+    if (!editor) return;
+
     const updatedTemplate = editor.scene.exportToJSON()
     const updatedPreview = await editor.renderer.render(updatedTemplate)
     setScenes(
@@ -120,6 +122,8 @@ const Scenes = () => {
   }, [editor, rerenderPreview])
 
   const addScene = React.useCallback(async () => {
+    if (!editor) return;
+
     const updatedTemplate = editor.scene.exportToJSON()
     const updatedPreview = await editor.renderer.render(updatedTemplate!)
 

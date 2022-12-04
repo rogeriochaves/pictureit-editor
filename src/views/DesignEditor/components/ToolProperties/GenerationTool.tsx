@@ -22,7 +22,7 @@ const square = new fabric.Rect({
 
 let requestDragging = false
 const GenerationTool = () => {
-  const editor = useEditor()
+  const editor = useEditor()!
   const setActiveTool = useSetRecoilState(activeToolState)
 
   function mouseMoveHandler(e: IEvent) {

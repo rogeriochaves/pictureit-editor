@@ -10,7 +10,7 @@ import OpacityIcon from "~/components/Icons/Opacity."
 import { StatefulTooltip } from "baseui/tooltip"
 
 const Opacity = () => {
-  const editor = useEditor()
+  const editor = useEditor()!
   const [state, setState] = React.useState({ opacity: 1 })
   const activeObject = useActiveObject() as Required<ILayer>
 

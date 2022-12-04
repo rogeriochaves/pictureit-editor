@@ -13,7 +13,7 @@ interface Options {
 }
 
 const Gradient = () => {
-  const editor = useEditor()
+  const editor = useEditor()!
   const activeObject = useActiveObject()
   const [options, setOptions] = React.useState<Options>({
     angle: 0,

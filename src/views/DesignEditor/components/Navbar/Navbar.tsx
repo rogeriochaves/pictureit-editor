@@ -47,7 +47,7 @@ const Navbar = () => {
   }
 
   const parsePresentationJSON = () => {
-    const currentScene = editor.scene.exportToJSON()
+    const currentScene = editor!.scene.exportToJSON()
 
     const updatedScenes = scenes.map((scn) => {
       if (scn.id === currentScene.id) {
@@ -82,7 +82,7 @@ const Navbar = () => {
   }
 
   const parseVideoJSON = () => {
-    const currentScene = editor.scene.exportToJSON()
+    const currentScene = editor!.scene.exportToJSON()
     const updatedScenes = scenes.map((scn) => {
       if (scn.id === currentScene.id) {
         return {
@@ -135,6 +135,8 @@ const Navbar = () => {
   }
 
   const loadGraphicTemplate = async (payload: IDesign) => {
+    if (!editor) return
+
     const scenes = []
     const { scenes: scns, ...design } = payload
 
@@ -157,6 +159,8 @@ const Navbar = () => {
   }
 
   const loadPresentationTemplate = async (payload: IDesign) => {
+    if (!editor) return
+
     const scenes = []
     const { scenes: scns, ...design } = payload
 
@@ -178,6 +182,8 @@ const Navbar = () => {
   }
 
   const loadVideoTemplate = async (payload: IDesign) => {
+    if (!editor) return
+
     const scenes = []
     const { scenes: scns, ...design } = payload
 

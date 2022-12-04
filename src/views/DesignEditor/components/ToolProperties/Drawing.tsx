@@ -12,7 +12,7 @@ import { ColorSquare } from "./Shared/ColorSquare"
 
 const Path = () => {
   const [state, setState] = React.useState({ stroke: "transparent" })
-  const editor = useEditor()
+  const editor = useEditor()!
   const activeObject = useActiveObject<fabric.Object>()
 
   React.useEffect(() => {

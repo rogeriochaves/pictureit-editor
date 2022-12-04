@@ -25,7 +25,7 @@ const Common = () => {
   const [options, setOptions] = React.useState<Options>({
     zoomRatio: 20,
   })
-  const editor = useEditor()
+  const editor = useEditor()!
   const zoomRatio: number = useZoomRatio()
 
   React.useEffect(() => {

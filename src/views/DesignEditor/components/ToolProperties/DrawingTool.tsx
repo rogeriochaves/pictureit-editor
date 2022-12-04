@@ -15,7 +15,7 @@ import { Separator } from "./Shared/Separator"
 
 const DrawingTool = () => {
   const [drawingColor, setDrawingColor] = useRecoilState(drawingColorState)
-  const editor = useEditor()
+  const editor = useEditor()!
 
   const objectAddedHandler = useCallback(
     (e: IEvent) => {

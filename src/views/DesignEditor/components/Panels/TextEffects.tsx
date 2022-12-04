@@ -80,7 +80,7 @@ const EFFECTS = {
 const TextEffects = () => {
   const [color, setColor] = React.useState("#b32aa9")
   const activeObject = useActiveObject()
-  const editor = useEditor()
+  const editor = useEditor()!
 
   const updateObjectFill = throttle((color: string) => {
     if (activeObject) {

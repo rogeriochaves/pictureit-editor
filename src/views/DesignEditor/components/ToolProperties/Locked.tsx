@@ -6,7 +6,7 @@ import { Button, SIZE, KIND } from "baseui/button"
 import UnlockedIcon from "~/components/Icons/Unlocked"
 
 const Locked = () => {
-  const editor = useEditor()
+  const editor = useEditor()!
 
   return (
     <Block

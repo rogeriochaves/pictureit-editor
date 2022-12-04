@@ -13,7 +13,7 @@ interface Options {
 }
 
 const Outline = () => {
-  const editor = useEditor()
+  const editor = useEditor()!
   const activeObject = useActiveObject()
 
   const [options, setOptions] = React.useState<Options>({

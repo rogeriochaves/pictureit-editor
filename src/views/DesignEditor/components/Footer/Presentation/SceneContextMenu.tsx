@@ -16,7 +16,7 @@ const SceneContextMenu = () => {
     setCurrentDesign,
   } = useDesignEditorContext()
   const ref = React.useRef<HTMLDivElement | null>(null)
-  const editor = useEditor()
+  const editor = useEditor()!
   const frame = useFrame()
   useOnClickOutside(ref, () => {
     setContextMenuTimelineRequest({ ...contextMenuTimelineRequest, visible: false })

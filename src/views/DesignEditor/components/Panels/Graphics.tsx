@@ -10,7 +10,7 @@ import { useEditor } from "@layerhub-io/react"
 const Graphics = () => {
   const inputFileRef = React.useRef<HTMLInputElement>(null)
 
-  const editor = useEditor()
+  const editor = useEditor()!
 
   const addObject = React.useCallback(
     (url: string) => {

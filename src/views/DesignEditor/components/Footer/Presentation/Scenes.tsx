@@ -19,7 +19,7 @@ const Scenes = () => {
   const setScenes = useSetRecoilState(scenesState)
   const [currentScene, setCurrentScene] = useRecoilState(currentSceneState)
   const currentDesign = useRecoilValue(currentDesignState)
-  const editor = useEditor()
+  const editor = useEditor()!
   const [css] = useStyletron()
   const [currentPreview, setCurrentPreview] = React.useState("")
   const frame = useFrame()
