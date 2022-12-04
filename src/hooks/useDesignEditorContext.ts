@@ -9,7 +9,7 @@ import {
   editorTypeState,
   maxTimeState,
   scenesState,
-} from "../contexts/DesignEditor"
+} from "../state/designEditor"
 
 const useDesignEditorContext = () => {
   const [editorType, setEditorType] = useRecoilState(editorTypeState)

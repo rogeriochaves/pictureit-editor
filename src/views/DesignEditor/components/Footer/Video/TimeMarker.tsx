@@ -2,7 +2,7 @@ import { useTimer } from "@layerhub-io/use-timer"
 import { Block } from "baseui/block"
 import React from "react"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
-import { displayPlaybackState, maxTimeState, scenesState } from "~/contexts/DesignEditor"
+import { displayPlaybackState, maxTimeState, scenesState } from "~/state/designEditor"
 
 const SCALE_FACTOR = 1
 

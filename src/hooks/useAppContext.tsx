@@ -6,7 +6,7 @@ import {
   shapesState,
   templatesState,
   uploadsState,
-} from "../contexts/AppContext"
+} from "../state/appContext"
 import { useRecoilState } from "recoil"
 
 const useAppContext = () => {

@@ -8,7 +8,7 @@ import React from "react"
 import { useRecoilState } from "recoil"
 import Icons from "~/components/Icons"
 import { PanelType } from "../../../../../constants/app-options"
-import { isSidebarOpenState } from "../../../../../contexts/DesignEditor"
+import { isSidebarOpenState } from "../../../../../state/designEditor"
 import useAppContext from "../../../../../hooks/useAppContext"
 
 const Container = styled<"div", object, Theme>("div", ({ $theme }) => ({

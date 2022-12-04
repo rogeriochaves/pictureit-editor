@@ -5,7 +5,7 @@ import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
 import { useRecoilState } from "recoil"
-import { generateImageRequest, hidePopupState } from "../../../../contexts/generateImage"
+import { generateImageRequest, hidePopupState } from "../../../../state/generateImage"
 import { useRecoilLazyLoadable } from "../../../../utils/lazySelectorFamily"
 
 const ActionPopup = () => {

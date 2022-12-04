@@ -1,6 +1,6 @@
 import { Modal, ModalBody, ModalButton, ModalFooter, ModalHeader, ROLE, SIZE } from "baseui/modal"
 import { useRecoilValueLoadable } from "recoil"
-import { currentUserQuery } from "../../contexts/user"
+import { currentUserQuery } from "../../state/user"
 import Canvas from "./components/Canvas"
 import EditorContainer from "./components/EditorContainer"
 import Footer from "./components/Footer"

@@ -6,7 +6,7 @@ import { IScene } from "@layerhub-io/types"
 import { Block } from "baseui/block"
 import React from "react"
 import { useRecoilState, useRecoilValue } from "recoil"
-import { currentPreviewState, currentSceneState, scenesState } from "~/contexts/DesignEditor"
+import { currentPreviewState, currentSceneState, scenesState } from "~/state/designEditor"
 import TimelineItem from "./TimelineItem"
 
 const TimelineItems = () => {

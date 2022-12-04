@@ -12,7 +12,7 @@ import { IEvent } from "fabric/fabric-impl"
 import { debounce } from "lodash"
 import { useCallback, useEffect, useState } from "react"
 import NoColor from "../../../../../components/Icons/NoColor"
-import { DEFAULT_PROMPT_STRENGTH, renderInitImage, renderNewInitImage } from "../../../../../contexts/generateImage"
+import { DEFAULT_PROMPT_STRENGTH, renderInitImage, renderNewInitImage } from "../../../../../state/generateImage"
 import { ColorSquare } from "../Shared/ColorSquare"
 
 export const InitImageSettings = () => {

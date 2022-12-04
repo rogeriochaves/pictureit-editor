@@ -1,5 +1,5 @@
 import { useRecoilValue } from "recoil"
-import { contextMenuSceneRequestState } from "../contexts/DesignEditor"
+import { contextMenuSceneRequestState } from "../state/designEditor"
 
 const useContextMenuSceneRequest = () => {
   const contextMenuSceneRequest = useRecoilValue(contextMenuSceneRequestState)

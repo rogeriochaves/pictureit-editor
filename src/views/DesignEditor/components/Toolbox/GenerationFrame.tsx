@@ -6,7 +6,7 @@ import { InitImageSettings } from "./GenerationFrame/InitImageSettings"
 import { StepsSettings } from "./GenerationFrame/StepsSettings"
 import { Separator } from "./Shared/Separator"
 import { useSetRecoilState } from "recoil"
-import { hidePopupState } from "../../../../contexts/generateImage"
+import { hidePopupState } from "../../../../state/generateImage"
 
 const GenerationFrame = () => {
   const activeObject = useActiveObject<fabric.GenerationFrame | undefined>()

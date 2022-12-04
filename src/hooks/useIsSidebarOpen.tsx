@@ -1,5 +1,5 @@
 import { useRecoilValue } from "recoil"
-import { isSidebarOpenState } from "../contexts/DesignEditor"
+import { isSidebarOpenState } from "../state/designEditor"
 
 const useIsSidebarOpen = () => {
   const isSidebarOpen = useRecoilValue(isSidebarOpenState)

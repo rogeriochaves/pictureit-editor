@@ -1,5 +1,5 @@
 import { useRecoilValue } from "recoil"
-import { editorTypeState } from "../contexts/DesignEditor"
+import { editorTypeState } from "../state/designEditor"
 
 const useEditorType = () => {
   const editorType = useRecoilValue(editorTypeState)

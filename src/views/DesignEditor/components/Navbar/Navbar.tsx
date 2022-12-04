@@ -14,7 +14,7 @@ import useEditorType from "~/hooks/useEditorType"
 import { IDesign } from "~/interfaces/DesignEditor"
 import { loadTemplateFonts } from "~/utils/fonts"
 import { loadVideoEditorAssets } from "~/utils/video"
-import { currentUserQuery } from "../../../../contexts/user"
+import { currentUserQuery } from "../../../../state/user"
 import DesignTitle from "./DesignTitle"
 
 const Container = styled<"div", object, Theme>("div", ({ $theme }) => ({

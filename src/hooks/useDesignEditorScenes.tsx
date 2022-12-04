@@ -1,5 +1,5 @@
 import { useRecoilValue } from "recoil"
-import { scenesState } from "../contexts/DesignEditor"
+import { scenesState } from "../state/designEditor"
 
 const useDesignEditorScenes = () => {
   const scenes = useRecoilValue(scenesState)
