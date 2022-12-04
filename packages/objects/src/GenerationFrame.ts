@@ -89,6 +89,14 @@ export class GenerationFrameObject extends fabric.Group {
     })
   }
 
+  getRect() {
+    return this._objects.find(
+      (object) =>
+        //@ts-ignore
+        object.id == `${this.id}-rect`
+    )!
+  }
+
   toObject(propertiesToInclude: string[] = []) {
     return super.toObject(propertiesToInclude)
   }

@@ -65,11 +65,15 @@ class Objects extends Base {
     this.afterAddHook(group)
   }
 
-  public afterAddHook = async (object: fabric.Object) => {
+  public afterAddHook = async (object: fabric.Object, select: boolean = true) => {
     const { canvas } = this
 
-    this.state.setActiveObject(object)
-    canvas.setActiveObject(object)
+    this.putInsideFrameIfNear(object)
+
+    if (select) {
+      this.state.setActiveObject(object)
+      canvas.setActiveObject(object)
+    }
 
     this.updateContextObjects()
     this.editor.history.save()
@@ -142,6 +146,34 @@ class Objects extends Base {
         }
       }
       this.editor.history.save()
+    }
+  }
+
+  public putInsideFrameIfNear = (object: fabric.Object) => {
+    if (object instanceof fabric.GenerationFrame) return
+
+    for (const frame of this.canvas.getObjects()) {
+      if (frame instanceof fabric.GenerationFrame && object.intersectsWithObject(frame as fabric.Object)) {
+        this.canvas.remove(object)
+        frame.addWithUpdate(object)
+
+        const frameRect = frame.getRect()
+        const clipTopCorner = -((object.height || 0) + (object.strokeWidth || 0)) / 2
+        const clipLeftCorner = -((object.width || 0) + (object.strokeWidth || 0)) / 2
+
+        const clipPath = new fabric.Rect({
+          width: frameRect.width,
+          height: frameRect.height,
+          top: clipTopCorner + ((frameRect.top || 0) - (object.top || 0)),
+          left: clipLeftCorner + ((frameRect.left || 0) - (object.left || 0)),
+          // alternative
+          // top: (frameRect.top || 0) + frame.getCenterPoint().y,
+          // left: (frameRect.left || 0) + frame.getCenterPoint().x,
+          // absolutePositioned: true
+        })
+        object.clipPath = clipPath
+        break
+      }
     }
   }
 
