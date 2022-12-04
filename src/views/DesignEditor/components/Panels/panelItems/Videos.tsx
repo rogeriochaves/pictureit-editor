@@ -5,8 +5,6 @@ import AngleDoubleLeft from "~/components/Icons/AngleDoubleLeft"
 import Scrollable from "~/components/Scrollable"
 import { useEditor } from "@layerhub-io/react"
 import useSetIsSidebarOpen from "~/hooks/useSetIsSidebarOpen"
-import { getPixabayVideos } from "~/services/pixabay"
-import { getPexelsVideos } from "~/services/pexels"
 import useDesignEditorContext from "~/hooks/useDesignEditorContext"
 
 const loadVideoResource = (videoSrc: string): Promise<HTMLVideoElement> => {
@@ -60,18 +58,18 @@ const Videos = () => {
   const setIsSidebarOpen = useSetIsSidebarOpen()
   const [videos, setVideos] = React.useState<any[]>([])
   const { scenes, setScenes, currentScene } = useDesignEditorContext()
-  const loadPixabayVideos = async () => {
-    const videos = await getPixabayVideos("people")
-    setVideos(videos)
-  }
+  // const loadPixabayVideos = async () => {
+  //   const videos = await getPixabayVideos("people")
+  //   setVideos(videos)
+  // }
 
-  const loadPexelsVideos = async () => {
-    const videos = (await getPexelsVideos("people")) as any
-    setVideos(videos)
-  }
-  React.useEffect(() => {
-    loadPexelsVideos()
-  }, [])
+  // const loadPexelsVideos = async () => {
+  //   const videos = (await getPexelsVideos("people")) as any
+  //   setVideos(videos)
+  // }
+  // React.useEffect(() => {
+  //   loadPexelsVideos()
+  // }, [])
 
   const addObject = React.useCallback(
     async (options: any) => {
