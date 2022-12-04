@@ -1,47 +1,44 @@
-# Design Editor
+# Picture it Editor: the open-source AI Art creation tool
 
-If you are worrying about something like a designer tool, such as graphic editor, presentation editor, video editor, etc. Layerhub is a perfect choice for you.  
-Try demo here [react-design-editor-dev.up.railway.app](https://react-design-editor-dev.up.railway.app/)
+Picture it Editor is an open-source design editor, currently in beta version, designed to be a studio to help you create and iterate on digital art using a variety of AI models available as tools in the editor
 
-<p>
-    <a href="https://discord.gg/7jxnh8rHDV">
-        <img src="https://discordapp.com/api/guilds/1001450881448951838/widget.png?style=banner2" alt="Discord Banner 2"/>
-    </a>
-</p>
+You can run the editor locally or try our hosted version:
 
-## Screenshots
+[https://pictureit.art](https://pictureit.art)
 
-React editor created editors for graphics, presentations and video.
+## Screenshot
 
-![Select Editor](https://i.ibb.co/y0L2C4c/select-editor.png)
+![Screenshot of the editor](https://i.ibb.co/xmcpn4y/ss.png)
 
-![Video Editor](https://i.ibb.co/TTgdsk2/video-editor.png)
+## Features
 
-## Components
+- Image generation with Stable Diffusion
+- Step and guidance adjustment
+- Base image inpainting
+- Guided drawing inpainting
+- Easy to extend for different backend or other models
+- More to come!
 
-- @layerhub-io/react: This editor is using SDK for react.
+## Running Locally
 
-## How to start
+First, you are going to need a Replicate API key, to be able to use the AI models, get one at:
 
-Clone the project:
+https://replicate.com/
 
-```
-git clone https://github.com/layerhub-io/react-editor
-```
-
-Install dependencies, currently using pnpm, but other package managers should work too.
+Then, clone the project and install the dependencies:
 
 ```
-pnpm i
+git clone https://github.com/rogeriochaves/pictureit-editor
+npm install
 ```
 
-Start the project on development mode
+Now start the project, passing your token as ENV:
 
 ```
-pnpm dev
+VITE_ENV_BACKEND=replicate VITE_ENV_REPLICATE_TOKEN=<token> npm run dev
 ```
 
-App should be running now.
+App should be running. Go to http://localhost:5173/ and enjoy!
 
 ## Contribution
 
@@ -49,8 +46,10 @@ Feel free to contribute by opening issues with any questions, bug reports or fea
 
 ## Get in touch
 
-You can reach us at support@layerhub.io
+You can reach us at hello@pictureit.art
 
 ## License
 
 [MIT](LICENSE)
+
+![logo](https://pictureit.art/images/logo-black.svg)
