@@ -379,9 +379,9 @@ class ObjectImporter {
       preview,
       clipPath,
     } = item as Required<ILayer>
-    let metadata = item.metadata ? item.metadata : {}
+    const metadata = item.metadata ? item.metadata : {}
     const { fill } = metadata
-    let baseOptions = {
+    const baseOptions = {
       id: id ? id : nanoid(),
       name: name ? name : type,
       angle: angle ? angle : 0,

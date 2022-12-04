@@ -23,9 +23,6 @@ export class GenerationFrameObject extends fabric.Group {
       absolutePositioned: true,
     })
 
-    for (const object of objects) {
-      object.evented = false
-    }
     const groupObjects =
       objects.length > 0
         ? objects
@@ -55,7 +52,14 @@ export class GenerationFrameObject extends fabric.Group {
       subTargetCheck: true,
       interactive: true,
     })
-    // for some reason top and left and overwritten misteriously after initialize after fromObject
+
+    for (const object of objects) {
+      object.evented = false
+      object.top *= this.scaleY
+      object.left *= this.scaleX
+    }
+
+    // for some reason top and left are overwritten misteriously after initialize after fromObject
     this.top = options.top
     this.left = options.left
 
@@ -86,7 +90,7 @@ export class GenerationFrameObject extends fabric.Group {
 
   async setImage(src: string) {
     return new Promise<void>((resolve, _reject) => {
-      fabric.util.loadImage(src, {crossOrigin: "anonymous"}).then((img) => {
+      fabric.util.loadImage(src, { crossOrigin: "anonymous" }).then((img) => {
         this.removeError()
         const nonRectObjects = this._objects.filter(
           (item) => (item as any).id != `${this.id}-background` && (item as any).id != `${this.id}-loading-bar`

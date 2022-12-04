@@ -1,3 +1,4 @@
+import Mocked from "./adapters/mocked"
 import PictureIt from "./adapters/pictureit"
 
 export type StableDiffusionInput = {
@@ -15,6 +16,7 @@ export interface Api {
 const TBD = (): any => {
   throw "Not implemented yet"
 }
-const adapter : Api = import.meta.env.BACKEND == "replicate" ? TBD() : PictureIt
+const adapter: Api =
+  import.meta.env.VITE_BACKEND == "replicate" ? TBD() : import.meta.env.VITE_BACKEND == "mocked" ? Mocked : PictureIt
 
 export default adapter
