@@ -8,12 +8,19 @@ import { StatefulTooltip } from "baseui/tooltip"
 import { fabric } from "fabric"
 import { useCallback, useEffect, useState } from "react"
 import Steps from "../../../../components/Icons/Steps"
+import { setHidePopup } from "../../../../store/generation"
+import { useAppDispatch } from "../../../../store/store"
 import Common from "./Common"
 import { Separator } from "./Shared/Separator"
 
 const GenerationFrame = () => {
+  const dispatch = useAppDispatch()
+
   return (
     <Block
+      onClick={() => {
+        dispatch(setHidePopup(true))
+      }}
       $style={{
         flex: 1,
         display: "flex",

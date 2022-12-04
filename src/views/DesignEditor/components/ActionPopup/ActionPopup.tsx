@@ -5,7 +5,7 @@ import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
 import { useSelector } from "react-redux"
-import { generateImage } from "../../../../store/generation"
+import { generateImage, setHidePopup } from "../../../../store/generation"
 import { RootState } from "../../../../store/rootReducer"
 import { useAppDispatch } from "../../../../store/store"
 
@@ -17,23 +17,24 @@ const ActionPopup = () => {
     x: number
     y: number
     target: fabric.GenerationFrame
-    isMoving: boolean
   } | null>(null)
   const [_, setPrompt] = useState("")
   const dispatch = useAppDispatch()
   const generationRequests = useSelector((state: RootState) => state.generation.requests)
+  const hidePopup = useSelector((state: RootState) => state.generation.hidePopup)
 
   const setPopupForTarget = useCallback(
     (target: fabric.Object | undefined) => {
       if (target && target.type == LayerType.GENERATION_FRAME && target.oCoords) {
         const { x, y } = target.oCoords.mt // mid-top
         setPrompt(target.metadata?.prompt || "")
-        setPopup({ x, y, target: target as fabric.GenerationFrame, isMoving: false })
+        dispatch(setHidePopup(false))
+        setPopup({ x, y, target: target as fabric.GenerationFrame })
       } else {
         setPopup(null)
       }
     },
-    [setPrompt]
+    [dispatch]
   )
 
   useEffect(() => {
@@ -52,21 +53,32 @@ const ActionPopup = () => {
   )
 
   const onMove = useCallback(() => {
-    if (popup && !popup.isMoving) {
-      setPopup({ ...popup, isMoving: true })
+    if (popup && !hidePopup) {
+      dispatch(setHidePopup(true))
     }
-  }, [popup])
+  }, [popup, hidePopup, dispatch])
+
+  const onClick = useCallback(
+    (e: IEvent) => {
+      if (popup && hidePopup && e.target == popup.target) {
+        dispatch(setHidePopup(false))
+      }
+    },
+    [popup, hidePopup, dispatch]
+  )
 
   useEffect(() => {
     if (!editor) return
 
     editor.canvas.canvas.on("object:modified", onModified)
     editor.canvas.canvas.on("object:moving", onMove)
+    editor.canvas.canvas.on("mouse:up", onClick)
     return () => {
       editor.canvas.canvas.off("object:modified", onModified)
       editor.canvas.canvas.off("object:moving", onMove)
+      editor.canvas.canvas.off("mouse:up", onClick)
     }
-  }, [editor, onModified, onMove])
+  }, [editor, onClick, onModified, onMove])
 
   const onGenerateImage = useCallback(async () => {
     const targetId = popup?.target.id
@@ -117,7 +129,7 @@ const ActionPopup = () => {
 
   return (
     <div ref={popupRef}>
-      {popup && !popup.isMoving && currentGeneratingState.state != "LOADING" ? (
+      {popup && !hidePopup && currentGeneratingState.state != "LOADING" ? (
         <div
           style={{
             position: "absolute",

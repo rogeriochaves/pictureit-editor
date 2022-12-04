@@ -10,10 +10,12 @@ import { addGaussianNoise } from "../utils/noise"
 
 interface GenerationState {
   requests: { [key: string]: RemoteData<{ image: string }> }
+  hidePopup: boolean
 }
 
 const initialState: GenerationState = {
   requests: {},
+  hidePopup: false,
 }
 
 export const generationSlice = createSlice({
@@ -23,10 +25,13 @@ export const generationSlice = createSlice({
     setGenerationRequest: (state, { payload }: PayloadAction<{ id: string; state: RemoteData<{ image: string }> }>) => {
       state.requests[payload.id] = payload.state
     },
+    setHidePopup: (state, { payload }: PayloadAction<boolean>) => {
+      state.hidePopup = payload
+    },
   },
 })
 
-export const { setGenerationRequest } = generationSlice.actions
+export const { setGenerationRequest, setHidePopup } = generationSlice.actions
 export const generationReducer = generationSlice.reducer
 
 export const generateImage = createAsyncThunk<
