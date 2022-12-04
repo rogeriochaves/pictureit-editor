@@ -23,8 +23,8 @@ app.use((req, res, next) => {
   }, opts)(req, res, next)
 })
 
-const { PORT = 5174 } = process.env
-app.listen(PORT, () => {
+const { PORT = "5174" } = process.env
+app.listen(parseInt(PORT), "0.0.0.0", () => {
   console.log()
   console.log(`  Proxy server started`)
   console.log()

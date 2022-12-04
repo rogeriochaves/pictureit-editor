@@ -28,6 +28,7 @@ class Events extends Base {
       "object:removed": this.objectRemoved,
     })
 
+    this.canvas.wrapperEl.addEventListener("touchmove", this.onTouchMove.bind(this), false)
     this.canvas.wrapperEl.addEventListener("keydown", this.onKeyDown.bind(this), false)
   }
 
@@ -46,10 +47,17 @@ class Events extends Base {
       "object:removed": this.objectRemoved,
     })
 
+    this.canvas.wrapperEl.removeEventListener("touchmove", this.onTouchMove.bind(this))
     this.canvas.wrapperEl.removeEventListener("keydown", this.onKeyDown.bind(this))
   }
 
-  private onDoubleClick = (event: fabric.IEvent<any>) => {
+  private onTouchMove = (event: TouchEvent) => {
+    if (event.touches.item(0)?.force == 1) {
+      this.onDoubleClick({ e: event })
+    }
+  }
+
+  private onDoubleClick = (event: { e: Event }) => {
     const initialSelection = this.canvas.getActiveObject() as any
     const parent = initialSelection._objects ? initialSelection : initialSelection.group
     const objects = parent?._objects
