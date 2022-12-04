@@ -80,10 +80,13 @@ export class GenerationFrameObject extends fabric.Group {
   }
 
   public adjustBackground() {
-    this.getBackground().set({
-      width: this.width / this.scaleX,
-      height: this.height / this.scaleY,
-    })
+    const background = this.getBackground()
+    if (background) {
+      background.set({
+        width: this.width / this.scaleX,
+        height: this.height / this.scaleY,
+      })
+    }
   }
 
   async setImage(src: string) {
@@ -229,7 +232,7 @@ export class GenerationFrameObject extends fabric.Group {
       (object) =>
         //@ts-ignore
         object.id == `${this.id}-background`
-    )!
+    )
   }
 
   getLoadingBar() {
@@ -237,7 +240,7 @@ export class GenerationFrameObject extends fabric.Group {
       (object) =>
         //@ts-ignore
         object.id == `${this.id}-loading-bar`
-    )!
+    )
   }
 
   getError() {
@@ -245,7 +248,7 @@ export class GenerationFrameObject extends fabric.Group {
       (object) =>
         //@ts-ignore
         object.id == `${this.id}-error`
-    )!
+    )
   }
 
   toObject(propertiesToInclude: string[] = []) {

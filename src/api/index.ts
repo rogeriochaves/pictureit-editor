@@ -2,7 +2,10 @@ import Mocked from "./adapters/mocked"
 import PictureIt from "./adapters/pictureit"
 
 export type StableDiffusionInput = {
-  prompt: string
+  prompt: string,
+  init_image?: string,
+  guidance_scale?: number,
+  prompt_strength?: number
 }
 
 export type StableDiffusionOutput = {

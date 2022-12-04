@@ -7,6 +7,21 @@ class Renderer {
     return await this.toDataURL(template, {})
   }
 
+  public async renderCanvas(template: IScene) : Promise<HTMLCanvasElement> {
+    return new Promise(async (resolve, reject) => {
+      const staticCanvas = new fabric.StaticCanvas(null)
+      await this.loadTemplate(staticCanvas, template, {})
+      const canvas = staticCanvas.toCanvasElement(1, {
+        top: 0,
+        left: 0,
+        height: staticCanvas.getHeight(),
+        width: staticCanvas.getWidth(),
+      })
+
+      resolve(canvas)
+    })
+  }
+
   public async toDataURL(template: IScene, params: Record<string, any>) {
     return new Promise(async (resolve, reject) => {
       const staticCanvas = new fabric.StaticCanvas(null)

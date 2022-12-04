@@ -1,11 +1,14 @@
 import { LayerType } from "@layerhub-io/core"
+import ObjectExporter from "@layerhub-io/core/src/utils/object-exporter"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
+import { IGenerationFrame, ILayer } from "@layerhub-io/types"
 import { Button } from "baseui/button"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { useCallback, useEffect, useRef, useState } from "react"
 import api from "../../../../api"
 import { extractErrorMessage } from "../../../../api/utils"
+import { renderInitImage } from "../../../../services/generation"
 
 type RemoteData<T> = { state: "NOT_ASKED" } | { state: "LOADING" } | { state: "SUCCESS"; data: T } | { state: "ERROR" }
 
@@ -63,9 +66,11 @@ const ActionPopup = () => {
     }
   }, [editor, onModified, onMove])
 
-  const generateImage = useCallback(() => {
+  const generateImage = useCallback(async () => {
     const targetId = popup?.target.id
     if (!targetId) return
+
+    const init_image = await renderInitImage(editor, popup.target)
 
     setGeneratingState({
       ...generatingState,
@@ -75,7 +80,12 @@ const ActionPopup = () => {
     popup.target.showLoading(9000)
 
     api
-      .stableDiffusion({ prompt: prompt })
+      .stableDiffusion({
+        prompt: prompt,
+        guidance_scale: 7.5,
+        prompt_strength: 0.8,
+        ...(init_image ? { init_image: init_image } : {}),
+      })
       .then(async (result) => {
         if (result.url) {
           await popup.target.setImage(result.url)
