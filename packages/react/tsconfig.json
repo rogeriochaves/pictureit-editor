@@ -14,6 +14,7 @@
     "noEmit": false,
     "outDir": "./dist",
     "strict": false,
+    "rootDir": "src",
     "composite": true
   },
   "exclude": [

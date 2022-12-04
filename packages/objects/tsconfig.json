@@ -10,6 +10,7 @@
     "forceConsistentCasingInFileNames": true,
     "strict": false,
     "skipLibCheck": true,
+    "rootDir": "src",
     "composite": true
   },
   "include": ["src"]

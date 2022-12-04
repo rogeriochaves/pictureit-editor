@@ -13,6 +13,7 @@
     "skipLibCheck": true,
     "downlevelIteration": true,
     "strictPropertyInitialization": false,
+    "rootDir": "src",
     "composite": true
   },
   "include": ["src"]
