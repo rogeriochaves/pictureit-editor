@@ -52,11 +52,13 @@ export let transparentPattern: fabric.Pattern | undefined
 export const transparentB64 =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAQMAAABtzGvEAAAABlBMVEX////y8vR/2MH6AAAAFUlEQVQY02MAgv///w9+auBdQBQFAChSj3FVQCgvAAAAAElFTkSuQmCC"
 
-fabric.util.loadImage(transparentB64).then((img) => {
+export const transparentPatternPromise = fabric.util.loadImage(transparentB64).then((img) => {
   transparentPattern = new fabric.Pattern({
     source: img,
     repeat: "repeat",
   })
+
+  return transparentPattern
 })
 
 export const defaultFrameOptions = {

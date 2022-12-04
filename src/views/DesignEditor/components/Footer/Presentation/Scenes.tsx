@@ -44,7 +44,7 @@ const Scenes = () => {
   }, [editor, scenes, currentScene])
 
   React.useEffect(() => {
-    let watcher = async () => {
+    const watcher = async () => {
       const updatedTemplate = editor.scene.exportToJSON()
       const updatedPreview = (await editor.renderer.render(updatedTemplate)) as string
       setCurrentPreview(updatedPreview)
@@ -64,29 +64,29 @@ const Scenes = () => {
       if (currentScene) {
         updateCurrentScene(currentScene)
       } else {
-        const defaultTemplate = getDefaultTemplate({
-          width: 1200,
-          height: 1200,
-        })
-        setCurrentDesign({
-          id: nanoid(),
-          frame: defaultTemplate.frame,
-          metadata: {},
-          name: "Untitled Design",
-          preview: "",
-          scenes: [],
-          type: "PRESENTATION",
-        })
-        editor.scene
-          .importFromJSON(defaultTemplate)
-          .then(() => {
-            const initialDesign = editor.scene.exportToJSON() as any
-            editor.renderer.render(initialDesign).then((data) => {
-              setCurrentScene({ ...initialDesign, preview: data })
-              setScenes([{ ...initialDesign, preview: data }])
-            })
-          })
-          .catch(console.log)
+        // const defaultTemplate = getDefaultTemplate({
+        //   width: 1200,
+        //   height: 1200,
+        // })
+        // setCurrentDesign({
+        //   id: nanoid(),
+        //   frame: defaultTemplate.frame,
+        //   metadata: {},
+        //   name: "Untitled Design",
+        //   preview: "",
+        //   scenes: [],
+        //   type: "PRESENTATION",
+        // })
+        // editor.scene
+        //   .importFromJSON(defaultTemplate)
+        //   .then(() => {
+        //     const initialDesign = editor.scene.exportToJSON() as any
+        //     editor.renderer.render(initialDesign).then((data) => {
+        //       setCurrentScene({ ...initialDesign, preview: data })
+        //       setScenes([{ ...initialDesign, preview: data }])
+        //     })
+        //   })
+        //   .catch(console.log)
       }
     }
   }, [editor, currentScene])
@@ -112,7 +112,7 @@ const Scenes = () => {
       return p
     })
 
-    const defaultTemplate = getDefaultTemplate(currentDesign.frame)
+    const defaultTemplate = await getDefaultTemplate(editor.canvas.canvas, currentDesign.frame)
     const newPreview = await editor.renderer.render(defaultTemplate)
     const newPage = { ...defaultTemplate, id: nanoid(), preview: newPreview } as any
     const newPages = [...updatedPages, newPage] as any[]

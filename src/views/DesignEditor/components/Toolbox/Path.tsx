@@ -18,7 +18,7 @@ const Path = () => {
   }, [activeObject])
 
   React.useEffect(() => {
-    let watcher = async () => {
+    const watcher = async () => {
       if (activeObject && activeObject.type === "StaticPath") {
         setState({ fill: activeObject.fill })
       }

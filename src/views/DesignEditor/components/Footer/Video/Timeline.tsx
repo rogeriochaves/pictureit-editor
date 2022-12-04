@@ -24,7 +24,7 @@ const Timeline = () => {
   const [css] = useStyletron()
 
   React.useEffect(() => {
-    let watcher = async () => {
+    const watcher = async () => {
       const updatedTemplate = editor.scene.exportToJSON()
       const updatedPreview = (await editor.renderer.render(updatedTemplate)) as any
       setCurrentPreview(updatedPreview)
@@ -44,14 +44,11 @@ const Timeline = () => {
       if (currentScene) {
         updateCurrentScene(currentScene)
       } else {
-        const defaultTemplate = getDefaultTemplate({
+        getDefaultTemplate(editor.canvas.canvas, {
           width: 1200,
           height: 1200,
         })
-
-        editor.scene
-          .importFromJSON(defaultTemplate)
-          .then(() => {
+          .then((defaultTemplate) => {
             // SET INITIAL DURATION
             setCurrentDesign({
               id: nanoid(),
@@ -62,6 +59,10 @@ const Timeline = () => {
               scenes: [],
               type: "VIDEO",
             })
+
+            return editor.scene.importFromJSON(defaultTemplate)
+          })
+          .then(() => {
             const initialDesign = editor.scene.exportToJSON() as any
             editor.renderer.render(initialDesign).then((data) => {
               setCurrentScene({ ...initialDesign, preview: data, duration: 5000 })
@@ -98,7 +99,7 @@ const Timeline = () => {
       return previousVal + currentValue.duration!
     }, 0)
 
-    const defaultTemplate = getDefaultTemplate(currentDesign.frame)
+    const defaultTemplate = await getDefaultTemplate(editor.canvas.canvas, currentDesign.frame)
     const newPreview = await editor.renderer.render(defaultTemplate)
     const newPage = {
       ...defaultTemplate,

@@ -14,7 +14,7 @@ class Scene extends Base {
   private name?: string = ""
 
   public exportToJSON(): IScene {
-    let animated = false
+    const animated = false
 
     const canvasJSON: any = this.canvas.toJSON(this.config.propertiesToInclude)
     const frame = this.editor.frame.options

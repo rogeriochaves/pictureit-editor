@@ -1,7 +1,7 @@
 import { nanoid } from "nanoid"
 import { IFrame } from "@layerhub-io/types"
 
-export const getDefaultTemplate = ({ width, height }: IFrame) => {
+export const getDefaultTemplate = async (_canvas: fabric.Canvas, { width, height }: IFrame) => {
   return {
     id: nanoid(),
     frame: {
@@ -12,8 +12,6 @@ export const getDefaultTemplate = ({ width, height }: IFrame) => {
     metadata: {},
   }
 }
-
-export const defaultTemplate = getDefaultTemplate({ width: 512, height: 512 })
 
 export const TEXT_EFFECTS = [
   {

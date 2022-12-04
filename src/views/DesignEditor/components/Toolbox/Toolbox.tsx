@@ -36,10 +36,10 @@ const Toolbox = () => {
       setState({ toolbox: DEFAULT_TOOLBOX })
       setActiveSubMenu("")
     }
-  }, [activeObject])
+  }, [activeObject, setActiveSubMenu])
 
   React.useEffect(() => {
-    let watcher = async () => {
+    const watcher = async () => {
       if (activeObject) {
         // @ts-ignore
         const selectionType = getSelectionType(activeObject) as any

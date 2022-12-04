@@ -43,7 +43,7 @@ const TimelineContextMenu = () => {
     if (updatedScenes[0]) {
       setScenes(updatedScenes)
     } else {
-      const defaultTemplate = getDefaultTemplate({
+      const defaultTemplate = await getDefaultTemplate(editor.canvas.canvas, {
         width: frame.width,
         height: frame.height,
       })

@@ -4,6 +4,7 @@ import Playback from "../Playback"
 import useDesignEditorContext from "~/hooks/useDesignEditorContext"
 import ContextMenu from "../ContextMenu"
 import ActionPopup from "../ActionPopup"
+import { LayerType, transparentPattern } from "@layerhub-io/core"
 
 const Canvas = () => {
   const editor = useEditor()

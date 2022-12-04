@@ -4,7 +4,7 @@ import Add from "~/components/Icons/Add"
 import useDesignEditorPages from "~/hooks/useDesignEditorScenes"
 import { DesignEditorContext } from "~/contexts/DesignEditor"
 import { nanoid } from "nanoid"
-import { defaultTemplate, getDefaultTemplate } from "~/constants/design-editor"
+import { getDefaultTemplate } from "~/constants/design-editor"
 import { useEditor, useFrame } from "@layerhub-io/react"
 import { IScene } from "@layerhub-io/types"
 import { DndContext, closestCenter, PointerSensor, useSensor, DragOverlay } from "@dnd-kit/core"
@@ -14,7 +14,9 @@ import SceneItem from "./SceneItem"
 import { Block } from "baseui/block"
 import useContextMenuTimelineRequest from "~/hooks/useContextMenuTimelineRequest"
 import SceneContextMenu from "./SceneContextMenu"
+import { LayerType, transparentPatternPromise } from "@layerhub-io/core"
 
+let firstUpdate = false
 const Scenes = () => {
   const scenes = useDesignEditorPages()
   const { setScenes, setCurrentScene, currentScene, setCurrentDesign, currentDesign } =
@@ -71,25 +73,46 @@ const Scenes = () => {
   React.useEffect(() => {
     if (editor) {
       if (currentScene) {
-        updateCurrentScene(currentScene)
+        if (!firstUpdate) {
+          firstUpdate = true
+        } else {
+          updateCurrentScene(currentScene)
+        }
       } else {
-        setCurrentDesign({
-          id: nanoid(),
-          frame: defaultTemplate.frame,
-          metadata: {},
-          name: "Untitled Design",
-          preview: "",
-          scenes: [],
-          type: "PRESENTATION",
-        })
-        editor.scene
-          .importFromJSON(defaultTemplate)
+        getDefaultTemplate(editor.canvas.canvas, { width: 512, height: 512 })
+          .then((defaultTemplate) => {
+            setCurrentDesign({
+              id: nanoid(),
+              frame: defaultTemplate.frame,
+              metadata: {},
+              name: "Untitled Design",
+              preview: "",
+              scenes: [],
+              type: "PRESENTATION",
+            })
+
+            return editor.scene.importFromJSON(defaultTemplate)
+          })
           .then(() => {
             const initialDesign = editor.scene.exportToJSON() as any
             editor.renderer.render(initialDesign).then((data) => {
               setCurrentScene({ ...initialDesign, preview: data })
               setScenes([{ ...initialDesign, preview: data }])
             })
+
+            setTimeout(async () => {
+              const frame = editor.canvas.canvas.getObjects().find((object) => object.type == LayerType.FRAME)
+
+              const options = {
+                type: LayerType.GENERATION_FRAME,
+                width: 512,
+                height: 512,
+                left: frame?.left,
+                top: frame?.top,
+                fill: await transparentPatternPromise,
+              }
+              editor.objects.add(options)
+            }, 500);
           })
           .catch(console.log)
       }
@@ -108,7 +131,7 @@ const Scenes = () => {
       return p
     })
 
-    const defaultTemplate = getDefaultTemplate(currentDesign.frame)
+    const defaultTemplate = await getDefaultTemplate(editor.canvas.canvas, currentDesign.frame)
     const newPreview = await editor.renderer.render(defaultTemplate)
     const newPage = { ...defaultTemplate, id: nanoid(), preview: newPreview } as any
     const newPages = [...updatedPages, newPage] as any[]

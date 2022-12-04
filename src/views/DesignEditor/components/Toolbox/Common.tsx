@@ -33,7 +33,7 @@ const Common = () => {
   }, [activeObject])
 
   React.useEffect(() => {
-    let watcher = async () => {
+    const watcher = async () => {
       if (activeObject) {
         // @ts-ignore
         setState({ isGroup: activeObject.type === "group", isMultiple: activeObject.type === "activeSelection" })
