@@ -17,21 +17,14 @@ const Drawing = () => {
   const editor = useEditor()
   const setIsSidebarOpen = useSetIsSidebarOpen()
 
-  function pathCreatedHandler(e: any) {
-    // eslint-disable-next-line no-console
-    console.log("path e", e)
-  }
-
   function objectAddedHandler(e: IEvent) {
-    // e.target.name = "Free Drawing"
-    // eslint-disable-next-line no-console
-    console.log("object e", e)
     const object = e.target!
+    // @ts-ignore
     object.id = nanoid()
     object.name = "Free Drawing"
+    object.type = "StaticPath"
     editor.objects.updateContextObjects()
     editor.history.save()
-    // editor.objects.add({ ...object, id: "foo", fill: undefined, shadow: undefined, clipPath: undefined, duration: undefined })
   }
 
   useEffect(() => {
@@ -40,14 +33,11 @@ const Drawing = () => {
     canvas.freeDrawingBrush = new fabric.PencilBrush(canvas)
     canvas.freeDrawingBrush.width = 15
     canvas.freeDrawingBrush.color = "rgb(255, 0, 0)"
-
-    canvas.on("path:created", pathCreatedHandler)
     canvas.on("object:added", objectAddedHandler)
 
     return () => {
       canvas.isDrawingMode = false
-      canvas.off("path:created", pathCreatedHandler)
-      // canvas.off('object:added', objectAddedHandler)
+      canvas.off('object:added', objectAddedHandler)
     }
   }, [])
 
