@@ -12,6 +12,10 @@ export const Canvas = (props: Props) => {
   const containerRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
+    if ((import.meta as any).hot.data.editor) {
+      location.reload()
+      return
+    }
     const container = containerRef.current as HTMLDivElement
     const { clientHeight, clientWidth } = container
     const editor = new Editor({
@@ -25,6 +29,10 @@ export const Canvas = (props: Props) => {
       },
       state: context,
     })
+
+    if ((import.meta as any).hot) {
+      (import.meta as any).hot.data.editor = editor
+    }
 
     const resizeObserver = new ResizeObserver((entries) => {
       const { width = clientWidth, height = clientHeight } = (entries[0] && entries[0].contentRect) || {}
