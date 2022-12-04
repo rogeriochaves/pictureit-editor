@@ -6,7 +6,7 @@ import { IScene } from "@layerhub-io/types"
 import { useStyletron } from "baseui"
 import { Block } from "baseui/block"
 import { nanoid } from "nanoid"
-import React, { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { useDebouncedCallback } from "use-debounce"
 import Add from "../../../../../components/Icons/Add"
@@ -98,7 +98,7 @@ const Scenes = () => {
   }, [!!editor])
 
   const rerenderPreview = useDebouncedCallback(async () => {
-    if (!editor) return;
+    if (!editor) return
 
     const updatedTemplate = editor.scene.exportToJSON()
     const updatedPreview = await editor.renderer.render(updatedTemplate)
@@ -121,8 +121,8 @@ const Scenes = () => {
     }
   }, [editor, rerenderPreview])
 
-  const addScene = React.useCallback(async () => {
-    if (!editor) return;
+  const addScene = useCallback(async () => {
+    if (!editor) return
 
     const updatedTemplate = editor.scene.exportToJSON()
     const updatedPreview = await editor.renderer.render(updatedTemplate!)
@@ -136,8 +136,8 @@ const Scenes = () => {
 
     const defaultTemplate = await getDefaultTemplate(editor.canvas.canvas, currentDesign.frame)
     const newPreview = await editor.renderer.render(defaultTemplate)
-    const newPage = { ...defaultTemplate, id: nanoid(), preview: newPreview } as any
-    const newPages = [...updatedPages, newPage] as any[]
+    const newPage = { ...defaultTemplate, id: nanoid(), preview: newPreview }
+    const newPages = [...updatedPages, newPage]
     setScenes(newPages)
     setCurrentScene(newPage)
   }, [editor, scenes, currentDesign, setScenes, setCurrentScene])

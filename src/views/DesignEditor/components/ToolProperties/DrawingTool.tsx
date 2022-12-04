@@ -20,10 +20,12 @@ const DrawingTool = () => {
   const objectAddedHandler = useCallback(
     (e: IEvent) => {
       const object = e.target!
-      object.id = nanoid()
-      object.name = "Free Drawing"
-      object.type = "StaticPath"
-      editor.objects.afterAddHook(object, false)
+      if (!object.id && object.type == "path") {
+        object.id = nanoid()
+        object.name = "Free Drawing"
+        object.type = "StaticPath"
+        editor.objects.afterAddHook(object, false)
+      }
     },
     [editor]
   )
