@@ -7,7 +7,7 @@ import { Slider } from "baseui/slider"
 import { Input } from "baseui/input"
 import { useEditor, useZoomRatio } from "@layerhub-io/react"
 
-const Container = styled<"div", {}, Theme>("div", ({ $theme }) => ({
+const Container = styled<"div", object, Theme>("div", ({ $theme }) => ({
   height: "50px",
   background: $theme.colors.white,
   display: "flex",
@@ -30,6 +30,7 @@ const Common = () => {
 
   React.useEffect(() => {
     setOptions({ ...options, zoomRatio: Math.round(zoomRatio * 100) })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zoomRatio])
 
   const handleChange = (type: string, value: any) => {

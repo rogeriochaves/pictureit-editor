@@ -94,7 +94,7 @@ export class GenerationFrameObject extends fabric.Group {
     return super.toObject(propertiesToInclude)
   }
 
-  static fromObject(objects: fabric.Object[], options: GenerationFrameOptions, callback: Function) {
+  static fromObject(objects: fabric.Object[], options: GenerationFrameOptions, callback: (arg: fabric.GenerationFrame) => void) {
     return callback && callback(new fabric.GenerationFrame(objects, options))
   }
 }

@@ -21,6 +21,12 @@
       "~/*": ["src/*"]
     }
   },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": ["src", "packages/core/src", "packages/objects/src", "packages/react/src", "packages/types/src"],
+  "references": [
+    { "path": "./tsconfig.node.json" },
+    { "path": "./packages/core" },
+    { "path": "./packages/objects" },
+    { "path": "./packages/types" },
+    { "path": "./packages/react" }
+  ]
 }

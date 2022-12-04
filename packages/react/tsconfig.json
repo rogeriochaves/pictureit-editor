@@ -13,7 +13,8 @@
     "jsx": "react",
     "noEmit": false,
     "outDir": "./dist",
-    "strict": false
+    "strict": false,
+    "composite": true
   },
   "exclude": [
     "node_modules",

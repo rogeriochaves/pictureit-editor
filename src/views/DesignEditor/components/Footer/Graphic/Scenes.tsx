@@ -41,12 +41,12 @@ const Scenes = () => {
         setCurrentScene(scenes[0])
       }
     }
-  }, [editor, scenes, currentScene])
+  }, [editor, scenes, setCurrentScene, currentScene])
 
   React.useEffect(() => {
-    let watcher = async () => {
+    const watcher = async () => {
       const updatedTemplate = editor.scene.exportToJSON()
-      const updatedPreview = (await editor.renderer.render(updatedTemplate)) as string
+      const updatedPreview = (await editor.renderer.render(updatedTemplate!)) as string
       setCurrentPreview(updatedPreview)
     }
     if (editor) {
@@ -58,6 +58,15 @@ const Scenes = () => {
       }
     }
   }, [editor])
+
+  const updateCurrentScene = React.useCallback(
+    async (design: IScene) => {
+      await editor.scene.importFromJSON(design)
+      const updatedPreview = (await editor.renderer.render(design)) as string
+      setCurrentPreview(updatedPreview)
+    },
+    [editor]
+  )
 
   React.useEffect(() => {
     if (editor) {
@@ -85,24 +94,15 @@ const Scenes = () => {
           .catch(console.log)
       }
     }
-  }, [editor, currentScene])
-
-  const updateCurrentScene = React.useCallback(
-    async (design: IScene) => {
-      await editor.scene.importFromJSON(design)
-      const updatedPreview = (await editor.renderer.render(design)) as string
-      setCurrentPreview(updatedPreview)
-    },
-    [editor, currentScene]
-  )
+  }, [editor, currentScene, setCurrentDesign, setScenes, setCurrentScene, updateCurrentScene])
 
   const addScene = React.useCallback(async () => {
     setCurrentPreview("")
     const updatedTemplate = editor.scene.exportToJSON()
-    const updatedPreview = await editor.renderer.render(updatedTemplate)
+    const updatedPreview = await editor.renderer.render(updatedTemplate!)
 
     const updatedPages = scenes.map((p) => {
-      if (p.id === updatedTemplate.id) {
+      if (p.id === updatedTemplate!.id) {
         return { ...updatedTemplate, preview: updatedPreview }
       }
       return p
@@ -114,7 +114,7 @@ const Scenes = () => {
     const newPages = [...updatedPages, newPage] as any[]
     setScenes(newPages)
     setCurrentScene(newPage)
-  }, [scenes, currentDesign])
+  }, [editor, scenes, currentDesign, setScenes, setCurrentScene])
 
   const changePage = React.useCallback(
     async (page: any) => {
@@ -134,7 +134,7 @@ const Scenes = () => {
         setCurrentScene(page)
       }
     },
-    [editor, scenes, currentScene]
+    [editor, scenes, setScenes, setCurrentScene]
   )
 
   const handleDragStart = (event: any) => {

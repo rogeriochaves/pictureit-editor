@@ -56,8 +56,6 @@ const SceneContextMenu = () => {
     }
   }
 
-  const makeAddScene = () => {}
-
   const makeDuplicateScene = () => {
     const currentScene = scenes.find((scene) => scene.id === contextMenuTimelineRequest.id)
     const updatedScenes = [...scenes, { ...currentScene, id: nanoid() }]

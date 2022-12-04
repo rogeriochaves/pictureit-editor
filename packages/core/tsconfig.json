@@ -12,7 +12,8 @@
     "strict": true,
     "skipLibCheck": true,
     "downlevelIteration": true,
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "composite": true
   },
   "include": ["src"]
 }

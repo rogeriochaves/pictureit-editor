@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "packages:build": "npm run build --workspaces"
+    "packages:build": "npm run build --workspaces",
+    "lint": "eslint"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.0.5",
@@ -50,7 +51,12 @@
     "@types/mime": "^2.0.3",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.40.1",
+    "@typescript-eslint/parser": "^5.40.1",
     "@vitejs/plugin-react": "^2.0.0",
+    "eslint": "^8.25.0",
+    "eslint-plugin-react": "^7.31.10",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "typescript": "^4.8.4",
     "vite": "^3.1.7",
     "vite-tsconfig-paths": "^3.5.0"

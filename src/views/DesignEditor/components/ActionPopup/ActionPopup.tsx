@@ -19,7 +19,7 @@ const ActionPopup = () => {
     isMoving: boolean
   } | null>(null)
   const [prompt, setPrompt] = useState("")
-  const [generatingState, setGeneratingState] = useState<{ [key: string]: RemoteData<{ image: String }> }>({})
+  const [generatingState, setGeneratingState] = useState<{ [key: string]: RemoteData<{ image: string }> }>({})
 
   const setPopupForTarget = (target: fabric.Object | undefined) => {
     if (target && target.type == LayerType.GENERATION_FRAME && target.oCoords) {
@@ -42,7 +42,7 @@ const ActionPopup = () => {
         setPopupForTarget(activeObject)
       }
     },
-    [popup]
+    [activeObject, popup]
   )
 
   const onMove = useCallback(() => {
@@ -80,7 +80,7 @@ const ActionPopup = () => {
       await popup.target.setImage(sampleImage)
       editor.objects.afterAddHook(popup.target as fabric.Object)
     }, 1000)
-  }, [popup, generatingState])
+  }, [editor, popup, generatingState])
 
   const Pill = ({ value }: { value: string }) => {
     return (
