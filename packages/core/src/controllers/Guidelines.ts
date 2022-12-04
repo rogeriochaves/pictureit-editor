@@ -1,7 +1,10 @@
-// @ts-nocheck
-import { HandlerOptions } from "../common/interfaces"
 import Base from "./Base"
 import { fabric } from "fabric"
+import { nonRenderableLayerTypes } from "../common/constants"
+import { LayerType } from "../common/constants"
+
+type CoordsVertical = { x: number; y1: number; y2: number }
+type CoordsHorizontal = { x1: number; x2: number; y: number }
 
 class Guidelines extends Base {
   public viewportTransform: number[] = []
@@ -10,23 +13,22 @@ class Guidelines extends Base {
   public aligningLineWidth: any
   public aligningLineColor: any
   public ctx: CanvasRenderingContext2D
-  constructor(props: HandlerOptions) {
+  constructor(props: any) {
     super(props)
     this.initAligningGuidelines(this.canvas)
   }
 
-  initAligningGuidelines(canvas) {
-    viewportTransform = canvas.viewportTransform;
+  initAligningGuidelines(canvas: fabric.Canvas) {
+    let viewportTransform = canvas.viewportTransform!
 
-    var ctx = canvas.getSelectionContext(),
+    const ctx = canvas.getSelectionContext(),
       aligningLineOffset = 0,
       aligningLineMargin = 16,
       aligningLineWidth = 1.2,
-      aligningLineColor = "#e056fd",
-      viewportTransform,
-      zoom = canvas.getZoom()
+      aligningLineColor = "#e056fd"
+    let zoom = canvas.getZoom()
 
-    function drawVerticalLine(coords) {
+    function drawVerticalLine(coords: CoordsVertical) {
       drawLine(
         coords.x + 0.5,
         coords.y1 > coords.y2 ? coords.y2 : coords.y1,
@@ -35,7 +37,7 @@ class Guidelines extends Base {
       )
     }
 
-    function drawHorizontalLine(coords) {
+    function drawHorizontalLine(coords: CoordsHorizontal) {
       drawLine(
         coords.x1 > coords.x2 ? coords.x2 : coords.x1,
         coords.y + 0.5,
@@ -44,8 +46,8 @@ class Guidelines extends Base {
       )
     }
 
-    function drawLine(x1, y1, x2, y2) {
-      const vt = canvas.viewportTransform
+    function drawLine(x1: number, y1: number, x2: number, y2: number) {
+      const vt = canvas.viewportTransform!
       ctx.save()
       ctx.lineWidth = aligningLineWidth
       ctx.strokeStyle = aligningLineColor
@@ -57,10 +59,10 @@ class Guidelines extends Base {
     }
 
     function isInRange(value1: any, value2: any, customAligningLineMargin?: number) {
-      let aligningMargin = customAligningLineMargin ? customAligningLineMargin : aligningLineMargin
+      const aligningMargin = customAligningLineMargin ? customAligningLineMargin : aligningLineMargin
       value1 = Math.round(value1)
       value2 = Math.round(value2)
-      for (var i = value1 - aligningMargin, len = value1 + aligningMargin; i <= len; i++) {
+      for (let i = value1 - aligningMargin, len = value1 + aligningMargin; i <= len; i++) {
         if (i === value2) {
           return true
         }
@@ -68,42 +70,58 @@ class Guidelines extends Base {
       return false
     }
 
-    var verticalLines: any[] = []
-    var horizontalLines: any[] = []
+    const verticalLines: any[] = []
+    const horizontalLines: any[] = []
 
     canvas.on("mouse:down", function () {
-      viewportTransform = canvas.viewportTransform
+      viewportTransform = canvas.viewportTransform!
       zoom = canvas.getZoom()
     })
 
     canvas.on("object:moving", function (e) {
-      var activeObject = e.target,
-        canvasObjects = canvas.getObjects(),
+      const activeObject = e.target
+      if (!activeObject) return
+
+      const canvasObjects = canvas.getObjects(),
         activeObjectCenter = activeObject.getCenterPoint(),
         activeObjectLeft = activeObjectCenter.x,
         activeObjectTop = activeObjectCenter.y,
         activeObjectBoundingRect = activeObject.getBoundingRect(),
         activeObjectHeight = activeObjectBoundingRect.height / viewportTransform[3],
         activeObjectWidth = activeObjectBoundingRect.width / viewportTransform[0],
-        horizontalInTheRange = false,
-        verticalInTheRange = false,
-        transform = canvas._currentTransform
+        //@ts-ignore
+        transform = canvas._currentTransform,
+        groupAdjustLeft = activeObject.group?.getCenterPoint()?.x ?? 0,
+        groupAdjustTop = activeObject.group?.getCenterPoint()?.y ?? 0
+
+      let horizontalInTheRange = false,
+        verticalInTheRange = false
 
       if (!transform) return
+
+      let snapLeft: number | undefined = undefined
+      let snapTop: number | undefined = undefined
 
       // It should be trivial to DRY this up by encapsulating (repeating) creation of x1, x2, y1, and y2 into functions,
       // but we're not doing it here for perf. reasons -- as this a function that's invoked on every mouse move
 
-      for (var i = canvasObjects.length; i--; ) {
-        if (canvasObjects[i] === activeObject || canvasObjects[i].type === "Background") continue
-        var objectCenter = canvasObjects[i].getCenterPoint(),
+      for (let i = canvasObjects.length; i--; ) {
+        if (
+          canvasObjects[i] === activeObject ||
+          (canvasObjects[i].type !== LayerType.FRAME &&
+            nonRenderableLayerTypes.includes(canvasObjects[i].type || "")) ||
+          // canvasObjects[i].type === "Background" ||
+          canvasObjects[i].id?.match(/^-rect$/)
+        )
+          continue
+        const objectCenter = canvasObjects[i].getCenterPoint(),
           objectLeft = objectCenter.x,
           objectTop = objectCenter.y,
           objectBoundingRect = canvasObjects[i].getBoundingRect(),
           objectHeight = objectBoundingRect.height / viewportTransform[3],
           objectWidth = objectBoundingRect.width / viewportTransform[0]
-        let backgroundImageMargin =
-          activeObject.type === "BackgroundImage" && canvasObjects[i].type === "Frame" ? 30 : false
+        const backgroundImageMargin =
+          activeObject.type === "BackgroundImage" && canvasObjects[i].type === "Frame" ? 30 : undefined
         // snap by the horizontal center line
         if (isInRange(objectLeft, activeObjectLeft, backgroundImageMargin)) {
           verticalInTheRange = true
@@ -126,7 +144,8 @@ class Guidelines extends Base {
                   : activeObjectTop - activeObjectHeight / 2 - aligningLineOffset,
             })
           }
-          activeObject.setPositionByOrigin(new fabric.Point(objectLeft, activeObjectTop), "center", "center")
+
+          snapLeft = objectLeft
         }
 
         // snap by the left edge
@@ -152,11 +171,8 @@ class Guidelines extends Base {
                   : activeObjectTop - activeObjectHeight / 2 - aligningLineOffset,
             })
           }
-          activeObject.setPositionByOrigin(
-            new fabric.Point(objectLeft - objectWidth / 2 + activeObjectWidth / 2, activeObjectTop),
-            "center",
-            "center"
-          )
+
+          snapLeft = objectLeft - objectWidth / 2 + activeObjectWidth / 2
         }
 
         // snap by the right edge
@@ -183,11 +199,7 @@ class Guidelines extends Base {
             })
           }
 
-          activeObject.setPositionByOrigin(
-            new fabric.Point(objectLeft + objectWidth / 2 - activeObjectWidth / 2, activeObjectTop),
-            "center",
-            "center"
-          )
+          snapLeft = objectLeft + objectWidth / 2 - activeObjectWidth / 2
         }
 
         // snap by the vertical center line
@@ -214,7 +226,7 @@ class Guidelines extends Base {
             })
           }
 
-          activeObject.setPositionByOrigin(new fabric.Point(activeObjectLeft, objectTop), "center", "center")
+          snapTop = objectTop
         }
 
         // snap by the top edge
@@ -241,11 +253,7 @@ class Guidelines extends Base {
             })
           }
 
-          activeObject.setPositionByOrigin(
-            new fabric.Point(activeObjectLeft, objectTop - objectHeight / 2 + activeObjectHeight / 2),
-            "center",
-            "center"
-          )
+          snapTop = objectTop - objectHeight / 2 + activeObjectHeight / 2
         }
 
         // snap by the bottom edge
@@ -272,11 +280,7 @@ class Guidelines extends Base {
             })
           }
 
-          activeObject.setPositionByOrigin(
-            new fabric.Point(activeObjectLeft, objectTop + objectHeight / 2 - activeObjectHeight / 2),
-            "center",
-            "center"
-          )
+          snapTop = objectTop + objectHeight / 2 - activeObjectHeight / 2
         }
       }
 
@@ -287,9 +291,21 @@ class Guidelines extends Base {
       if (!verticalInTheRange) {
         verticalLines.length = 0
       }
+
+      if (snapLeft !== undefined || snapTop !== undefined) {
+        activeObject.setPositionByOrigin(
+          new fabric.Point(
+            (snapLeft || activeObjectLeft) - groupAdjustLeft,
+            (snapTop || activeObjectTop) - groupAdjustTop
+          ),
+          "center",
+          "center"
+        )
+      }
     })
 
     canvas.on("before:render", function () {
+      //@ts-ignore
       canvas.clearContext(canvas.contextTop)
     })
 
