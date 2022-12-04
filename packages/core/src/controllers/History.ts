@@ -47,7 +47,7 @@ class History extends Base {
   public save = () => {
     if (this.isActive) return
     try {
-      const canvasJSON = this.canvas.toJSON(this.config.propertiesToInclude) as any
+      const canvasJSON = this.canvas.toObject(this.config.propertiesToInclude) as any
       canvasJSON.objects.forEach((object: fabric.Object) => {
         if (object.clipPath) {
           fabric.util.enlivenObjects([object.clipPath]).then((objects) => {

@@ -72,7 +72,7 @@ export class Editor extends EventManager {
   public debug() {
     console.log({
       objects: this.canvas.canvas.getObjects(),
-      json: this.canvas.canvas.toJSON(),
+      json: this.canvas.canvas.toObject(),
     })
   }
 

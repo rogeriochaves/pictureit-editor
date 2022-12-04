@@ -16,7 +16,7 @@ class Scene extends Base {
   public exportToJSON(): IScene {
     const animated = false
 
-    const canvasJSON: any = this.canvas.toJSON(this.config.propertiesToInclude)
+    const canvasJSON: any = this.canvas.toObject(this.config.propertiesToInclude)
     const frame = this.editor.frame.options
     const template: IScene = {
       id: this.id ? this.id : nanoid(),
@@ -70,7 +70,7 @@ class Scene extends Base {
         }
 
         const group = new fabric.Group(clonedObjects)
-        const component = objectExporter.export(group.toJSON(this.editor.config.propertiesToInclude), frame) as any
+        const component = objectExporter.export(group.toObject(this.editor.config.propertiesToInclude), frame) as any
         const metadata = component.metadata ? component.metadata : {}
 
         return {
@@ -84,7 +84,7 @@ class Scene extends Base {
           },
         }
       } else {
-        const component = objectExporter.export(activeObject.toJSON(this.editor.config.propertiesToInclude), frame)
+        const component = objectExporter.export(activeObject.toObject(this.editor.config.propertiesToInclude), frame)
         const metadata = component.metadata ? component.metadata : {}
         return {
           ...component,

@@ -464,7 +464,7 @@ class Objects extends Base {
     if (activeObject) {
       //  @ts-ignore
       const clonableProps = copyStyleProps[activeObject.type]
-      const clonedProps = pick(activeObject.toJSON(), clonableProps)
+      const clonedProps = pick(activeObject.toObject(), clonableProps)
 
       this.copyStyleClipboard = {
         objectType: activeObject.type,
@@ -800,7 +800,7 @@ class Objects extends Base {
       const currentBackgroundImage = objects.find((o) => o.type === LayerType.BACKGROUND_IMAGE)
       let nextImage: fabric.StaticImage
       if (currentBackgroundImage) {
-        const currentBackgroundImageJSON = currentBackgroundImage.toJSON(this.config.propertiesToInclude)
+        const currentBackgroundImageJSON = currentBackgroundImage.toObject(this.config.propertiesToInclude)
         delete currentBackgroundImageJSON.clipPath
         const nextImageElement = await fabric.util.loadImage(currentBackgroundImageJSON.src, { crossOrigin: "anonymous" })
         nextImage = new fabric.StaticImage(nextImageElement, { ...currentBackgroundImageJSON, id: nanoid() })
@@ -827,7 +827,7 @@ class Objects extends Base {
         // @ts-ignore
         this.canvas.add(nextImage)
       }
-      const objectJSON = refObject.toJSON(this.config.propertiesToInclude)
+      const objectJSON = refObject.toObject(this.config.propertiesToInclude)
       delete objectJSON.clipPath
       const image = await fabric.util.loadImage(objectJSON.src, { crossOrigin: "anonymous" })
       const backgroundImage = new fabric.BackgroundImage(image, { ...objectJSON, id: nanoid() })

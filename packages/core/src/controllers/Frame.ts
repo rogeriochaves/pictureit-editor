@@ -67,7 +67,7 @@ class Frame extends Base {
   }
 
   get options(): Required<ILayer> {
-    const options = this.frame.toJSON(this.config.propertiesToInclude)
+    const options = this.frame.toObject(this.config.propertiesToInclude)
     return options as Required<ILayer>
   }
 
