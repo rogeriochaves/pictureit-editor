@@ -5,6 +5,7 @@ import Vector from "./Vector"
 import Locked from "./Locked"
 import Multiple from "./Multiple"
 import Canvas from "./Canvas"
+import GenerationFrame from "./GenerationFrame"
 
 export default {
   StaticText: Text,
@@ -14,4 +15,5 @@ export default {
   Locked,
   Multiple,
   Canvas,
+  GenerationFrame,
 }

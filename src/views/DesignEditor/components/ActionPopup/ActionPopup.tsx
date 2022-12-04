@@ -3,7 +3,7 @@ import { useActiveObject, useEditor } from "@layerhub-io/react"
 import { Button } from "baseui/button"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
 import { useSelector } from "react-redux"
 import { generateImage } from "../../../../store/generation"
 import { RootState } from "../../../../store/rootReducer"
@@ -19,24 +19,28 @@ const ActionPopup = () => {
     target: fabric.GenerationFrame
     isMoving: boolean
   } | null>(null)
-  const [prompt, setPrompt] = useState("")
+  const [_, setPrompt] = useState("")
   const dispatch = useAppDispatch()
   const generationRequests = useSelector((state: RootState) => state.generation.requests)
 
-  const setPopupForTarget = (target: fabric.Object | undefined) => {
-    if (target && target.type == LayerType.GENERATION_FRAME && target.oCoords) {
-      const { x, y } = target.oCoords.mt // mid-top
-      setPopup({ x, y, target: target as fabric.GenerationFrame, isMoving: false })
-    } else {
-      setPopup(null)
-    }
-  }
+  const setPopupForTarget = useCallback(
+    (target: fabric.Object | undefined) => {
+      if (target && target.type == LayerType.GENERATION_FRAME && target.oCoords) {
+        const { x, y } = target.oCoords.mt // mid-top
+        setPrompt(target.metadata?.prompt || "")
+        setPopup({ x, y, target: target as fabric.GenerationFrame, isMoving: false })
+      } else {
+        setPopup(null)
+      }
+    },
+    [setPrompt]
+  )
 
   useEffect(() => {
     if (!editor) return
 
     setPopupForTarget(activeObject)
-  }, [editor, activeObject])
+  }, [editor, activeObject, setPopupForTarget])
 
   const onModified = useCallback(
     (e: IEvent) => {
@@ -44,7 +48,7 @@ const ActionPopup = () => {
         setPopupForTarget(activeObject)
       }
     },
-    [activeObject, popup]
+    [activeObject, popup, setPopupForTarget]
   )
 
   const onMove = useCallback(() => {
@@ -67,16 +71,29 @@ const ActionPopup = () => {
   const onGenerateImage = useCallback(async () => {
     const targetId = popup?.target.id
     if (!targetId) return
+    if (!popup.target.metadata?.prompt) return
 
     dispatch(
       generateImage({
         id: targetId,
         frame: popup.target,
-        prompt: prompt,
         editor: editor,
       })
     )
-  }, [popup, dispatch, prompt, editor])
+  }, [popup, dispatch, editor])
+
+  const onPromptChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      if (popup) {
+        popup.target.metadata = {
+          ...(popup.target.metadata || {}),
+          prompt: e.target.value,
+        }
+        setPrompt(e.target.value)
+      }
+    },
+    [popup]
+  )
 
   const Pill = ({ value }: { value: string }) => {
     return (
@@ -122,8 +139,8 @@ const ActionPopup = () => {
             <input
               id="actionPopupPrompt"
               type="text"
-              onChange={(e) => setPrompt(e.target.value)}
-              value={prompt}
+              onChange={onPromptChange}
+              value={popup.target.metadata?.prompt || ""}
               style={{
                 borderRadius: "5px",
                 background: "#FFF",

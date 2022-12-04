@@ -3,6 +3,7 @@ import PictureIt from "./adapters/pictureit"
 
 export type StableDiffusionInput = {
   prompt: string,
+  num_inference_steps?: number,
   init_image?: string,
   guidance_scale?: number,
   prompt_strength?: number

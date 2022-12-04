@@ -1,10 +1,16 @@
-export default function (selection: any): string[] | null {
-  let types = []
+import { LayerType } from "@layerhub-io/core"
+
+export default function getSelectionType(selection: any): string[] | null {
+  const types = []
   if (!selection) {
     return null
   }
   if (selection.locked) {
     return ["Locked"]
+  }
+
+  if (selection.type === LayerType.GENERATION_FRAME) {
+    return [selection.type]
   }
 
   if (selection.type === "group" || selection.type === "activeSelection") {

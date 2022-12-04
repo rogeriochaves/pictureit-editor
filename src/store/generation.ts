@@ -31,20 +31,22 @@ export const generationReducer = generationSlice.reducer
 
 export const generateImage = createAsyncThunk<
   void,
-  { id: string; frame: fabric.GenerationFrame; prompt: string; editor: Editor },
+  { id: string; frame: fabric.GenerationFrame; editor: Editor },
   { rejectValue: Record<string, string[]> }
->("generation/generateImage", async ({ id, frame, prompt, editor }, { rejectWithValue, dispatch }) => {
+>("generation/generateImage", async ({ id, frame, editor }, { rejectWithValue, dispatch }) => {
   try {
     dispatch(setGenerationRequest({ id, state: { state: "LOADING" } }))
 
-    frame.showLoading(9000)
+    const num_inference_steps = frame.metadata?.steps || 50
+    frame.showLoading((4 + num_inference_steps * 0.1) * 1000)
 
     const init_image = await renderInitImage(editor, frame)
 
     api
       .stableDiffusion({
-        prompt: prompt,
-        guidance_scale: 7.5,
+        prompt: frame.metadata?.prompt || "",
+        num_inference_steps,
+        guidance_scale: frame.metadata?.guidance || 7.5,
         prompt_strength: 0.8,
         ...(init_image ? { init_image: init_image, prompt_strength: 0.9 } : {}),
       })

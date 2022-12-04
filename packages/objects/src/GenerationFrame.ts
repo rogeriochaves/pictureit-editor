@@ -6,6 +6,11 @@ import { StaticTextObject } from "./StaticText"
 export class GenerationFrameObject extends fabric.Group {
   static type = "GenerationFrame"
   id: string
+  metadata?: {
+    prompt?: string
+    steps?: number
+    guidance?: number
+  }
   loadingAnimation: () => void | undefined
 
   //@ts-ignore
@@ -45,9 +50,7 @@ export class GenerationFrameObject extends fabric.Group {
             }),
           ]
 
-    //@ts-ignore
-    super.initialize(groupObjects, {
-      //@ts-ignore
+    const initOptions = {
       ...options,
       id,
       type: GenerationFrameObject.type,
@@ -55,7 +58,9 @@ export class GenerationFrameObject extends fabric.Group {
       clipPath: clipPath,
       subTargetCheck: true,
       interactive: true,
-    }, true)
+    }
+    //@ts-ignore
+    super.initialize(groupObjects, initOptions, true)
 
     // for some reason top and left are overwritten misteriously after initialize after fromObject
     this.top = options.top

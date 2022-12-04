@@ -69,7 +69,7 @@ const Text = () => {
   }, [activeObject])
 
   React.useEffect(() => {
-    let watcher = async () => {
+    const watcher = async () => {
       if (activeObject && activeObject.type === "StaticText") {
         const textProperties = getTextProperties(activeObject, SAMPLE_FONTS)
         setState({ ...state, ...textProperties })
@@ -272,10 +272,10 @@ const Text = () => {
             </Button>
           </StatefulTooltip>
 
-          <StatefulTooltip 
-            placement={PLACEMENT.bottom} 
-            showArrow={true} 
-            accessibilityType="tooltip" 
+          <StatefulTooltip
+            placement={PLACEMENT.bottom}
+            showArrow={true}
+            accessibilityType="tooltip"
             content="Underline"
           >
             <Button
