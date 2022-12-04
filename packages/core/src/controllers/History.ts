@@ -74,21 +74,21 @@ class History extends Base {
   }, 100)
 
   private restore = (transaction: any) => {
-    if (!this.isActive) {
-      this.editor.objects.clear()
-      const objects = transaction.json
-      this.current = objects
-      this.isActive = true
-      fabric.util.enlivenObjects(objects).then((enlivenObjects) => {
-        enlivenObjects.forEach((enlivenObject) => {
-          if (!nonRenderableLayerTypes.includes(enlivenObject.type || "")) {
-            this.canvas.add(enlivenObject)
-          }
-        })
-        this.emitStatus()
+    this.isActive = true
+    this.editor.objects.clear()
+    const objects = transaction.json
+    this.current = objects
+    fabric.util.enlivenObjects(objects).then((enlivenObjects) => {
+      enlivenObjects.forEach((enlivenObject) => {
+        if (!nonRenderableLayerTypes.includes(enlivenObject.type || "")) {
+          this.canvas.add(enlivenObject)
+        }
       })
+      this.emitStatus()
+    })
+    setTimeout(() => {
       this.isActive = false
-    }
+    }, 100)
   }
 
   public reset = () => {
