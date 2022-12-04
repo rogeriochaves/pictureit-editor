@@ -79,11 +79,6 @@ const ActionPopup = () => {
 
       await popup.target.setImage(sampleImage)
       editor.objects.afterAddHook(popup.target as fabric.Object)
-
-      setTimeout(async () => {
-        await popup.target.setImage("https://pictureit.art/serve/picture/03b92f0f-highly-detailed-netherland-dua.webp")
-        editor.objects.afterAddHook(popup.target as fabric.Object)
-      }, 1000)
     }, 1000)
   }, [popup, generatingState])
 
