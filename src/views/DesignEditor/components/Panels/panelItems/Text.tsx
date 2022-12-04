@@ -54,12 +54,12 @@ const Text = () => {
         await loadFonts(filteredFonts)
       } else {
         if (component.type === "StaticText" || component.type === "DynamicText") {
-        fontItemsList.push({
-          name: component.fontFamily,
-          url: component.fontURL,
-        })
-        await loadFonts(fontItemsList)
-      }
+          fontItemsList.push({
+            name: component.fontFamily,
+            url: component.fontURL,
+          })
+          await loadFonts(fontItemsList)
+        }
       }
       editor.objects.add(component)
     }
@@ -134,9 +134,6 @@ const TextComponentItem = ({ component, onClick }: { component: any; onClick: (o
         padding: "12px",
         borderRadius: "8px",
         overflow: "hidden",
-        "::before:hover": {
-          opacity: 1,
-        },
       })}
     >
       <div

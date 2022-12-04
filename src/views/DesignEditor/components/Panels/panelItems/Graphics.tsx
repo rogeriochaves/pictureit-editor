@@ -105,9 +105,6 @@ const GraphicItem = ({ preview, onClick }: { preview: any; onClick?: (option: an
         padding: "12px",
         borderRadius: "8px",
         overflow: "hidden",
-        "::before:hover": {
-          opacity: 1,
-        },
       })}
     >
       <div

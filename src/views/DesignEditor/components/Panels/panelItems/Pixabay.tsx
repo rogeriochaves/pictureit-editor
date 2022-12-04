@@ -68,9 +68,6 @@ const ImageItem = ({ preview, onClick }: { preview: any; onClick?: (option: any)
         cursor: "pointer",
         borderRadius: "8px",
         overflow: "hidden",
-        "::before:hover": {
-          opacity: 1,
-        },
       })}
     >
       <div
