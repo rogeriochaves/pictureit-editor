@@ -3,7 +3,13 @@ import { fabric } from "fabric"
 declare module "fabric" {
   namespace fabric {
     interface IUtil {
-      loadImage(url: string): Promise<HTMLImageElement>
+      loadImage(
+        url: string,
+        options?: {
+          signal?: AbortSignal
+          crossOrigin?: "" | "anonymous" | "use-credentials" | null
+        }
+      ): Promise<HTMLImageElement>
       enlivenObjects(objects: any[]): Promise<fabric.Object[]>
     }
     interface IEvent {

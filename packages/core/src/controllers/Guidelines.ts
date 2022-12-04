@@ -116,7 +116,7 @@ class Guidelines extends Base {
           (canvasObjects[i].type !== LayerType.FRAME &&
             nonRenderableLayerTypes.includes(canvasObjects[i].type || "")) ||
           // canvasObjects[i].type === "Background" ||
-          canvasObjects[i].id?.match(/^-rect$/)
+          canvasObjects[i].id?.match(/^-background$/)
         )
           continue
         const objectCenter = canvasObjects[i].getCenterPoint(),

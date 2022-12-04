@@ -5,6 +5,7 @@ import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { useCallback, useEffect, useRef, useState } from "react"
 import api from "../../../../api"
+import { extractErrorMessage } from "../../../../api/utils"
 
 type RemoteData<T> = { state: "NOT_ASKED" } | { state: "LOADING" } | { state: "SUCCESS"; data: T } | { state: "ERROR" }
 
@@ -86,8 +87,13 @@ const ActionPopup = () => {
           })
         }
       })
-      .catch((error) => {
-        console.error("Error from stable diffusion", error)
+      .catch(async (error) => {
+        setGeneratingState({
+          ...generatingState,
+          [targetId]: { state: "ERROR" },
+        })
+        popup.target.showError(await extractErrorMessage(error))
+        editor.objects.afterAddHook(popup.target as fabric.Object, false)
       })
   }, [popup, generatingState, prompt, editor])
 

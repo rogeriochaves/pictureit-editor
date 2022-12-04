@@ -35,7 +35,7 @@ export class GenerationFrameObject extends fabric.Group {
               top: -options.height / 2,
               left: -options.width / 2,
               //@ts-ignore
-              id: `${id}-rect`,
+              id: `${id}-background`,
               type: "rect",
               selectable: false,
               hasControls: false,
@@ -63,7 +63,7 @@ export class GenerationFrameObject extends fabric.Group {
     this.on("resizing", this.adjustClipPath)
     this.on("scaling", this.adjustClipPath)
     this.adjustClipPath()
-    this.adjustRect()
+    this.adjustBackground()
 
     return this
   }
@@ -77,8 +77,8 @@ export class GenerationFrameObject extends fabric.Group {
     })
   }
 
-  public adjustRect() {
-    this.getRect().set({
+  public adjustBackground() {
+    this.getBackground().set({
       width: this.width / this.scaleX,
       height: this.height / this.scaleY,
     })
@@ -86,33 +86,17 @@ export class GenerationFrameObject extends fabric.Group {
 
   async setImage(src: string) {
     return new Promise<void>((resolve, _reject) => {
-      fabric.util.loadImage(src).then((img) => {
+      fabric.util.loadImage(src, {crossOrigin: "anonymous"}).then((img) => {
+        this.removeError()
         const nonRectObjects = this._objects.filter(
-          (item) => (item as any).id != `${this.id}-rect` && (item as any).id != `${this.id}-loading-bar`
+          (item) => (item as any).id != `${this.id}-background` && (item as any).id != `${this.id}-loading-bar`
         )
         for (const object of nonRectObjects) {
           this.remove(object)
         }
-        const loadingBar = this.getLoadingBar()
 
         if (!img) {
-          const errorText = new fabric.StaticText({
-            //@ts-ignore
-            id: `${this.id}-image`,
-            type: StaticTextObject.type,
-            top: this.top + this.height / 2,
-            left: this.left,
-            width: this.width,
-            text: "Error loading image",
-            fontFamily: "Uber Move Text, sans-serif",
-            fontSize: 18,
-            editable: false,
-            textAlign: "center",
-            originY: "center",
-            evented: false,
-          })
-          this.add(errorText as any)
-
+          this.showError("Error loading image")
           resolve()
           return
         }
@@ -129,36 +113,49 @@ export class GenerationFrameObject extends fabric.Group {
         })
 
         this.add(staticImage as any)
-
-        if (loadingBar) {
-          if (this.loadingAnimation) {
-            // cancels animation
-            this.loadingAnimation()
-          }
-          this.remove(loadingBar)
-          this.add(loadingBar)
-          loadingBar.width = this.width
-          loadingBar.animate("opacity", 0, {
-            onChange: this.canvas.requestRenderAll.bind(this.canvas),
-            onComplete: () => {
-              this.remove(loadingBar)
-            },
-            duration: 1000,
-          })
-        }
+        this.finishLoading()
 
         resolve()
       })
     })
   }
 
-  showLoading(duration) {
+  showError(message: string) {
+    const errorText = new fabric.StaticText({
+      //@ts-ignore
+      id: `${this.id}-error`,
+      top: this.top + this.height / 2,
+      left: this.left,
+      width: this.width,
+      text: message,
+      fontFamily: "Uber Move Text, sans-serif",
+      fontSize: 18,
+      editable: false,
+      textAlign: "center",
+      originY: "center",
+      evented: false,
+    })
+    this.add(errorText as any)
+    this.finishLoading()
+
+    return
+  }
+
+  removeError() {
+    const error = this.getError()
+    if (error) {
+      this.remove(error)
+    }
+  }
+
+  showLoading(duration: number) {
+    this.removeError()
     const loadingBar = new fabric.Rect({
       top: this.top,
       left: this.left,
       //@ts-ignore
       id: `${this.id}-loading-bar`,
-      type: "rect",
+      type: "GenericNonRenderable",
       selectable: false,
       hasControls: false,
       hasBorders: false,
@@ -205,11 +202,31 @@ export class GenerationFrameObject extends fabric.Group {
     this.canvas.requestRenderAll()
   }
 
-  getRect() {
+  finishLoading() {
+    const loadingBar = this.getLoadingBar()
+    if (loadingBar) {
+      if (this.loadingAnimation) {
+        // cancels animation
+        this.loadingAnimation()
+      }
+      this.remove(loadingBar)
+      this.add(loadingBar)
+      loadingBar.width = this.width
+      loadingBar.animate("opacity", 0, {
+        onChange: this.canvas.requestRenderAll.bind(this.canvas),
+        onComplete: () => {
+          this.remove(loadingBar)
+        },
+        duration: 1000,
+      })
+    }
+  }
+
+  getBackground() {
     return this._objects.find(
       (object) =>
         //@ts-ignore
-        object.id == `${this.id}-rect`
+        object.id == `${this.id}-background`
     )!
   }
 
@@ -218,6 +235,14 @@ export class GenerationFrameObject extends fabric.Group {
       (object) =>
         //@ts-ignore
         object.id == `${this.id}-loading-bar`
+    )!
+  }
+
+  getError() {
+    return this._objects.find(
+      (object) =>
+        //@ts-ignore
+        object.id == `${this.id}-error`
     )!
   }
 

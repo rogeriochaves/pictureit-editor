@@ -88,9 +88,15 @@ export enum LayerType {
   GROUP = "Group",
   POSITIONING_HELPER = "PositioningHelper",
   GENERATION_FRAME = "GenerationFrame",
+  GENERIC_NON_RENDERABLE = "GenericNonRenderable",
 }
 
-export const nonRenderableLayerTypes: string[] = [LayerType.FRAME, LayerType.LABEL, LayerType.POSITIONING_HELPER]
+export const nonRenderableLayerTypes: string[] = [
+  LayerType.FRAME,
+  LayerType.LABEL,
+  LayerType.POSITIONING_HELPER,
+  LayerType.GENERIC_NON_RENDERABLE,
+]
 
 export const defaultBackgroundOptions = {
   width: 1200,

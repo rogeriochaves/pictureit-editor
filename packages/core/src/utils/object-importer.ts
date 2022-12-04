@@ -1,6 +1,6 @@
 import { fabric } from "fabric"
 import { nanoid } from "nanoid"
-import { LayerType, transparentB64, transparentPattern } from "../common/constants"
+import { LayerType, nonRenderableLayerTypes, transparentB64, transparentPattern } from "../common/constants"
 import { loadImageFromURL } from "./image-loader"
 import { Editor } from "../editor"
 import { updateObjectBounds, updateObjectShadow } from "./fabric"
@@ -332,6 +332,9 @@ class ObjectImporter {
         let objects: fabric.Object[] = []
 
         for (const object of (item as IGenerationFrame).objects || []) {
+          if (nonRenderableLayerTypes.includes(object.type)) {
+            continue
+          }
           objects = objects.concat(await this.import(object, options, true))
         }
 

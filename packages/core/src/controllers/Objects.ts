@@ -156,7 +156,7 @@ class Objects extends Base {
 
     if (
       object.group instanceof fabric.GenerationFrame &&
-      !object.intersectsWithObject(object.group.getRect() as fabric.Object)
+      !object.intersectsWithObject(object.group.getBackground() as fabric.Object)
     ) {
       object.group.remove(object)
       this.canvas.add(object)

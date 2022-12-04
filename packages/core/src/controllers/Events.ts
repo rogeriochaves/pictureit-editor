@@ -58,7 +58,7 @@ class Events extends Base {
 
       for (const object of objects) {
         if (object == initialSelection) continue
-        if ((object.id || "").match(/-rect$/)) continue
+        if ((object.id || "").match(/-background$/)) continue
         if ((object as fabric.Object).containsPoint(pointer)) {
           if (!object.id) {
             console.warn("Object could not be selected because it has no id")

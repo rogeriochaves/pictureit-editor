@@ -30,7 +30,7 @@ const Generation = () => {
 
   useEffect(() => {
     setIsSidebarOpen(false)
-  }, [])
+  }, [setIsSidebarOpen])
 
   function mouseMoveHandler(e: IEvent) {
     if (requestDragging) {
@@ -98,6 +98,8 @@ const Generation = () => {
       canvas.off("mouse:move", mouseMoveHandler)
       canvas.off("mouse:up", mouseUpHandler)
     }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return null

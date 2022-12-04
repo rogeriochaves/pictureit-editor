@@ -1,5 +1,5 @@
 import { fabric } from "fabric"
-import { LayerType, transparentB64, transparentPattern } from "../common/constants"
+import { LayerType, nonRenderableLayerTypes, transparentB64, transparentPattern } from "../common/constants"
 import { loadImageFromURL } from "./image-loader"
 import { updateObjectShadow } from "./fabric"
 import {
@@ -265,6 +265,9 @@ class ObjectImporter {
         let objects: fabric.Object[] = []
 
         for (const object of (item as IGenerationFrame).objects || []) {
+          if (nonRenderableLayerTypes.includes(object.type)) {
+            continue
+          }
           objects = objects.concat(await this.import(object, params))
         }
 
