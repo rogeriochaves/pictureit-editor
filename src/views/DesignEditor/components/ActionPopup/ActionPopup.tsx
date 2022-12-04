@@ -1,10 +1,10 @@
 import { LayerType } from "@layerhub-io/core"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
-import { Button, KIND } from "baseui/button"
+import { Button } from "baseui/button"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
-import { nanoid } from "nanoid"
 import { useCallback, useEffect, useRef, useState } from "react"
+import api from "../../../../api"
 
 type RemoteData<T> = { state: "NOT_ASKED" } | { state: "LOADING" } | { state: "SUCCESS"; data: T } | { state: "ERROR" }
 
@@ -71,15 +71,22 @@ const ActionPopup = () => {
       [targetId]: { state: "LOADING" },
     })
 
-    setTimeout(async () => {
-      setGeneratingState({
-        ...generatingState,
-        [targetId]: { state: "SUCCESS", data: { image: sampleImage } },
-      })
+    api
+      .stableDiffusion({ prompt: prompt })
+      .then(async (result) => {
+        if (result.url) {
+          setGeneratingState({
+            ...generatingState,
+            [targetId]: { state: "SUCCESS", data: { image: result.url } },
+          })
 
-      await popup.target.setImage(sampleImage)
-      editor.objects.afterAddHook(popup.target as fabric.Object)
-    }, 1000)
+          await popup.target.setImage(result.url)
+          editor.objects.afterAddHook(popup.target as fabric.Object)
+        }
+      })
+      .catch((error) => {
+        console.error("Error from stable diffusion", error)
+      })
   }, [editor, popup, generatingState])
 
   const Pill = ({ value }: { value: string }) => {
