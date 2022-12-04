@@ -24,6 +24,7 @@ class Events extends Base {
       "mouse:out": this.onMouseOut,
       "object:modified": this.objectModified,
       "background:selected": this.onBackgroundSelected,
+      "object:added": this.objectAdded,
     })
 
     this.canvas.wrapperEl.addEventListener("keydown", this.onKeyDown.bind(this), false)
@@ -66,6 +67,11 @@ class Events extends Base {
       this.scaleTextbox(target)
     }
     this.editor.history.save()
+  }
+
+  objectAdded = (event: fabric.IEvent) => {
+    const { target } = event
+    target?.sendBackwards()
   }
 
   onMouseOut = () => {

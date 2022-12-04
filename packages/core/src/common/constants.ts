@@ -22,12 +22,12 @@ export const PROPERTIES_TO_INCLUDE = [
 
 export const defaultEditorConfig: EditorConfig = {
   id: "random_id_12",
-  clipToFrame: true,
+  clipToFrame: false,
   scrollLimit: 200,
   propertiesToInclude: PROPERTIES_TO_INCLUDE,
   guidelines: true,
   shortcuts: true,
-  frameMargin: 120,
+  frameMargin: 300,
   background: "#ecf0f1",
   type: "GRAPHIC",
   size: {
@@ -57,8 +57,10 @@ export const defaultFrameOptions = {
   height: 1200,
   id: "frame",
   name: "Initial Frame",
-  fill: transparentPattern,
+  fill: "transparent",
   hoverCursor: "default",
+  stroke: "rgba(0, 0, 0, 0.5)",
+  strokeWidth: 1,
 }
 
 export enum LayerType {

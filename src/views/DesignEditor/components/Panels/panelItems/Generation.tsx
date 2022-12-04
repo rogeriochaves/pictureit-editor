@@ -1,3 +1,4 @@
+import { transparentPattern } from "@layerhub-io/core"
 import { useEditor } from "@layerhub-io/react"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
@@ -8,7 +9,8 @@ const square = new fabric.Rect({
   height: 512,
   left: 0,
   top: 0,
-  fill: "rgba(24, 142, 226, 0.3)",
+  fill: transparentPattern,
+  opacity: 0.8,
   visible: false,
   selectable: false,
   hasControls: false,

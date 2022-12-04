@@ -440,21 +440,23 @@ class Objects extends Base {
     if (id) {
       refObject = this.findOneById(id)
     }
-    if (refObject) {
+
+    const objects = this.canvas.getObjects()
+    const index = objects.findIndex((o) => o === refObject)
+    const canBeMoved = index < this.maxIndex()
+
+    if (refObject && canBeMoved) {
       this.canvas.bringForward(refObject)
     }
   }
 
-  public bringForwardById = (id: string) => {
-    this.canvas.getObjects().forEach((o) => {
-      if (o.id === id) {
-        this.canvas.bringForward(o)
-      }
-    })
+  maxIndex = () => {
+    const objects = this.canvas.getObjects()
+    return objects.length - 2
   }
 
   /**
-   * Moves an object or the objects of a multiple selection to the top of the stack of drawn objects
+   * Moves an object or the objects of a multiple selection to the top of the stack of drawn objects, except in front of the frame
    */
   public bringToFront = (id?: string) => {
     let refObject = this.canvas.getActiveObject()
@@ -462,7 +464,7 @@ class Objects extends Base {
       refObject = this.findOneById(id)
     }
     if (refObject) {
-      this.canvas.bringToFront(refObject)
+      refObject.moveTo(this.maxIndex())
     }
   }
 
@@ -470,18 +472,11 @@ class Objects extends Base {
    * Moves an object or a selection down in stack of drawn objects.
    */
   public sendBackwards = (id?: string) => {
-    const objects = this.canvas.getObjects()
     let refObject = this.canvas.getActiveObject()
     if (id) {
       refObject = this.findOneById(id)
     }
-
-    const index = objects.findIndex((o) => o === refObject)
-
-    const backgroundImage = objects.find((o) => o.type === LayerType.BACKGROUND_IMAGE)
-    const canBeMoved = backgroundImage ? index > 3 : index > 2
-
-    if (refObject && canBeMoved) {
+    if (refObject) {
       this.canvas.sendBackwards(refObject)
     }
   }
@@ -491,18 +486,11 @@ class Objects extends Base {
    */
   public sendToBack = (id?: string) => {
     let refObject = this.canvas.getActiveObject()
-    const objects = this.canvas.getObjects()
-    const backgroundImage = objects.find((o) => o.type === LayerType.BACKGROUND_IMAGE)
     if (id) {
       refObject = this.findOneById(id)
     }
-    // const indexx =
     if (refObject) {
-      if (backgroundImage) {
-        refObject.moveTo(3)
-      } else {
-        refObject.moveTo(2)
-      }
+      this.canvas.sendToBack(refObject)
     }
   }
   /**

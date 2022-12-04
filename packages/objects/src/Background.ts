@@ -23,7 +23,6 @@ export class BackgroundObject extends fabric.Rect {
       hasBorders: false,
       lockMovementY: true,
       lockMovementX: true,
-      strokeWidth: 0,
       evented: true,
       hoverCursor: "default",
       shadow,
