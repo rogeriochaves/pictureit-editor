@@ -152,12 +152,14 @@ class ObjectExporter {
 
   public staticPath(item: ILayer, options: Required<ILayer>, inGroup: boolean): IStaticPath {
     const baseOptions = this.getBaseOptions(item, options, inGroup)
-    const { path, fill, metadata } = item as IStaticPath
+    const { path, fill, metadata, strokeLineCap, strokeLineJoin } = item as IStaticPath
     const object = {
       ...baseOptions,
       path,
       fill,
       metadata,
+      strokeLineCap,
+      strokeLineJoin,
     }
 
     return object
@@ -182,7 +184,7 @@ class ObjectExporter {
       ...baseOptions,
       fill,
       metadata,
-      type
+      type,
     }
 
     return object
