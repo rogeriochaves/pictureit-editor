@@ -412,15 +412,16 @@ class Objects extends Base {
       refObject = this.findOneById(id)
     }
 
-    if (isArray(refObject)) {
-      refObject.forEach((obj) => {
-        this.canvas.remove(obj)
-      })
-    } else {
-      this.canvas.remove(refObject)
-    }
+    refObject = isArray(refObject) ? refObject : [refObject]
+    refObject.forEach((obj) => {
+      if (obj.group) {
+        obj.group.remove(obj)
+      }
+      this.canvas.remove(obj)
+    })
 
-    this.canvas.discardActiveObject().renderAll()
+    this.canvas.discardActiveObject()
+    this.canvas.renderAll()
     this.editor.history.save()
     this.updateContextObjects()
   }
@@ -932,7 +933,7 @@ class Objects extends Base {
     activeSelection.add(...objects)
 
     this.canvas._activeObject = activeSelection as fabric.Object
-    activeSelection.setCoords();
+    activeSelection.setCoords()
 
     this.state.setActiveObject(activeSelection)
     this.canvas.requestRenderAll()
