@@ -2,7 +2,8 @@ export enum PanelType {
   TEMPLATES = "Templates",
   BACKGROUND = "Background",
   MOVE = "Move",
-  DRAWING = "Drawing"
+  DRAWING = "Drawing",
+  GENERATION = "Generation",
 }
 
 export const BASE_ITEMS = [
@@ -17,6 +18,10 @@ export const BASE_ITEMS = [
   {
     id: "drawing",
     name: PanelType.DRAWING,
+  },
+  {
+    id: "generation",
+    name: PanelType.GENERATION,
   },
   {
     id: "templates",

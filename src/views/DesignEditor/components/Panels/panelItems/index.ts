@@ -16,6 +16,7 @@ import CanvasFill from "./CanvasFill"
 import TextEffects from "./TextEffects"
 import Drawing from "./Drawing"
 import Move from "./Move"
+import Generation from "./Generation"
 export default {
   StaticText: TextProperties,
   Text: Text,
@@ -34,5 +35,6 @@ export default {
   CanvasFill: CanvasFill,
   TextEffects: TextEffects,
   Drawing: Drawing,
-  Move: Move
+  Move: Move,
+  Generation: Generation,
 }
