@@ -21,6 +21,7 @@ const ContextMenu = () => {
       }
     }
   }
+
   if (!contextMenuRequest || !contextMenuRequest.target) {
     return <></>
   }

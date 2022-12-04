@@ -1,10 +1,11 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { styled } from "baseui"
 import { Theme } from "baseui/theme"
 import Icons from "~/components/Icons"
 import { Button, KIND, SIZE } from "baseui/button"
 import { Slider } from "baseui/slider"
 import { Input } from "baseui/input"
+import { Editor } from "@layerhub-io/core"
 import { useEditor, useZoomRatio } from "@layerhub-io/react"
 
 const Container = styled<"div", {}, Theme>("div", ({ $theme }) => ({
@@ -41,6 +42,8 @@ const Common = () => {
       editor.zoom.zoomToRatio(value / 100)
     }
   }
+
+  if (!editor) return
 
   return (
     <Container>
@@ -112,10 +115,10 @@ const Common = () => {
         <Button kind={KIND.tertiary} size={SIZE.compact}>
           <Icons.Refresh size={16} />
         </Button>
-        <Button kind={KIND.tertiary} size={SIZE.compact}>
+        <Button kind={KIND.tertiary} size={SIZE.compact} onClick={editor.history.undo}>
           <Icons.Undo size={22} />
         </Button>
-        <Button kind={KIND.tertiary} size={SIZE.compact}>
+        <Button kind={KIND.tertiary} size={SIZE.compact} onClick={editor.history.redo}>
           <Icons.Redo size={22} />
         </Button>
         <Button kind={KIND.tertiary} size={SIZE.compact}>

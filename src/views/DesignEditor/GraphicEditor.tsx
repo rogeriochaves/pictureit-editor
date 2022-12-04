@@ -5,8 +5,21 @@ import Footer from "./components/Footer"
 import Toolbox from "./components/Toolbox"
 import EditorContainer from "./components/EditorContainer"
 import ContextMenu from "./components/ContextMenu"
+import { useEditor } from "@layerhub-io/react"
+import { handleShortcuts } from "./shortcuts"
+import { useEffect } from "react"
 
 const GraphicEditor = () => {
+  const editor = useEditor()
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleShortcuts(editor))
+
+    return () => {
+      document.removeEventListener("keydown", handleShortcuts(editor))
+    }
+  }, [editor])
+
   return (
     <EditorContainer>
       <Navbar />
