@@ -45,6 +45,49 @@ const Scenes = () => {
     }),
   ]
 
+  // Scene setup, once editor loads
+  useEffect(() => {
+    if (!editor) return
+    if (currentScene) return
+
+    const loadedFile = loadRequest.contents?.content
+
+    let importPromise
+    if (loadedFile) {
+      setCurrentDesign(loadedFile)
+
+      importPromise = editor.scene.importFromJSON({
+        frame: loadedFile.frame,
+        ...loadedFile.scenes[0],
+      })
+    } else {
+      importPromise = getDefaultTemplate(editor.canvas.canvas, { width: 512, height: 512 }).then((defaultTemplate) => {
+        setCurrentDesign({
+          id: nanoid(),
+          frame: defaultTemplate.frame,
+          metadata: {},
+          name: "New Artwork",
+          preview: "",
+          scenes: [],
+          type: "PRESENTATION",
+        })
+
+        return editor.scene.importFromJSON(defaultTemplate)
+      })
+    }
+
+    importPromise
+      .then(() => {
+        const initialDesign = editor.scene.exportToJSON() as any
+        editor.renderer.render(initialDesign).then((data) => {
+          setCurrentScene({ ...initialDesign, preview: data })
+          setScenes([{ ...initialDesign, preview: data }])
+        })
+      })
+      .catch(console.log)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!editor])
+
   React.useEffect(() => {
     if (editor && scenes && currentScene) {
       const isCurrentSceneLoaded = scenes.find((s) => s.id === currentScene?.id)
@@ -88,56 +131,16 @@ const Scenes = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!currentScene])
 
+  // Updates scene when selecting a different one
   useEffect(() => {
-    if (editor) {
-      if (currentScene) {
-        if (!firstUpdate) {
-          firstUpdate = true
-        } else {
-          updateCurrentScene(currentScene)
-        }
-      } else {
-        const loadedFile = loadRequest.contents?.content
+    if (!editor || !currentScene) return
 
-        let importPromise
-        if (loadedFile) {
-          setCurrentDesign(loadedFile)
-
-          importPromise = editor.scene.importFromJSON({
-            frame: loadedFile.frame,
-            ...loadedFile.scenes[0],
-          })
-        } else {
-          importPromise = getDefaultTemplate(editor.canvas.canvas, { width: 512, height: 512 }).then(
-            (defaultTemplate) => {
-              setCurrentDesign({
-                id: nanoid(),
-                frame: defaultTemplate.frame,
-                metadata: {},
-                name: "New Artwork",
-                preview: "",
-                scenes: [],
-                type: "PRESENTATION",
-              })
-
-              return editor.scene.importFromJSON(defaultTemplate)
-            }
-          )
-        }
-
-        importPromise
-          .then(() => {
-            const initialDesign = editor.scene.exportToJSON() as any
-            editor.renderer.render(initialDesign).then((data) => {
-              setCurrentScene({ ...initialDesign, preview: data })
-              setScenes([{ ...initialDesign, preview: data }])
-            })
-          })
-          .catch(console.log)
-      }
+    if (!firstUpdate) {
+      firstUpdate = true
+    } else {
+      updateCurrentScene(currentScene)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor, currentScene])
+  }, [editor, currentScene, updateCurrentScene])
 
   const addScene = React.useCallback(async () => {
     setCurrentPreview("")
