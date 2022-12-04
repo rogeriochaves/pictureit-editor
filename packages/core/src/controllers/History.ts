@@ -49,6 +49,7 @@ class History extends Base {
 
   public undo = throttle(() => {
     if (this.undos.length >= 1) {
+      this.editor.objects.deselect()
       const undo = this.undos.pop()
       if (!undo) {
         return
