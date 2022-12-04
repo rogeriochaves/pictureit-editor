@@ -195,7 +195,8 @@ const exportFrameToCanvas = async (
 }
 
 const getOverlappingFrames = (editor: Editor, generationFrame: fabric.GenerationFrame) => {
-  return editor.canvas.canvas.getObjects().filter((anotherFrame) => {
+  const zIndex = editor.canvas.canvas.getObjects().indexOf(generationFrame as fabric.Object);
+  return editor.canvas.canvas.getObjects().slice(zIndex).filter((anotherFrame) => {
     return (
       anotherFrame != generationFrame &&
       anotherFrame instanceof fabric.GenerationFrame &&
