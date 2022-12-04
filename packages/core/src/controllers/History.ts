@@ -1,7 +1,7 @@
 import Base from "./Base"
 import { fabric } from "fabric"
 import throttle from "lodash/throttle"
-import { LayerType } from "../common/constants"
+import { LayerType, nonRenderableLayerTypes } from "../common/constants"
 
 class History extends Base {
   private redos: any[] = []
@@ -98,7 +98,7 @@ class History extends Base {
         objects,
         (enlivenObjects: any[]) => {
           enlivenObjects.forEach((enlivenObject) => {
-            if (enlivenObject.type !== LayerType.FRAME) {
+            if (!nonRenderableLayerTypes.includes(enlivenObject.type)) {
               this.canvas.add(enlivenObject)
             }
           })

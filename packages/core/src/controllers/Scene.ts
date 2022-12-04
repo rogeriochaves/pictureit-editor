@@ -1,7 +1,7 @@
 import { fabric } from "fabric"
 import { nanoid } from "nanoid"
 import { IScene, ILayer } from "@layerhub-io/types"
-import { LayerType } from "../common/constants"
+import { LayerType, nonRenderableLayerTypes } from "../common/constants"
 import ObjectExporter from "../utils/object-exporter"
 import ObjectImporter from "../utils/object-importer"
 import getSelectionType from "../utils/get-selection-type"
@@ -32,7 +32,7 @@ class Scene extends Base {
     }
 
     const layers = canvasJSON.objects.filter(
-      (object: any) => object.type !== LayerType.FRAME && object.type !== LayerType.POSITIONING_HELPER
+      (object: any) => !nonRenderableLayerTypes.includes(object.type)
     )
     const objectExporter = new ObjectExporter()
 

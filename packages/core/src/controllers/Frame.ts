@@ -16,12 +16,23 @@ class Frame extends Base {
       ...defaultFrameOptions,
       absolutePositioned: this.config.clipToFrame,
     })
+    const label = new fabric.Text("Frame", {
+      type: LayerType.LABEL,
+      selectable: false,
+      hasControls: false,
+      evented: false,
+      fontSize: 22,
+      fill: defaultFrameOptions.stroke,
+      fontFamily: "Uber Move Text",
+      ...this.labelPosition(frame),
+    })
+
     // const background = new fabric.Background({
     //   ...defaultBackgroundOptions,
     //   shadow: this.config.shadow,
     // })
 
-    this.canvas.add(frame)
+    this.canvas.add(frame, label)
     // const center = this.canvas.getCenter()
     // frame.center()
     // background.center()
@@ -39,6 +50,14 @@ class Frame extends Base {
 
   get frame() {
     return this.canvas.getObjects().find((object) => object.type === LayerType.FRAME) as Required<fabric.Frame>
+  }
+
+  get label() {
+    return this.canvas.getObjects().find((object) => object.type === LayerType.LABEL) as Required<fabric.Frame>
+  }
+
+  labelPosition(frame: fabric.Frame) {
+    return { top: (frame.top || 0) - 30, left: frame.left }
   }
 
   get background() {
@@ -61,6 +80,7 @@ class Frame extends Base {
     const background = this.background
     frame.set({ width, height })
     frame.center()
+    this.label.set(this.labelPosition(frame))
     if (background) {
       background.set({ width, height })
       background.center()

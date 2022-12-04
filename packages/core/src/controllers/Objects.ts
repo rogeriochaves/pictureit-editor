@@ -3,7 +3,7 @@ import { isArray, pick } from "lodash"
 import { nanoid } from "nanoid"
 import Base from "./Base"
 import { ILayer, ILayerOptions } from "@layerhub-io/types"
-import { copyStyleProps, defaultBackgroundOptions, defaultFrameOptions, getCopyStyleCursor, LayerType } from "../common/constants"
+import { copyStyleProps, defaultBackgroundOptions, defaultFrameOptions, getCopyStyleCursor, LayerType, nonRenderableLayerTypes } from "../common/constants"
 import { Direction, GradientOptions, ScaleType, ShadowOptions, Size } from "../common/interfaces"
 import ObjectImporter from "../utils/object-importer"
 import setObjectGradient, { setObjectShadow } from "../utils/fabric"
@@ -122,7 +122,7 @@ class Objects extends Base {
   public clear = () => {
     const frame = this.editor.frame.frame
     this.canvas.getObjects().forEach((object) => {
-      if (object.type !== LayerType.FRAME) {
+      if (!nonRenderableLayerTypes.includes(object.type || "")) {
         this.canvas.remove(object)
       }
     })
@@ -136,7 +136,7 @@ class Objects extends Base {
     const background = this.editor.frame.background
 
     this.canvas.getObjects().forEach((object) => {
-      if (object.type !== LayerType.FRAME && object.type !== LayerType.BACKGROUND) {
+      if (!nonRenderableLayerTypes.includes(object.type || "") && object.type !== LayerType.BACKGROUND) {
         this.canvas.remove(object)
       }
     })
@@ -165,7 +165,7 @@ class Objects extends Base {
       }
     } else {
       const filteredObjects = this.canvas.getObjects().filter((object) => {
-        if (object.type === LayerType.FRAME || object.type === LayerType.BACKGROUND) {
+        if (nonRenderableLayerTypes.includes(object.type || "") || object.type === LayerType.BACKGROUND) {
           return false
         } else if (!object.evented) {
           return false
@@ -387,7 +387,7 @@ class Objects extends Base {
   public list = () => {
     const objects = this.canvas.getObjects()
     const filteredObjects = objects.filter((o) => {
-      return o.type !== LayerType.FRAME && o.type !== LayerType.BACKGROUND
+      return !nonRenderableLayerTypes.includes(o.type || "") && o.type !== LayerType.BACKGROUND
     })
     return filteredObjects
   }
@@ -452,7 +452,7 @@ class Objects extends Base {
 
   maxIndex = () => {
     const objects = this.canvas.getObjects()
-    return objects.length - 2
+    return objects.length - 3
   }
 
   /**

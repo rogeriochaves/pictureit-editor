@@ -72,6 +72,7 @@ class Events extends Base {
   objectAdded = (event: fabric.IEvent) => {
     const { target } = event
     target?.sendBackwards()
+    target?.sendBackwards()
   }
 
   onMouseOut = () => {
