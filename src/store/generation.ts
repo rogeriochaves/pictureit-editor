@@ -6,6 +6,7 @@ import { fabric } from "fabric"
 import api from "../api"
 import { extractErrorMessage } from "../api/utils"
 import { RemoteData } from "../interfaces/common"
+import { canvasFromImage } from "../utils/canvas-from-image"
 import { addGaussianNoise } from "../utils/noise"
 
 interface GenerationState {
@@ -45,9 +46,15 @@ export const generateImage = createAsyncThunk<
     const num_inference_steps = frame.metadata?.steps || 50
     frame.showLoading((4 + num_inference_steps * 0.1) * 1000)
 
-    const init_image = frame.metadata?.initImage?.fixed
-      ? frame.metadata?.initImage?.image
-      : await renderInitImage(editor, frame)
+    const [initImage, initImageWithNoise] = await renderInitImage(editor, frame, !frame.metadata?.initImage?.fixed)
+
+    if (initImage && frame.metadata) {
+      frame.metadata.initImage = {
+        ...(frame.metadata?.initImage || {}),
+        fixed: true,
+        image: initImage,
+      }
+    }
 
     api
       .stableDiffusion({
@@ -55,7 +62,7 @@ export const generateImage = createAsyncThunk<
         num_inference_steps,
         guidance_scale: frame.metadata?.guidance || 7.5,
         prompt_strength: 0.8,
-        ...(init_image ? { init_image } : {}),
+        ...(initImageWithNoise ? { init_image: initImageWithNoise } : {}),
       })
       .then(async (result) => {
         if (result.url) {
@@ -79,8 +86,35 @@ export const DEFAULT_NOISE = 2
 
 export const renderInitImage = async (
   editor: Editor,
+  generationFrame: fabric.GenerationFrame,
+  renderInitImage: boolean
+): Promise<[string | undefined, string | undefined]> => {
+  let initImageCanvas
+  let initImage
+  let initImageWithNoise
+  if (generationFrame.metadata?.initImage?.fixed) {
+    if (generationFrame.metadata?.initImage?.image) {
+      initImageCanvas = await canvasFromImage(generationFrame.metadata?.initImage?.image, generationFrame.width!, generationFrame.height!)
+    }
+  } else {
+    initImageCanvas = await renderNewInitImage(editor, generationFrame)
+  }
+
+  if (initImageCanvas) {
+    if (renderInitImage) {
+      initImage = initImageCanvas.toDataURL("image/png")
+    }
+    addGaussianNoise(initImageCanvas.getContext("2d")!, generationFrame.metadata?.initImage?.noise || DEFAULT_NOISE)
+    initImageWithNoise = initImageCanvas && initImageCanvas.toDataURL("image/jpeg")
+  }
+
+  return [initImage, initImageWithNoise]
+}
+
+export const renderNewInitImage = async (
+  editor: Editor,
   generationFrame: fabric.GenerationFrame
-): Promise<string | undefined> => {
+): Promise<HTMLCanvasElement | undefined> => {
   const frame = editor.frame.options
   const objectExporter = new ObjectExporter()
   const exported = objectExporter.export(generationFrame.toObject(), frame) as IGenerationFrame
@@ -97,7 +131,5 @@ export const renderInitImage = async (
     metadata: {},
   })
 
-  const noise = generationFrame.metadata?.initImage?.noise || DEFAULT_NOISE
-  addGaussianNoise(canvas.getContext("2d")!, noise)
-  return canvas.toDataURL("image/jpeg")
+  return canvas
 }

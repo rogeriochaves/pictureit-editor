@@ -17,6 +17,7 @@ import Common from "./Common"
 import { Separator } from "./Shared/Separator"
 import { ColorSquare } from "./Shared/ColorSquare"
 import { debounce } from "lodash"
+import { addGaussianNoise } from "../../../../utils/noise"
 
 const GenerationFrame = () => {
   const dispatch = useAppDispatch()
@@ -53,23 +54,33 @@ const GenerationFrame = () => {
 const InitImageSettings = () => {
   const editor = useEditor()
   const activeObject = useActiveObject<fabric.GenerationFrame | undefined>()
-  const [_, setInitImage] = useState<InitImage | undefined>()
+  const [localNoise, setLocalNoise] = useState<number>(DEFAULT_NOISE)
+  const [initImageWithNoise, setInitImageWithNoise] = useState<string | undefined>()
+
+  const setInitImage = useCallback(
+    (initImage: Partial<InitImage>) => {
+      if (activeObject) {
+        activeObject.metadata = {
+          ...(activeObject.metadata || {}),
+          initImage: {
+            ...(activeObject.metadata?.initImage || { fixed: false }),
+            ...initImage,
+          },
+        }
+        const noise = activeObject.metadata.initImage?.noise
+        setLocalNoise(typeof noise == "undefined" ? DEFAULT_NOISE : noise)
+      }
+    },
+    [activeObject]
+  )
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const updateInitImage = useCallback(
     debounce(async () => {
-      if (activeObject && !activeObject.metadata?.initImage?.fixed) {
-        const image = await renderInitImage(editor, activeObject)
+      if (activeObject) {
+        const [_initImage, initImageWithNoise] = await renderInitImage(editor, activeObject, false)
 
-        setInitImage({ image, fixed: false })
-        activeObject.metadata = {
-          ...(activeObject.metadata || {}),
-          initImage: {
-            ...(activeObject.metadata?.initImage || {}),
-            image,
-            fixed: false,
-          },
-        }
+        setInitImageWithNoise(initImageWithNoise)
       }
     }, 200),
     [activeObject, editor]
@@ -78,7 +89,9 @@ const InitImageSettings = () => {
   const onModified = useCallback(
     (e: IEvent) => {
       if (e.target == activeObject) {
-        updateInitImage()
+        if (!activeObject?.metadata?.initImage?.fixed) {
+          updateInitImage()
+        }
       }
     },
     [activeObject, updateInitImage]
@@ -86,21 +99,23 @@ const InitImageSettings = () => {
 
   const onChangeNoise = useCallback(
     ({ value }: { value: number }) => {
-      if (activeObject) {
-        activeObject.metadata = {
-          ...(activeObject.metadata || {}),
-          initImage: {
-            ...(activeObject.metadata?.initImage || { fixed: false }),
-            noise: value,
-          },
-        }
-        setInitImage(activeObject.metadata.initImage)
+      setInitImage({ noise: value })
 
-        updateInitImage()
-      }
+      updateInitImage()
     },
-    [activeObject, updateInitImage]
+    [setInitImage, updateInitImage]
   )
+
+  const onClickNoInitImage = useCallback(() => {
+    if (activeObject && activeObject._objects) {
+      const toRemove = activeObject._objects.filter((object) => !object.id.match(/(-background|-image)$/))
+      activeObject.remove(...toRemove)
+      editor.canvas.canvas.requestRenderAll()
+      editor.history.save()
+      setInitImage({ fixed: true, image: undefined })
+      setInitImageWithNoise(undefined)
+    }
+  }, [activeObject, editor, setInitImage])
 
   useEffect(() => {
     editor.canvas.canvas.on("object:modified", onModified)
@@ -111,22 +126,24 @@ const InitImageSettings = () => {
     }
   }, [editor, onModified, updateInitImage])
 
+  if (!activeObject) return null
+
   return (
     <StatefulPopover
       showArrow={true}
       placement={PLACEMENT.bottom}
       content={() => (
         <Block padding="12px" width="200px" backgroundColor="#ffffff" display="grid" gridGap="8px">
-          {activeObject?.metadata?.initImage?.image ? (
+          {initImageWithNoise ? (
             <Block display="flex" flexDirection="column" gridGap="8px">
               <Block>
-                <Button size={SIZE.mini} kind={KIND.tertiary}>
+                <Button size={SIZE.mini} kind={KIND.tertiary} onClick={onClickNoInitImage}>
                   <ColorSquare>
                     <NoColor size={24} />
                   </ColorSquare>
                 </Button>
               </Block>
-              <img width="200" src={activeObject.metadata.initImage.image} />
+              <img width="200" src={initImageWithNoise} />
 
               <Block $style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <Block $style={{ fontSize: "14px" }}>Noise</Block>
@@ -156,7 +173,7 @@ const InitImageSettings = () => {
                     }}
                     size={SIZE.mini}
                     onChange={() => {}}
-                    value={Math.round(activeObject.metadata.initImage.noise || DEFAULT_NOISE)}
+                    value={Math.round(localNoise)}
                   />
                 </Block>
               </Block>
@@ -184,7 +201,7 @@ const InitImageSettings = () => {
                   max={10}
                   // step
                   marks={false}
-                  value={[activeObject.metadata.initImage.noise || DEFAULT_NOISE]}
+                  value={[localNoise]}
                   onChange={onChangeNoise as any}
                 />
               </Block>
@@ -202,11 +219,7 @@ const InitImageSettings = () => {
     >
       <Block>
         <ColorSquare>
-          {activeObject?.metadata?.initImage?.image ? (
-            <img height="24" src={activeObject.metadata.initImage.image} />
-          ) : (
-            <NoColor size={24} />
-          )}
+          {initImageWithNoise ? <img height="24" src={initImageWithNoise} /> : <NoColor size={24} />}
         </ColorSquare>
       </Block>
     </StatefulPopover>

@@ -170,6 +170,9 @@ class Objects extends Base {
           object.canvas = this.canvas
           if (frame._objects?.indexOf(object) === -1) {
             frame.add(object)
+            if (frame.metadata?.initImage) {
+              frame.metadata.initImage.fixed = false
+            }
             if (activeObject == object) {
               setTimeout(() => {
                 object.evented = true
