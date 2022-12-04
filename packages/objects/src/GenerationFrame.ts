@@ -12,12 +12,19 @@ export class GenerationFrameObject extends fabric.Group {
     const id = options.id
 
     const clipPath = new fabric.Rect({
-      ...options,
+      top: options.top,
+      left: options.left,
+      width: options.width,
+      height: options.height,
       //@ts-ignore
       id: `${id}-clipPath`,
       type: "rect",
       absolutePositioned: true,
     })
+
+    for (const object of objects) {
+      object.evented = false
+    }
     const groupObjects =
       objects.length > 0
         ? objects
@@ -47,10 +54,15 @@ export class GenerationFrameObject extends fabric.Group {
       subTargetCheck: true,
       interactive: true,
     })
+    // for some reason top and left and overwritten misteriously after initialize after fromObject
+    this.top = options.top
+    this.left = options.left
 
-    this.on("moving", this.adjustClipPath.bind(this))
-    this.on("resizing", this.adjustClipPath.bind(this))
-    this.on("scaling", this.adjustClipPath.bind(this))
+    this.on("moving", this.adjustClipPath)
+    this.on("resizing", this.adjustClipPath)
+    this.on("scaling", this.adjustClipPath)
+    this.adjustClipPath()
+    this.adjustRect()
 
     return this
   }
@@ -61,6 +73,13 @@ export class GenerationFrameObject extends fabric.Group {
       left: this.left,
       width: this.width * this.scaleX,
       height: this.height * this.scaleY,
+    })
+  }
+
+  public adjustRect() {
+    this.getRect().set({
+      width: this.width / this.scaleX,
+      height: this.height / this.scaleY,
     })
   }
 
@@ -86,8 +105,9 @@ export class GenerationFrameObject extends fabric.Group {
             editable: false,
             textAlign: "center",
             originY: "center",
+            evented: false,
           })
-          this.addWithUpdate(errorText as any)
+          this.add(errorText as any)
 
           resolve()
           return
@@ -120,10 +140,10 @@ export class GenerationFrameObject extends fabric.Group {
   }
 
   toObject(propertiesToInclude: string[] = []) {
-    return super.toObject(propertiesToInclude)
+    return super.toObject(propertiesToInclude.concat(["id"]))
   }
   toJSON(propertiesToInclude: string[] = []) {
-    return super.toObject(propertiesToInclude)
+    return super.toObject(propertiesToInclude.concat(["id"]))
   }
 
   static fromObject(options: GenerationFrameOptions): Promise<fabric.GenerationFrame> {
