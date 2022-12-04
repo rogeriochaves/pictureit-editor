@@ -4,10 +4,9 @@ import { Button } from "baseui/button"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
-import { useSelector } from "react-redux"
-import { generateImage, setHidePopup } from "../../../../store/generation"
-import { RootState } from "../../../../store/rootReducer"
-import { useAppDispatch } from "../../../../store/store"
+import { useRecoilState } from "recoil"
+import { generateImageRequest, hidePopupState } from "../../../../contexts/generateImage"
+import { useRecoilLazyLoadable } from "../../../../utils/lazySelectorFamily"
 
 const ActionPopup = () => {
   const editor = useEditor()
@@ -19,22 +18,21 @@ const ActionPopup = () => {
     target: fabric.GenerationFrame
   } | null>(null)
   const [_, setPrompt] = useState("")
-  const dispatch = useAppDispatch()
-  const generationRequests = useSelector((state: RootState) => state.generation.requests)
-  const hidePopup = useSelector((state: RootState) => state.generation.hidePopup)
+  const [hidePopup, setHidePopup] = useRecoilState(hidePopupState)
+  const [imageRequest, generateImage] = useRecoilLazyLoadable(generateImageRequest(popup?.target.id))
 
   const setPopupForTarget = useCallback(
     (target: fabric.Object | undefined) => {
       if (target && target.type == LayerType.GENERATION_FRAME && target.oCoords) {
         const { x, y } = target.oCoords.mt // mid-top
         setPrompt(target.metadata?.prompt || "")
-        dispatch(setHidePopup(false))
+        setHidePopup(false)
         setPopup({ x, y, target: target as fabric.GenerationFrame })
       } else {
         setPopup(null)
       }
     },
-    [dispatch]
+    [setHidePopup]
   )
 
   useEffect(() => {
@@ -54,17 +52,17 @@ const ActionPopup = () => {
 
   const onMove = useCallback(() => {
     if (popup && !hidePopup) {
-      dispatch(setHidePopup(true))
+      setHidePopup(true)
     }
-  }, [popup, hidePopup, dispatch])
+  }, [popup, hidePopup, setHidePopup])
 
   const onClick = useCallback(
     (e: IEvent) => {
       if (popup && hidePopup && e.target == popup.target) {
-        dispatch(setHidePopup(false))
+        setHidePopup(false)
       }
     },
-    [popup, hidePopup, dispatch]
+    [popup, hidePopup, setHidePopup]
   )
 
   useEffect(() => {
@@ -84,15 +82,11 @@ const ActionPopup = () => {
     const targetId = popup?.target.id
     if (!targetId) return
     if (!popup.target.metadata?.prompt) return
-
-    dispatch(
-      generateImage({
-        id: targetId,
-        frame: popup.target,
-        editor: editor,
-      })
-    )
-  }, [popup, dispatch, editor])
+    generateImage({
+      frame: popup.target,
+      editor: editor,
+    })
+  }, [popup, generateImage, editor])
 
   const onPromptChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -125,11 +119,10 @@ const ActionPopup = () => {
   const popupWidth = 500
   const minX = (popupRef.current?.getBoundingClientRect().x || 0) * -1 + 12
   const minY = (popupRef.current?.getBoundingClientRect().y || 0) * -1 + 12
-  const currentGeneratingState = (popup && generationRequests[popup.target.id]) || { state: "NOT_ASKED" }
 
   return (
     <div ref={popupRef}>
-      {popup && !hidePopup && currentGeneratingState.state != "LOADING" ? (
+      {popup && !hidePopup && imageRequest.state != "loading" ? (
         <div
           style={{
             position: "absolute",

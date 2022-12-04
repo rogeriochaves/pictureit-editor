@@ -1,52 +1,32 @@
-import { Editor, nonRenderableLayerTypes, LayerType } from "@layerhub-io/core"
+import { Editor, nonRenderableLayerTypes } from "@layerhub-io/core"
 import ObjectExporter from "@layerhub-io/core/src/utils/object-exporter"
 import { IGenerationFrame, ILayer } from "@layerhub-io/types"
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { fabric } from "fabric"
+import { atom } from "recoil"
 import api from "../api"
 import { extractErrorMessage } from "../api/utils"
-import { RemoteData } from "../interfaces/common"
 import { canvasFromImage } from "../utils/canvas-from-image"
 import { paintItBlack } from "../utils/clip-mask"
+import { lazySelectorFamily } from "../utils/lazySelectorFamily"
 import { addGaussianNoise } from "../utils/noise"
-
-interface GenerationState {
-  requests: { [key: string]: RemoteData<{ image: string }> }
-  hidePopup: boolean
-}
-
-const initialState: GenerationState = {
-  requests: {},
-  hidePopup: false,
-}
 
 export const DEFAULT_PROMPT_STRENGTH = 0.8
 export const DEFAULT_GUIDANCE = 7.5
 
-const slice = createSlice({
-  name: "generation",
-  initialState,
-  reducers: {
-    setGenerationRequest: (state, { payload }: PayloadAction<{ id: string; state: RemoteData<{ image: string }> }>) => {
-      state.requests[payload.id] = payload.state
-    },
-    setHidePopup: (state, { payload }: PayloadAction<boolean>) => {
-      state.hidePopup = payload
-    },
+export const generateImageRequest = lazySelectorFamily({
+  key: "generateImageRequest",
+  get: (_id) => (params: { frame: fabric.GenerationFrame; editor: Editor }) => {
+    return generateImage(params)
   },
 })
 
-export const { setGenerationRequest, setHidePopup } = slice.actions
-export const generationReducer = slice.reducer
+export const hidePopupState = atom({
+  key: "hidePopupState",
+  default: false,
+})
 
-export const generateImage = createAsyncThunk<
-  void,
-  { id: string; frame: fabric.GenerationFrame; editor: Editor },
-  { rejectValue: Record<string, string[]> }
->("generation/generateImage", async ({ id, frame, editor }, { rejectWithValue, dispatch }) => {
+const generateImage = async ({ frame, editor }: { frame: fabric.GenerationFrame; editor: Editor }) => {
   try {
-    dispatch(setGenerationRequest({ id, state: { state: "LOADING" } }))
-
     const num_inference_steps = frame.metadata?.steps || 50
     frame.showLoading((4 + num_inference_steps * 0.1) * 1000)
 
@@ -61,16 +41,16 @@ export const generateImage = createAsyncThunk<
       }
     }
 
-    const call =
+    const result =
       initImageWithNoise && clipMask
-        ? api.stableDiffusionInpainting({
+        ? await api.stableDiffusionInpainting({
             prompt: frame.metadata?.prompt || "",
             num_inference_steps,
             guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
             image: initImageWithNoise,
             mask: clipMask,
           })
-        : api.stableDiffusion({
+        : await api.stableDiffusion({
             prompt: frame.metadata?.prompt || "",
             num_inference_steps,
             guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
@@ -82,24 +62,21 @@ export const generateImage = createAsyncThunk<
               : {}),
           })
 
-    call
-      .then(async (result) => {
-        if (result.url) {
-          await frame.setImage(result.url)
-          editor.objects.afterAddHook(frame as fabric.Object, false)
+    if (result.url) {
+      await frame.setImage(result.url)
+      editor.objects.afterAddHook(frame as fabric.Object, false)
 
-          dispatch(setGenerationRequest({ id, state: { state: "SUCCESS", data: { image: result.url } } }))
-        }
-      })
-      .catch(async (error) => {
-        dispatch(setGenerationRequest({ id, state: { state: "ERROR" } }))
-        frame.showError(await extractErrorMessage(error))
-        editor.objects.afterAddHook(frame as fabric.Object, false)
-      })
+      return { image: result.url }
+    }
+
+    throw "no url found on the result"
   } catch (err) {
-    return rejectWithValue((err as any).response?.data?.error.data || null)
+    frame.showError(await extractErrorMessage(err))
+    editor.objects.afterAddHook(frame as fabric.Object, false)
+
+    throw err
   }
-})
+}
 
 export const renderInitImage = async (
   editor: Editor,

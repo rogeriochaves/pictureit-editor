@@ -1,23 +1,23 @@
 import { useActiveObject } from "@layerhub-io/react"
 import { Block } from "baseui/block"
 import { fabric } from "fabric"
-import { setHidePopup } from "../../../../store/generation"
-import { useAppDispatch } from "../../../../store/store"
 import Common from "./Common"
 import { InitImageSettings } from "./GenerationFrame/InitImageSettings"
 import { StepsSettings } from "./GenerationFrame/StepsSettings"
 import { Separator } from "./Shared/Separator"
+import { useSetRecoilState } from "recoil"
+import { hidePopupState } from "../../../../contexts/generateImage"
 
 const GenerationFrame = () => {
-  const dispatch = useAppDispatch()
   const activeObject = useActiveObject<fabric.GenerationFrame | undefined>()
+  const setHidePopup = useSetRecoilState(hidePopupState)
 
   if (!activeObject) return null
 
   return (
     <Block
       onClick={() => {
-        dispatch(setHidePopup(true))
+        setHidePopup(true)
       }}
       $style={{
         flex: 1,
