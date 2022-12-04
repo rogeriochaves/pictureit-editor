@@ -79,6 +79,15 @@ const Scenes = () => {
     [editor]
   )
 
+  // When scene is first set
+  useEffect(() => {
+    if (editor) {
+      saveIfNewFile()
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!currentScene])
+
   useEffect(() => {
     if (editor) {
       if (currentScene) {
@@ -90,26 +99,17 @@ const Scenes = () => {
       } else {
         const loadedFile = loadRequest.contents?.content
 
+        let importPromise
         if (loadedFile) {
           setCurrentDesign(loadedFile)
 
-          editor.scene
-            .importFromJSON({
-              frame: loadedFile.frame,
-              ...loadedFile.scenes[0],
-            })
-            .then(() => {
-              const initialDesign = editor.scene.exportToJSON() as any
-              editor.renderer.render(initialDesign).then((data) => {
-                setCurrentScene({ ...initialDesign, preview: data })
-                setScenes([{ ...initialDesign, preview: data }])
-                saveIfNewFile()
-              })
-            })
-            .catch(console.log)
+          importPromise = editor.scene.importFromJSON({
+            frame: loadedFile.frame,
+            ...loadedFile.scenes[0],
+          })
         } else {
-          getDefaultTemplate(editor.canvas.canvas, { width: 512, height: 512 })
-            .then((defaultTemplate) => {
+          importPromise = getDefaultTemplate(editor.canvas.canvas, { width: 512, height: 512 }).then(
+            (defaultTemplate) => {
               setCurrentDesign({
                 id: nanoid(),
                 frame: defaultTemplate.frame,
@@ -121,17 +121,19 @@ const Scenes = () => {
               })
 
               return editor.scene.importFromJSON(defaultTemplate)
-            })
-            .then(() => {
-              const initialDesign = editor.scene.exportToJSON() as any
-              editor.renderer.render(initialDesign).then((data) => {
-                setCurrentScene({ ...initialDesign, preview: data })
-                setScenes([{ ...initialDesign, preview: data }])
-                saveIfNewFile()
-              })
-            })
-            .catch(console.log)
+            }
+          )
         }
+
+        importPromise
+          .then(() => {
+            const initialDesign = editor.scene.exportToJSON() as any
+            editor.renderer.render(initialDesign).then((data) => {
+              setCurrentScene({ ...initialDesign, preview: data })
+              setScenes([{ ...initialDesign, preview: data }])
+            })
+          })
+          .catch(console.log)
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
