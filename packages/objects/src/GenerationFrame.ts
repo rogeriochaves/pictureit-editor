@@ -32,6 +32,8 @@ export class GenerationFrameObject extends fabric.Group {
       //@ts-ignore
       id,
       type: GenerationFrameObject.type,
+      top: options.top,
+      left: options.left
     })
     return this
   }
@@ -41,7 +43,7 @@ export class GenerationFrameObject extends fabric.Group {
       fabric.util.loadImage(
         src,
         (img) => {
-          const currentImage = this._objects.find(item => (item as any).id == `${this.id}-image`)
+          const currentImage = this._objects.find((item) => (item as any).id == `${this.id}-image`)
           if (currentImage) {
             this.removeWithUpdate(currentImage)
           }
@@ -59,7 +61,7 @@ export class GenerationFrameObject extends fabric.Group {
               fontSize: 18,
               editable: false,
               textAlign: "center",
-              originY: "center"
+              originY: "center",
             })
             this.addWithUpdate(errorText as any)
 
@@ -94,8 +96,14 @@ export class GenerationFrameObject extends fabric.Group {
     return super.toObject(propertiesToInclude)
   }
 
-  static fromObject(objects: fabric.Object[], options: GenerationFrameOptions, callback: (arg: fabric.GenerationFrame) => void) {
-    return callback && callback(new fabric.GenerationFrame(objects, options))
+  static fromObject(options: GenerationFrameOptions, callback: (arg: fabric.GenerationFrame) => void) {
+    fabric.util.enlivenObjects(
+      (options as any).objects,
+      (enlivenObjects: fabric.Object[]) => {
+        callback && callback(new fabric.GenerationFrame(enlivenObjects, options))
+      },
+      ""
+    )
   }
 }
 
