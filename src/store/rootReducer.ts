@@ -3,12 +3,14 @@ import { designEditorReducer } from "./slices/design-editor/reducer"
 import { fontsReducer } from "./slices/fonts/reducer"
 import { uploadsReducer } from "./slices/uploads/reducer"
 import { resourcesReducer } from "./slices/resources/reducer"
+import { generationReducer } from "./slices/generation/reducer"
 
 const rootReducer = combineReducers({
   designEditor: designEditorReducer,
   fonts: fontsReducer,
   uploads: uploadsReducer,
   resources: resourcesReducer,
+  generation: generationReducer,
 })
 
 export type RootState = ReturnType<typeof rootReducer>

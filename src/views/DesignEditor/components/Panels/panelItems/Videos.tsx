@@ -11,7 +11,7 @@ import useDesignEditorContext from "~/hooks/useDesignEditorContext"
 
 const loadVideoResource = (videoSrc: string): Promise<HTMLVideoElement> => {
   return new Promise(function (resolve, reject) {
-    var video = document.createElement("video")
+    const video = document.createElement("video")
     video.src = videoSrc
     video.crossOrigin = "anonymous"
     video.addEventListener("loadedmetadata", function (event) {
@@ -30,7 +30,7 @@ const loadVideoResource = (videoSrc: string): Promise<HTMLVideoElement> => {
 
 const captureFrame = (video: HTMLVideoElement) => {
   return new Promise(function (resolve) {
-    var canvas = document.createElement("canvas") as HTMLCanvasElement
+    const canvas = document.createElement("canvas") as HTMLCanvasElement
     canvas.width = video.videoWidth
     canvas.height = video.videoHeight
     canvas.getContext("2d")!.drawImage(video, 0, 0, canvas.width, canvas.height)
@@ -92,7 +92,7 @@ const Videos = () => {
         setScenes(updatedScenes)
       }
     },
-    [editor, scenes, currentScene]
+    [editor, scenes, setScenes, currentScene]
   )
 
   return (

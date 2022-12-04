@@ -1,16 +1,13 @@
 import { LayerType } from "@layerhub-io/core"
-import ObjectExporter from "@layerhub-io/core/src/utils/object-exporter"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
-import { IGenerationFrame, ILayer } from "@layerhub-io/types"
 import { Button } from "baseui/button"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { useCallback, useEffect, useRef, useState } from "react"
-import api from "../../../../api"
-import { extractErrorMessage } from "../../../../api/utils"
-import { renderInitImage } from "../../../../services/generation"
-
-type RemoteData<T> = { state: "NOT_ASKED" } | { state: "LOADING" } | { state: "SUCCESS"; data: T } | { state: "ERROR" }
+import { useSelector } from "react-redux"
+import { RootState } from "../../../../store/rootReducer"
+import { generateImage } from "../../../../store/slices/generation/actions"
+import { useAppDispatch } from "../../../../store/store"
 
 const ActionPopup = () => {
   const editor = useEditor()
@@ -23,7 +20,8 @@ const ActionPopup = () => {
     isMoving: boolean
   } | null>(null)
   const [prompt, setPrompt] = useState("")
-  const [generatingState, setGeneratingState] = useState<{ [key: string]: RemoteData<{ image: string }> }>({})
+  const dispatch = useAppDispatch()
+  const generationRequests = useSelector((state: RootState) => state.generation.requests)
 
   const setPopupForTarget = (target: fabric.Object | undefined) => {
     if (target && target.type == LayerType.GENERATION_FRAME && target.oCoords) {
@@ -66,46 +64,19 @@ const ActionPopup = () => {
     }
   }, [editor, onModified, onMove])
 
-  const generateImage = useCallback(async () => {
+  const onGenerateImage = useCallback(async () => {
     const targetId = popup?.target.id
     if (!targetId) return
 
-    const init_image = await renderInitImage(editor, popup.target)
-
-    setGeneratingState({
-      ...generatingState,
-      [targetId]: { state: "LOADING" },
-    })
-
-    popup.target.showLoading(9000)
-
-    api
-      .stableDiffusion({
+    dispatch(
+      generateImage({
+        id: targetId,
+        frame: popup.target,
         prompt: prompt,
-        guidance_scale: 7.5,
-        prompt_strength: 0.8,
-        ...(init_image ? { init_image: init_image } : {}),
+        editor: editor,
       })
-      .then(async (result) => {
-        if (result.url) {
-          await popup.target.setImage(result.url)
-          editor.objects.afterAddHook(popup.target as fabric.Object, false)
-
-          setGeneratingState({
-            ...generatingState,
-            [targetId]: { state: "SUCCESS", data: { image: result.url } },
-          })
-        }
-      })
-      .catch(async (error) => {
-        setGeneratingState({
-          ...generatingState,
-          [targetId]: { state: "ERROR" },
-        })
-        popup.target.showError(await extractErrorMessage(error))
-        editor.objects.afterAddHook(popup.target as fabric.Object, false)
-      })
-  }, [popup, generatingState, prompt, editor])
+    )
+  }, [popup, dispatch, prompt, editor])
 
   const Pill = ({ value }: { value: string }) => {
     return (
@@ -125,7 +96,7 @@ const ActionPopup = () => {
   const popupWidth = 500
   const minX = (popupRef.current?.getBoundingClientRect().x || 0) * -1 + 12
   const minY = (popupRef.current?.getBoundingClientRect().y || 0) * -1 + 12
-  const currentGeneratingState = (popup && generatingState[popup.target.id]) || { state: "NOT_ASKED" }
+  const currentGeneratingState = (popup && generationRequests[popup.target.id]) || { state: "NOT_ASKED" }
 
   return (
     <div ref={popupRef}>
@@ -161,7 +132,7 @@ const ActionPopup = () => {
                 border: "1px solid #c4c4c4",
               }}
             />
-            <Button size="compact" onClick={generateImage}>
+            <Button size="compact" onClick={onGenerateImage}>
               Generate
             </Button>
             {/* <Button size="compact" kind={KIND.secondary} colors={{color: "#FFF", backgroundColor: "#999"}}>
