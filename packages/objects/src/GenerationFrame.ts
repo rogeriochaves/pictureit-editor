@@ -24,6 +24,8 @@ export class GenerationFrameObject extends fabric.Group {
         : [
             new fabric.Rect({
               ...options,
+              top: -options.height / 2,
+              left: -options.width / 2,
               //@ts-ignore
               id: `${id}-rect`,
               type: "rect",
@@ -37,6 +39,7 @@ export class GenerationFrameObject extends fabric.Group {
     //@ts-ignore
     super.initialize(groupObjects, {
       //@ts-ignore
+      ...options,
       id,
       type: GenerationFrameObject.type,
       layout: "clip-path",
@@ -63,52 +66,48 @@ export class GenerationFrameObject extends fabric.Group {
 
   async setImage(src: string) {
     return new Promise<void>((resolve, _reject) => {
-      fabric.util.loadImage(
-        src,
-        (img) => {
-          const currentImage = this._objects.find((item) => (item as any).id == `${this.id}-image`)
-          if (currentImage) {
-            this.removeWithUpdate(currentImage)
-          }
+      fabric.util.loadImage(src).then((img) => {
+        const nonRectObjects = this._objects.filter((item) => (item as any).id != `${this.id}-rect`)
+        for (const object of nonRectObjects) {
+          this.remove(object)
+        }
 
-          if (!img) {
-            const errorText = new fabric.StaticText({
-              //@ts-ignore
-              id: `${this.id}-image`,
-              type: StaticTextObject.type,
-              top: this.top + this.height / 2,
-              left: this.left,
-              width: this.width,
-              text: "Error loading image",
-              fontFamily: "Uber Move Text, sans-serif",
-              fontSize: 18,
-              editable: false,
-              textAlign: "center",
-              originY: "center",
-            })
-            this.addWithUpdate(errorText as any)
-
-            resolve()
-            return
-          }
-
-          const staticImage = new fabric.StaticImage(img, {
-            src,
+        if (!img) {
+          const errorText = new fabric.StaticText({
+            //@ts-ignore
             id: `${this.id}-image`,
-            type: StaticImageObject.type,
-            top: this.top,
+            type: StaticTextObject.type,
+            top: this.top + this.height / 2,
             left: this.left,
             width: this.width,
-            height: this.height,
+            text: "Error loading image",
+            fontFamily: "Uber Move Text, sans-serif",
+            fontSize: 18,
+            editable: false,
+            textAlign: "center",
+            originY: "center",
           })
-
-          this.addWithUpdate(staticImage as any)
+          this.addWithUpdate(errorText as any)
 
           resolve()
-        },
-        null,
-        "anonymous"
-      )
+          return
+        }
+
+        const staticImage = new fabric.StaticImage(img, {
+          src,
+          id: `${this.id}-image`,
+          type: StaticImageObject.type,
+          top: this.top,
+          left: this.left,
+          width: this.width,
+          height: this.height,
+          evented: false
+        })
+
+        this.add(staticImage as any)
+
+        resolve()
+      })
     })
   }
 
