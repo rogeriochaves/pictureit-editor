@@ -3,6 +3,7 @@ import { Canvas as LayerhubCanvas } from "@layerhub-io/react"
 import Playback from "../Playback"
 import useDesignEditorContext from "~/hooks/useDesignEditorContext"
 import ContextMenu from "../ContextMenu"
+import ActionPopup from "../ActionPopup"
 
 const Canvas = () => {
   const { displayPlayback } = useDesignEditorContext()
@@ -10,6 +11,7 @@ const Canvas = () => {
     <div style={{ flex: 1, display: "flex", position: "relative" }}>
       {displayPlayback && <Playback />}
       <ContextMenu />
+      <ActionPopup />
       <LayerhubCanvas
         config={{
           background: "#f1f2f6",

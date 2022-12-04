@@ -3,7 +3,6 @@ import Panels from "./components/Panels"
 import Canvas from "./components/Canvas"
 import Footer from "./components/Footer"
 import EditorContainer from "./components/EditorContainer"
-import ContextMenu from "./components/ContextMenu"
 import Shortcuts from "./Shortcuts"
 import Toolbox from "./components/Toolbox"
 

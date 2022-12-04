@@ -2,6 +2,7 @@ import { LayerType, transparentPattern } from "@layerhub-io/core"
 import { useEditor } from "@layerhub-io/react"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
+import { nanoid } from "nanoid"
 import { useEffect } from "react"
 import { PanelType } from "../../../../../constants/app-options"
 import useAppContext from "../../../../../hooks/useAppContext"
@@ -60,6 +61,8 @@ const Generation = () => {
 
   function mouseUpHandler(_e: IEvent) {
     const generationFrame = new fabric.Rect({
+      //@ts-ignore
+      id: nanoid(),
       width: 512,
       height: 512,
       left: square.left,
