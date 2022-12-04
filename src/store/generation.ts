@@ -1,4 +1,4 @@
-import { Editor, nonRenderableLayerTypes } from "@layerhub-io/core"
+import { Editor, nonRenderableLayerTypes, LayerType } from "@layerhub-io/core"
 import ObjectExporter from "@layerhub-io/core/src/utils/object-exporter"
 import { IGenerationFrame, ILayer } from "@layerhub-io/types"
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
@@ -124,20 +124,37 @@ export const renderNewInitImage = async (
   editor: Editor,
   generationFrame: fabric.GenerationFrame
 ): Promise<HTMLCanvasElement | undefined> => {
+  const overlappingFrames = editor.canvas.canvas.getObjects().filter((anotherFrame) => {
+    return (
+      anotherFrame != generationFrame &&
+      anotherFrame instanceof fabric.GenerationFrame &&
+      generationFrame.intersectsWithObject(anotherFrame as fabric.Object)
+    )
+  }) as fabric.GenerationFrame[]
+
   const frame = editor.frame.options
   const objectExporter = new ObjectExporter()
-  const exported = objectExporter.export(generationFrame.toObject(), frame) as IGenerationFrame
-  exported.objects = exported.objects?.filter(
-    (object: ILayer) => !object.id.match(/-background$/) && !nonRenderableLayerTypes.includes(object.type)
-  )
 
-  if (exported.objects?.length == 0) return
+  const layers = [generationFrame, ...overlappingFrames]
+    .map((layer) => {
+      const exported = objectExporter.export(layer.toObject(), frame) as IGenerationFrame
+      exported.objects = exported.objects?.filter(
+        (object: ILayer) => !object.id?.match(/-background$/) && !nonRenderableLayerTypes.includes(object.type)
+      )
+
+      return exported
+    })
+    .filter((exported) => (exported.objects?.length || 0) > 0)
+
+  if (layers.length == 0) return
 
   const canvas = await editor.renderer.renderCanvas({
     id: "",
-    frame: { width: 512, height: 512 },
-    layers: [exported],
+    frame: { width: generationFrame.width ?? 0, height: generationFrame.height ?? 0 },
+    layers,
     metadata: {},
+    top: generationFrame.top,
+    left: generationFrame.left,
   })
 
   return canvas

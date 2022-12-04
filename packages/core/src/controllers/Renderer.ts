@@ -12,8 +12,8 @@ class Renderer {
       const staticCanvas = new fabric.StaticCanvas(null)
       await this.loadTemplate(staticCanvas, template, {})
       const canvas = staticCanvas.toCanvasElement(1, {
-        top: 0,
-        left: 0,
+        top: template.top ?? 0,
+        left: template.left ?? 0,
         height: staticCanvas.getHeight(),
         width: staticCanvas.getWidth(),
       })

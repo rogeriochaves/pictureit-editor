@@ -59,7 +59,7 @@ const Generation = () => {
     editor.canvas.canvas.requestRenderAll()
   }
 
-  function mouseUpHandler(_e: IEvent) {
+  async function mouseUpHandler(_e: IEvent) {
     const options = {
       type: LayerType.GENERATION_FRAME,
       width: 512,
@@ -67,9 +67,10 @@ const Generation = () => {
       left: (square.left || 0) - editor.frame.options.left,
       top: (square.top || 0) - editor.frame.options.top,
       fill: transparentPattern,
-      name: "Generation Frame"
+      name: "Generation Frame",
     }
-    editor.objects.add(options)
+    const generationFrame = await editor.objects.add(options)
+    editor.objects.sendToBack(generationFrame.id)
 
     setTimeout(() => {
       const prompt = document.getElementById("actionPopupPrompt")
@@ -100,7 +101,7 @@ const Generation = () => {
       canvas.off("mouse:up", mouseUpHandler)
     }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return null

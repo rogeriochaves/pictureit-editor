@@ -21,7 +21,7 @@ class Objects extends Base {
   public isCut: any
   public copyStyleClipboard: any
 
-  public add = async (item: Partial<ILayer>) => {
+  public add = async (item: Partial<ILayer>): Promise<fabric.Object> => {
     const { canvas } = this
     const options = this.editor.frame.options
     const objectImporter = new ObjectImporter(this.editor)
@@ -52,6 +52,8 @@ class Objects extends Base {
     }
 
     this.afterAddHook(object)
+
+    return object
   }
 
   public addToGroup = async (group: fabric.Group, item: Partial<ILayer>) => {
@@ -150,7 +152,7 @@ class Objects extends Base {
   }
 
   public putInsideFrameIfNearOrRemoveIfFar = (object: fabric.Object) => {
-    if (object instanceof fabric.GenerationFrame) return
+    if (object instanceof fabric.GenerationFrame || nonRenderableLayerTypes.includes(object.type ?? "")) return
 
     const activeObject = this.canvas.getActiveObject()
 

@@ -15,5 +15,7 @@ export interface IScene {
   metadata: Record<string, any>
   preview?: string
   duration?: number
-  display?: TimeRange
+  display?: TimeRange,
+  top?: number,
+  left?: number
 }

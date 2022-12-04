@@ -21,6 +21,6 @@ const TBD = (): any => {
   throw "Not implemented yet"
 }
 const adapter: Api =
-  import.meta.env.VITE_BACKEND == "replicate" ? TBD() : import.meta.env.VITE_BACKEND == "mocked" ? Mocked : PictureIt
+  import.meta.env.VITE_ENV_BACKEND == "replicate" ? TBD() : import.meta.env.VITE_ENV_BACKEND == "mocked" ? Mocked : PictureIt
 
 export default adapter
