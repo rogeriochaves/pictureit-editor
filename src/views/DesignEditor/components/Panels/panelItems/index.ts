@@ -14,6 +14,7 @@ import TextFill from "./TextFill"
 import PathFill from "./PathFill"
 import CanvasFill from "./CanvasFill"
 import TextEffects from "./TextEffects"
+import Drawing from "./Drawing"
 export default {
   StaticText: TextProperties,
   Text: Text,
@@ -31,4 +32,5 @@ export default {
   PathFill: PathFill,
   CanvasFill: CanvasFill,
   TextEffects: TextEffects,
+  Drawing: Drawing,
 }

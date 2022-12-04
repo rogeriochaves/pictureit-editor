@@ -20,6 +20,7 @@
     "are-passive-events-supported": "^1.1.1",
     "axios": "^0.27.2",
     "baseui": "^12.0.0",
+    "fabric": "^5.2.4",
     "i18next": "^21.8.13",
     "immutability-helper": "^3.1.1",
     "install": "^0.13.0",
@@ -42,6 +43,7 @@
   },
   "devDependencies": {
     "@layerhub-io/types": "^0.3.0",
+    "@types/fabric": "^4.5.12",
     "@types/lodash": "^4.14.182",
     "@types/mime": "^2.0.3",
     "@types/react": "^18.0.0",

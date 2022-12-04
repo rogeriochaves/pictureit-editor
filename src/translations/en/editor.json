@@ -10,7 +10,8 @@
             "text": "Text",
             "graphics": "Graphics",
             "pixabay": "Pixabay",
-            "layers": "Layers"
+            "layers": "Layers",
+            "drawing": "Drawing"
         }
     }
 }

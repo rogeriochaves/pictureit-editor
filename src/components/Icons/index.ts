@@ -51,6 +51,7 @@ class Icons {
   static ArrowBackOutline = ArrowBackOutline
   static Underline = Underline
   static Add = Add
+  static Drawing = Pixabay
 }
 
 export default Icons
