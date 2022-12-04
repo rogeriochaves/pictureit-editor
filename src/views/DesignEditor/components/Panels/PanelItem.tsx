@@ -1,15 +1,16 @@
 import React from "react"
 import useAppContext from "~/hooks/useAppContext"
 import panelItems from "./panelItems"
-import useIsSidebarOpen from "~/hooks/useIsSidebarOpen"
 import { Block } from "baseui/block"
+import { useRecoilValue } from "recoil"
+import { isSidebarOpenState } from "../../../../state/designEditor"
 
 interface State {
   panel: string
 }
 const PanelsList = () => {
   const [state, setState] = React.useState<State>({ panel: "Text" })
-  const isSidebarOpen = useIsSidebarOpen()
+  const isSidebarOpen = useRecoilValue(isSidebarOpenState)
   const { activePanel, activeSubMenu } = useAppContext()
 
   React.useEffect(() => {

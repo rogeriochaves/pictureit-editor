@@ -1,17 +1,17 @@
-import React from "react"
 import { Modal, ModalBody, SIZE, ROLE } from "baseui/modal"
-import useEditorType from "~/hooks/useEditorType"
 import { Block } from "baseui/block"
 import Video from "./Video"
 import Presentation from "./Presentation"
 import Graphic from "./Graphic"
+import { useRecoilValue } from "recoil"
+import { editorTypeState } from "../../../../state/designEditor"
 
 interface ComponentProps {
   isOpen: boolean
   setIsOpen: (v: boolean) => void
 }
 const Preview = ({ isOpen, setIsOpen }: ComponentProps) => {
-  const editorType = useEditorType()
+  const editorType = useRecoilValue(editorTypeState)
   return (
     <Modal
       onClose={() => setIsOpen(false)}

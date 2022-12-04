@@ -5,17 +5,18 @@ import Scrollable from "~/components/Scrollable"
 import { Button, SIZE } from "baseui/button"
 import DropZone from "~/components/Dropzone"
 import { useEditor } from "@layerhub-io/react"
-import useSetIsSidebarOpen from "~/hooks/useSetIsSidebarOpen"
 import { nanoid } from "nanoid"
 import { captureFrame, loadVideoResource } from "~/utils/video"
 import { ILayer } from "@layerhub-io/types"
 import { toBase64 } from "~/utils/data"
+import { useSetRecoilState } from "recoil"
+import { isSidebarOpenState } from "../../../../../state/designEditor"
 
-export default function () {
+export default function Uploads () {
   const inputFileRef = React.useRef<HTMLInputElement>(null)
   const [uploads, setUploads] = React.useState<any[]>([])
   const editor = useEditor()
-  const setIsSidebarOpen = useSetIsSidebarOpen()
+  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
 
   const handleDropFiles = async (files: FileList) => {
     const file = files[0]

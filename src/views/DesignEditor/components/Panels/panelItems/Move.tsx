@@ -1,8 +1,9 @@
 import { useEffect } from "react"
-import useSetIsSidebarOpen from "../../../../../hooks/useSetIsSidebarOpen"
+import { useSetRecoilState } from "recoil"
+import { isSidebarOpenState } from "../../../../../state/designEditor"
 
 const Move = () => {
-  const setIsSidebarOpen = useSetIsSidebarOpen()
+  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
   useEffect(() => {
     setIsSidebarOpen(false)
   }, [])

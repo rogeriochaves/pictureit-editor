@@ -5,11 +5,12 @@ import AngleDoubleLeft from "~/components/Icons/AngleDoubleLeft"
 import Scrollable from "~/components/Scrollable"
 import { images } from "~/constants/mock-data"
 import { useEditor } from "@layerhub-io/react"
-import useSetIsSidebarOpen from "~/hooks/useSetIsSidebarOpen"
+import { useSetRecoilState } from "recoil"
+import { isSidebarOpenState } from "../../../../../state/designEditor"
 
 const Images = () => {
   const editor = useEditor()
-  const setIsSidebarOpen = useSetIsSidebarOpen()
+  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
 
   const addObject = React.useCallback(
     (url: string) => {

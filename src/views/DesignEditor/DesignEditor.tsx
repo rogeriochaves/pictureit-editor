@@ -1,14 +1,14 @@
-import useEditorType from "~/hooks/useEditorType"
 import SelectEditor from "./SelectEditor"
 import GraphicEditor from "./GraphicEditor"
 import PresentationEditor from "./PresentationEditor"
 import VideoEditor from "./VideoEditor"
 import useDesignEditorContext from "~/hooks/useDesignEditorContext"
 import Preview from "./components/Preview"
-import ContextMenu from "./components/ContextMenu"
+import { useRecoilValue } from "recoil"
+import { editorTypeState } from "../../state/designEditor"
 
 const DesignEditor = () => {
-  const editorType = useEditorType()
+  const editorType = useRecoilValue(editorTypeState)
   const { displayPreview, setDisplayPreview } = useDesignEditorContext()
 
   return (

@@ -5,15 +5,15 @@ import { Block } from "baseui/block"
 import { Button, KIND } from "baseui/button"
 import { Theme } from "baseui/theme"
 import React, { useRef } from "react"
-import { useRecoilValueLoadable } from "recoil"
+import { useRecoilValue, useRecoilValueLoadable } from "recoil"
 import Github from "~/components/Icons/Github"
 import Logo from "~/components/Icons/Logo"
 import Play from "~/components/Icons/Play"
 import useDesignEditorContext from "~/hooks/useDesignEditorContext"
-import useEditorType from "~/hooks/useEditorType"
 import { IDesign } from "~/interfaces/DesignEditor"
 import { loadTemplateFonts } from "~/utils/fonts"
 import { loadVideoEditorAssets } from "~/utils/video"
+import { editorTypeState } from "../../../../state/designEditor"
 import { currentUserQuery } from "../../../../state/user"
 import DesignTitle from "./DesignTitle"
 
@@ -28,7 +28,7 @@ const Container = styled<"div", object, Theme>("div", ({ $theme }) => ({
 
 const Navbar = () => {
   const { setDisplayPreview, setScenes, setCurrentDesign, currentDesign, scenes } = useDesignEditorContext()
-  const editorType = useEditorType()
+  const editorType = useRecoilValue(editorTypeState)
   const editor = useEditor()
   const inputFileRef = useRef<HTMLInputElement>(null)
   const user = useRecoilValueLoadable(currentUserQuery)

@@ -3,9 +3,10 @@ import { useEditor } from "@layerhub-io/react"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { useEffect } from "react"
+import { useSetRecoilState } from "recoil"
 import { PanelType } from "../../../../../constants/app-options"
 import useAppContext from "../../../../../hooks/useAppContext"
-import useSetIsSidebarOpen from "../../../../../hooks/useSetIsSidebarOpen"
+import { isSidebarOpenState } from "../../../../../state/designEditor"
 
 const square = new fabric.Rect({
   width: 512,
@@ -24,7 +25,7 @@ let requestDragging = false
 const Generation = () => {
   const editor = useEditor()
   const { setActivePanel } = useAppContext()
-  const setIsSidebarOpen = useSetIsSidebarOpen()
+  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
 
   useEffect(() => {
     setIsSidebarOpen(false)

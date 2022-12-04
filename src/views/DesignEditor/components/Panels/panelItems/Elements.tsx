@@ -1,18 +1,20 @@
-import React, { useEffect } from "react"
 import { useEditor } from "@layerhub-io/react"
 import { useStyletron } from "baseui"
 import { Block } from "baseui/block"
-import { Button, SIZE } from "baseui/button"
+import React, { useEffect } from "react"
+import { useSetRecoilState } from "recoil"
 import AngleDoubleLeft from "~/components/Icons/AngleDoubleLeft"
 import Scrollable from "~/components/Scrollable"
 import { graphics } from "~/constants/mock-data"
-import useSetIsSidebarOpen from "~/hooks/useSetIsSidebarOpen"
+import { isSidebarOpenState } from "../../../../../state/designEditor"
 
 const Elements = () => {
   const editor = useEditor()
-  const setIsSidebarOpen = useSetIsSidebarOpen()
+  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
 
-  useEffect(() => {}, [setIsSidebarOpen(true)])
+  useEffect(() => {
+    setIsSidebarOpen(true)
+  }, [setIsSidebarOpen])
 
   const addObject = React.useCallback(
     (item: any) => {

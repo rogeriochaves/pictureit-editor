@@ -5,11 +5,10 @@ import { useStyletron } from "baseui"
 import { Block } from "baseui/block"
 import { nanoid } from "nanoid"
 import React from "react"
-import { useRecoilState, useSetRecoilState } from "recoil"
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import Add from "~/components/Icons/Add"
 import { getDefaultTemplate } from "~/constants/design-editor"
-import { currentDesignState, currentPreviewState, currentSceneState, scenesState } from "~/state/designEditor"
-import useContextMenuTimelineRequest from "~/hooks/useContextMenuTimelineRequest"
+import { contextMenuTimelineRequestState, currentDesignState, currentPreviewState, currentSceneState, scenesState } from "~/state/designEditor"
 import { findSceneIndexByTime } from "~/views/DesignEditor/utils/scenes"
 import TimelineContextMenu from "./TimelineContextMenu"
 import TimelineControl from "./TimelineControl"
@@ -22,7 +21,7 @@ const Timeline = () => {
   const [currentScene, setCurrentScene] = useRecoilState(currentSceneState)
   const [currentDesign, setCurrentDesign] = useRecoilState(currentDesignState)
   const setCurrentPreview = useSetRecoilState(currentPreviewState)
-  const contextMenuTimelineRequest = useContextMenuTimelineRequest()
+  const contextMenuTimelineRequest = useRecoilValue(contextMenuTimelineRequestState)
   const editor = useEditor()
   const [css] = useStyletron()
 

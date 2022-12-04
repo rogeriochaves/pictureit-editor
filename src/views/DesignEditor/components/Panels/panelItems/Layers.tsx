@@ -10,13 +10,14 @@ import Eye from "~/components/Icons/Eye"
 import EyeCrossed from "~/components/Icons/EyeCrossed"
 import Delete from "~/components/Icons/Delete"
 import { Button, KIND, SIZE } from "baseui/button"
-import useSetIsSidebarOpen from "~/hooks/useSetIsSidebarOpen"
+import { useSetRecoilState } from "recoil"
+import { isSidebarOpenState } from "../../../../../state/designEditor"
 
 const Layers = () => {
   const editor = useEditor()
   const objects = useObjects() as ILayer[]
   const [layerObjects, setLayerObjects] = React.useState<any[]>([])
-  const setIsSidebarOpen = useSetIsSidebarOpen()
+  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
 
   useEffect(() => {
     setIsSidebarOpen(true)

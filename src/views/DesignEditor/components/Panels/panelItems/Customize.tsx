@@ -13,8 +13,9 @@ import { sampleFrames } from "~/constants/editor"
 import Scrollbar from "@layerhub-io/react-custom-scrollbar"
 import SwapHorizontal from "~/components/Icons/SwapHorizontal"
 import { Tabs, Tab } from "baseui/tabs"
-import useSetIsSidebarOpen from "~/hooks/useSetIsSidebarOpen"
 import useDesignEditorContext from "~/hooks/useDesignEditorContext"
+import { useSetRecoilState } from "recoil"
+import { isSidebarOpenState } from "../../../../../state/designEditor"
 
 const colors = ["#ffffff", "#9B9B9B", "#4A4A4A", "#000000", "#A70C2C", "#DA9A15", "#F8E71D", "#47821A", "#4990E2"]
 
@@ -24,7 +25,7 @@ interface State {
 
 const Customize = () => {
   const editor = useEditor()
-  const setIsSidebarOpen = useSetIsSidebarOpen()
+  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
 
   const [state, setState] = React.useState<State>({
     backgroundColor: "#000000",

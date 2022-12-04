@@ -1,23 +1,22 @@
+import { useEditor } from "@layerhub-io/react"
+import { IStaticText } from "@layerhub-io/types"
+import { useStyletron } from "baseui"
+import { Block } from "baseui/block"
+import { Input, SIZE } from "baseui/input"
+import { groupBy } from "lodash"
 import React from "react"
+import { useSetRecoilState } from "recoil"
+import AngleDoubleLeft from "~/components/Icons/AngleDoubleLeft"
 import ArrowBackOutline from "~/components/Icons/ArrowBackOutline"
 import Search from "~/components/Icons/Search"
-import { Input, SIZE } from "baseui/input"
-import useAppContext from "~/hooks/useAppContext"
-import { useStyletron } from "baseui"
-import { IStaticText } from "@layerhub-io/types"
-import { useEditor } from "@layerhub-io/react"
-import { loadFonts } from "~/utils/fonts"
-import { SAMPLE_FONTS } from "~/constants/editor"
-import { groupBy } from "lodash"
 import Scrollable from "~/components/Scrollable"
-import { Block } from "baseui/block"
-import AngleDoubleLeft from "~/components/Icons/AngleDoubleLeft"
-import useSetIsSidebarOpen from "~/hooks/useSetIsSidebarOpen"
+import { SAMPLE_FONTS } from "~/constants/editor"
+import { loadFonts } from "~/utils/fonts"
+import { isSidebarOpenState } from "../../../../../state/designEditor"
 
 const FontSelector = () => {
   const [query, setQuery] = React.useState("")
-  const { setActiveSubMenu } = useAppContext()
-  const setIsSidebarOpen = useSetIsSidebarOpen()
+  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
 
   const [commonFonts, setCommonFonts] = React.useState<any[]>([])
   const [css] = useStyletron()

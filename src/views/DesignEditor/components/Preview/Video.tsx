@@ -3,11 +3,12 @@ import { Block } from "baseui/block"
 import ReactPlayer from "react-player"
 import { useEditor } from "@layerhub-io/react"
 import Loading from "~/components/Loading"
-import useDesignEditorPages from "~/hooks/useDesignEditorScenes"
+import { useRecoilValue } from "recoil"
+import { scenesState } from "../../../../state/designEditor"
 
 const Video = () => {
   const editor = useEditor()
-  const pages = useDesignEditorPages()
+  const pages = useRecoilValue(scenesState)
   const [loading, setLoading] = React.useState(true)
   const [state, setState] = React.useState({
     video: "",

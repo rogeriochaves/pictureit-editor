@@ -3,10 +3,10 @@ import { BASE_ITEMS, VIDEO_PANEL_ITEMS } from "~/constants/app-options"
 import useAppContext from "~/hooks/useAppContext"
 import Icons from "~/components/Icons"
 import { useTranslation } from "react-i18next"
-import useSetIsSidebarOpen from "~/hooks/useSetIsSidebarOpen"
-import useEditorType from "~/hooks/useEditorType"
 import Scrollable from "~/components/Scrollable"
 import { Block } from "baseui/block"
+import { useRecoilValue, useSetRecoilState } from "recoil"
+import { editorTypeState, isSidebarOpenState } from "../../../../state/designEditor"
 
 const Container = styled("div", (props) => ({
   width: "80px",
@@ -17,7 +17,7 @@ const Container = styled("div", (props) => ({
 const PanelsList = () => {
   const { activePanel } = useAppContext()
   const { t } = useTranslation("editor")
-  const editorType = useEditorType()
+  const editorType = useRecoilValue(editorTypeState)
   const PANEL_ITEMS = editorType === "VIDEO" ? VIDEO_PANEL_ITEMS : BASE_ITEMS
   return (
     <Container>
@@ -38,7 +38,7 @@ const PanelsList = () => {
 
 const PanelListItem = ({ label, icon, activePanel, name }: any) => {
   const { setActivePanel } = useAppContext()
-  const setIsSidebarOpen = useSetIsSidebarOpen()
+  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
   const [css, theme] = useStyletron()
   // @ts-ignore
   const Icon = Icons[icon]

@@ -4,8 +4,9 @@ import { Block } from "baseui/block"
 import AngleDoubleLeft from "~/components/Icons/AngleDoubleLeft"
 import Scrollable from "~/components/Scrollable"
 import { useEditor } from "@layerhub-io/react"
-import useSetIsSidebarOpen from "~/hooks/useSetIsSidebarOpen"
 import useDesignEditorContext from "~/hooks/useDesignEditorContext"
+import { useSetRecoilState } from "recoil"
+import { isSidebarOpenState } from "../../../../../state/designEditor"
 
 const loadVideoResource = (videoSrc: string): Promise<HTMLVideoElement> => {
   return new Promise(function (resolve, reject) {
@@ -55,7 +56,7 @@ const captureDuration = (video: HTMLVideoElement): Promise<number> => {
 
 const Videos = () => {
   const editor = useEditor()
-  const setIsSidebarOpen = useSetIsSidebarOpen()
+  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
   const [videos, setVideos] = React.useState<any[]>([])
   const { scenes, setScenes, currentScene } = useDesignEditorContext()
   // const loadPixabayVideos = async () => {

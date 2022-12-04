@@ -2,13 +2,14 @@ import { useEditor } from "@layerhub-io/react"
 import { useStyletron } from "baseui"
 import { Block } from "baseui/block"
 import React from "react"
+import { useSetRecoilState } from "recoil"
 import AngleDoubleLeft from "~/components/Icons/AngleDoubleLeft"
 import Scrollable from "~/components/Scrollable"
-import useSetIsSidebarOpen from "~/hooks/useSetIsSidebarOpen"
+import { isSidebarOpenState } from "../../../../../state/designEditor"
 
 const Pixabay = () => {
   const editor = useEditor()
-  const setIsSidebarOpen = useSetIsSidebarOpen()
+  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
 
   const pixabayResources = [] as any
   const addObject = React.useCallback(

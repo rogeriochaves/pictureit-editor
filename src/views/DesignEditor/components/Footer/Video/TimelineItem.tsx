@@ -4,8 +4,9 @@ import { CSS } from "@dnd-kit/utilities"
 import { Resizable } from "~/components/Resizable"
 import { Block } from "baseui/block"
 import useDesignEditorContext from "~/hooks/useDesignEditorContext"
-import useDesignEditorScenes from "~/hooks/useDesignEditorScenes"
 import { useTimer } from "@layerhub-io/use-timer"
+import { useRecoilValue } from "recoil"
+import { scenesState } from "../../../../../state/designEditor"
 
 const VerticalLine = ({ size }: { size: number }) => {
   return (
@@ -43,7 +44,7 @@ const TimelineItem = ({ item, makeResizeTimelineItem, width, preview, frame, dur
   const { setContextMenuTimelineRequest } = useDesignEditorContext()
   const [markerRefPosition, setMarkerRefPosition] = React.useState({ y: 0 })
   const { setTime } = useTimer()
-  const scenes = useDesignEditorScenes()
+  const scenes = useRecoilValue(scenesState)
 
   const [options, setOptions] = React.useState({
     isControlHover: false,

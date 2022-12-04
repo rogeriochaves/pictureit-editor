@@ -7,18 +7,16 @@ import { useStyletron } from "baseui"
 import { Block } from "baseui/block"
 import { nanoid } from "nanoid"
 import React from "react"
-import { useRecoilState, useSetRecoilState } from "recoil"
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import Add from "../../../../../components/Icons/Add"
 import { getDefaultTemplate } from "../../../../../constants/design-editor"
-import { currentDesignState, currentSceneState, scenesState } from "../../../../../state/designEditor"
-import useContextMenuTimelineRequest from "../../../../../hooks/useContextMenuTimelineRequest"
-import useDesignEditorPages from "../../../../../hooks/useDesignEditorScenes"
+import { contextMenuTimelineRequestState, currentDesignState, currentSceneState, scenesState } from "../../../../../state/designEditor"
 import SceneContextMenu from "./SceneContextMenu"
 import SceneItem from "./SceneItem"
 
 let firstUpdate = false
 const Scenes = () => {
-  const scenes = useDesignEditorPages()
+  const scenes = useRecoilValue(scenesState)
   const setScenes = useSetRecoilState(scenesState)
   const [currentScene, setCurrentScene] = useRecoilState(currentSceneState)
   const [currentDesign, setCurrentDesign] = useRecoilState(currentDesignState)
@@ -27,7 +25,7 @@ const Scenes = () => {
   const [currentPreview, setCurrentPreview] = React.useState("")
   const frame = useFrame()
   const [draggedScene, setDraggedScene] = React.useState<IScene | null>(null)
-  const contextMenuTimelineRequest = useContextMenuTimelineRequest()
+  const contextMenuTimelineRequest = useRecoilValue(contextMenuTimelineRequestState)
 
   const sensors = [
     useSensor(PointerSensor, {

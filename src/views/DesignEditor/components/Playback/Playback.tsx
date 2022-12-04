@@ -3,7 +3,8 @@ import { Block } from "baseui/block"
 import { useEditor, useZoomRatio } from "@layerhub-io/react"
 import { useTimer } from "@layerhub-io/use-timer"
 import Controller from "./Controler"
-import useDesignEditorPages from "~/hooks/useDesignEditorScenes"
+import { useRecoilValue } from "recoil"
+import { scenesState } from "../../../../state/designEditor"
 
 const Playback = () => {
   const editor = useEditor()
@@ -12,7 +13,7 @@ const Playback = () => {
   const [initialized, setInitialized] = React.useState(false)
   const zoomRatio = useZoomRatio() as number
   const { start } = useTimer()
-  const pages = useDesignEditorPages()
+  const pages = useRecoilValue(scenesState)
   const { time } = useTimer()
   const loadFrames = React.useCallback(async () => {
     const currentTemplate = editor.scene.exportToJSON()

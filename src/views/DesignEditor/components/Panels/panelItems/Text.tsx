@@ -4,16 +4,16 @@ import { useStyletron } from "styletron-react"
 import { useEditor } from "@layerhub-io/react"
 import { FontItem } from "~/interfaces/common"
 import { loadFonts } from "~/utils/fonts"
-import { IStaticText } from "@layerhub-io/types"
 import { nanoid } from "nanoid"
 import { Block } from "baseui/block"
 import AngleDoubleLeft from "~/components/Icons/AngleDoubleLeft"
 import Scrollable from "~/components/Scrollable"
-import useSetIsSidebarOpen from "~/hooks/useSetIsSidebarOpen"
+import { useSetRecoilState } from "recoil"
+import { isSidebarOpenState } from "../../../../../state/designEditor"
 
 const Text = () => {
   const editor = useEditor()
-  const setIsSidebarOpen = useSetIsSidebarOpen()
+  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
 
   const addObject = async () => {
     if (editor) {

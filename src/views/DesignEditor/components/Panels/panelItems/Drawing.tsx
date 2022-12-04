@@ -1,13 +1,11 @@
 import { useEditor } from "@layerhub-io/react"
-import { fabric } from "fabric"
-import { IEvent } from "fabric/fabric-impl"
-import { nanoid } from "nanoid"
-import { useCallback, useEffect } from "react"
-import useSetIsSidebarOpen from "~/hooks/useSetIsSidebarOpen"
+import { useEffect } from "react"
+import { useSetRecoilState } from "recoil"
+import { isSidebarOpenState } from "../../../../../state/designEditor"
 
 const Drawing = () => {
   const editor = useEditor()
-  const setIsSidebarOpen = useSetIsSidebarOpen()
+  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
 
   useEffect(() => {
     setIsSidebarOpen(false)
