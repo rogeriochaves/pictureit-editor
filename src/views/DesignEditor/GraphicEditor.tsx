@@ -1,6 +1,10 @@
+import { LayerType } from "@layerhub-io/core"
+import { useEditor } from "@layerhub-io/react"
 import { Block } from "baseui/block"
 import { Button } from "baseui/button"
 import { Modal, ModalBody, ModalButton, ModalFooter, ModalHeader, ROLE, SIZE } from "baseui/modal"
+import { useCallback } from "react"
+import { useSearchParams } from "react-router-dom"
 import { useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from "recoil"
 import { PICTURE_IT_URL } from "../../api/adapters/pictureit"
 import GreenCheckmark from "../../components/Icons/GreenCheckmark"
@@ -17,11 +21,14 @@ import Shortcuts from "./Shortcuts"
 const GraphicEditor = () => {
   const user = useRecoilValueLoadable(currentUserQuery)
   const paymentRequired = useRecoilValue(paymentRequiredState)
+  const [searchParams] = useSearchParams()
+  const welcome = searchParams.get("welcome")
 
   return (
     <EditorContainer>
       {user.state == "hasError" && <SignInAgain />}
       {paymentRequired && <PaymentRequired />}
+      {welcome && <Welcome />}
       <Shortcuts />
       <Navbar />
       <div style={{ display: "flex", flex: 1 }}>
@@ -127,6 +134,54 @@ const SignInAgain = () => {
       </ModalBody>
       <ModalFooter>
         <ModalButton onClick={redirect}>Okay</ModalButton>
+      </ModalFooter>
+    </Modal>
+  )
+}
+
+const Welcome = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const editor = useEditor()
+
+  const closeWelcome = useCallback(() => {
+    if (!editor) return
+
+    setSearchParams(Object.fromEntries(Array.from(searchParams.entries()).filter(([key]) => key !== "welcome")))
+
+    const [frame] = editor.canvas.canvas.getObjects(LayerType.GENERATION_FRAME)
+    if (frame) {
+      editor.objects.select(frame.id)
+    }
+  }, [editor, searchParams, setSearchParams])
+
+  return (
+    <Modal
+      onClose={closeWelcome}
+      closeable
+      isOpen={true}
+      animate
+      autoFocus
+      size={SIZE.default}
+      role={ROLE.dialog}
+      overrides={{
+        Root: {
+          style: {
+            zIndex: 130,
+          },
+        },
+      }}
+    >
+      <ModalHeader>Welcome to Picture it Editor 🎉</ModalHeader>
+      <ModalBody>
+        <p>
+          Feel free to explore the tool, play with the generation frame for generating AI art, and publish your work
+          when you are done.
+        </p>
+
+        <p>All changes are automatically saved on your account. Have fun!</p>
+      </ModalBody>
+      <ModalFooter>
+        <ModalButton onClick={closeWelcome}>Get Started</ModalButton>
       </ModalFooter>
     </Modal>
   )

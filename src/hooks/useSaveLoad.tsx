@@ -1,7 +1,7 @@
 import { useEditor } from "@layerhub-io/react"
 import { nanoid } from "nanoid"
 import { useCallback, useEffect } from "react"
-import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from "recoil"
 import { useDebouncedCallback } from "use-debounce"
 import api from "../api"
@@ -12,7 +12,7 @@ import {
   exponentialBackoffSaveRetryState,
   MAX_RETRY_SAVE_TIME,
   saveFileRequest,
-  waitingForFileSaveDebounceState
+  waitingForFileSaveDebounceState,
 } from "../state/file"
 import { paymentRequiredState } from "../state/generateImage"
 import { currentUserQuery } from "../state/user"
@@ -152,6 +152,8 @@ export const useSaveIfNewFile = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const save = useSave()
+  const [searchParams] = useSearchParams()
+  const welcome = searchParams.get("welcome")
 
   return useDebouncedCallback(() => {
     if (!id) {
@@ -159,7 +161,7 @@ export const useSaveIfNewFile = () => {
 
       save(newId).then((isSaved) => {
         if (isSaved) {
-          navigate(`/editor/${newId}`, { replace: true })
+          navigate(`/editor/${newId}${welcome ? "?welcome=true" : ""}`, { replace: true })
         }
       })
     }
