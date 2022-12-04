@@ -30,7 +30,9 @@ const Generation = () => {
   const { setActivePanel } = useAppContext()
   const setIsSidebarOpen = useSetIsSidebarOpen()
 
-  useEffect(() => {}, [setIsSidebarOpen(false)])
+  useEffect(() => {
+    setIsSidebarOpen(false)
+  }, [])
 
   function mouseMoveHandler(e: IEvent) {
     if (requestDragging) {

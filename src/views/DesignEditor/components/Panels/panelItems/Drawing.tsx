@@ -9,7 +9,9 @@ const Drawing = () => {
   const editor = useEditor()
   const setIsSidebarOpen = useSetIsSidebarOpen()
 
-  useEffect(() => {}, [setIsSidebarOpen(false)])
+  useEffect(() => {
+    setIsSidebarOpen(false)
+  }, [])
 
   function objectAddedHandler(e: IEvent) {
     const object = e.target!

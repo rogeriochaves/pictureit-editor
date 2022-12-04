@@ -3,7 +3,9 @@ import useSetIsSidebarOpen from "../../../../../hooks/useSetIsSidebarOpen"
 
 const Move = () => {
   const setIsSidebarOpen = useSetIsSidebarOpen()
-  useEffect(() => {}, [setIsSidebarOpen(false)])
+  useEffect(() => {
+    setIsSidebarOpen(false)
+  }, [])
   return null
 }
 
