@@ -8,6 +8,7 @@ import { Block } from "baseui/block"
 import { nanoid } from "nanoid"
 import React, { useEffect } from "react"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
+import { useDebouncedCallback } from "use-debounce"
 import Add from "../../../../../components/Icons/Add"
 import { getDefaultTemplate } from "../../../../../constants/design-editor"
 import { useSaveIfNewFile } from "../../../../../hooks/useSaveLoad"
@@ -30,7 +31,6 @@ const Scenes = () => {
   const [currentDesign, setCurrentDesign] = useRecoilState(currentDesignState)
   const editor = useEditor()
   const [css] = useStyletron()
-  const [currentPreview, setCurrentPreview] = React.useState("")
   const frame = useFrame()
   const [draggedScene, setDraggedScene] = React.useState<IScene | null>(null)
   const contextMenuTimelineRequest = useRecoilValue(contextMenuTimelineRequestState)
@@ -88,39 +88,29 @@ const Scenes = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!editor])
 
-  React.useEffect(() => {
-    if (editor && scenes && currentScene) {
-      const isCurrentSceneLoaded = scenes.find((s) => s.id === currentScene?.id)
-      if (!isCurrentSceneLoaded) {
-        setCurrentScene(scenes[0])
-      }
-    }
-  }, [editor, scenes, setCurrentScene, currentScene])
+  const rerenderPreview = useDebouncedCallback(async () => {
+    const updatedTemplate = editor.scene.exportToJSON()
+    const updatedPreview = (await editor.renderer.render(updatedTemplate!)) as string
+    setScenes(
+      scenes.map((scene) => {
+        if (scene.id == currentScene?.id) {
+          return { ...scene, preview: updatedPreview }
+        }
+        return scene
+      })
+    )
+  }, 100)
 
-  React.useEffect(() => {
-    const watcher = async () => {
-      const updatedTemplate = editor.scene.exportToJSON()
-      const updatedPreview = (await editor.renderer.render(updatedTemplate!)) as string
-      setCurrentPreview(updatedPreview)
-    }
+  useEffect(() => {
     if (editor) {
-      editor.on("history:changed", watcher)
+      editor.on("history:changed", rerenderPreview)
     }
     return () => {
       if (editor) {
-        editor.off("history:changed", watcher)
+        editor.off("history:changed", rerenderPreview)
       }
     }
-  }, [editor])
-
-  const updateCurrentScene = React.useCallback(
-    async (design: IScene) => {
-      await editor.scene.importFromJSON(design)
-      const updatedPreview = (await editor.renderer.render(design)) as string
-      setCurrentPreview(updatedPreview)
-    },
-    [editor]
-  )
+  }, [currentScene, editor, scenes, setScenes, rerenderPreview])
 
   // When scene is first set
   useEffect(() => {
@@ -132,18 +122,18 @@ const Scenes = () => {
   }, [!!currentScene])
 
   // Updates scene when selecting a different one
+  // TODO: is this really necessary? Can't we just inline when updating scene?
   useEffect(() => {
     if (!editor || !currentScene) return
 
     if (!firstUpdate) {
       firstUpdate = true
     } else {
-      updateCurrentScene(currentScene)
+      editor.scene.importFromJSON(currentScene)
     }
-  }, [editor, currentScene, updateCurrentScene])
+  }, [editor, currentScene])
 
   const addScene = React.useCallback(async () => {
-    setCurrentPreview("")
     const updatedTemplate = editor.scene.exportToJSON()
     const updatedPreview = await editor.renderer.render(updatedTemplate!)
 
@@ -164,7 +154,6 @@ const Scenes = () => {
 
   const changePage = React.useCallback(
     async (page: any) => {
-      setCurrentPreview("")
       if (editor) {
         const updatedTemplate = editor.scene.exportToJSON()
         const updatedPreview = await editor.renderer.render(updatedTemplate)
@@ -227,9 +216,7 @@ const Scenes = () => {
                 scene={page}
                 index={index}
                 changePage={changePage}
-                preview={
-                  currentPreview && page.id === currentScene?.id ? currentPreview : page.preview ? page.preview : ""
-                }
+                preview={page.preview || ""}
               />
             ))}
             <div
