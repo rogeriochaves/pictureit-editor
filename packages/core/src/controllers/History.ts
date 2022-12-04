@@ -3,20 +3,36 @@ import { fabric } from "fabric"
 import throttle from "lodash/throttle"
 import { nonRenderableLayerTypes } from "../common/constants"
 
+type HistoryAction = {
+  type: "UPDATE"
+  objects: object[]
+}
+
 class History extends Base {
-  private redos: any[] = []
-  private undos: any[] = []
-  private current: any[] = []
+  private history: HistoryAction[] = []
+  private index: number = 0
   private isActive: boolean = false
 
   public getStatus = () => {
     return {
-      hasUndo: this.undos.length >= 1,
-      hasRedo: this.undos.length > 0,
-      undos: this.undos,
-      redos: this.redos,
-      state: this.current,
+      history: this.history,
+      index: this.index,
+      hasUndo: this.index > 0,
+      hasRedo: this.history.length >= this.index,
     }
+  }
+
+  public runWithoutAffectingHistory = async (fn: () => Promise<unknown>) => {
+    this.isActive = true
+    const result = await fn()
+    this.isActive = false
+    return result
+  }
+
+  public push = (action: HistoryAction) => {
+    this.history = this.history.slice(0, this.index + 1)
+    this.history.push(action)
+    this.index = this.history.length - 1
   }
 
   public save = () => {
@@ -31,16 +47,16 @@ class History extends Base {
         }
       })
 
-      const nextCurrent = canvasJSON.objects.filter(
-        (object: any) => !nonRenderableLayerTypes.includes(object.type || "")
-      )
-      if (JSON.stringify(this.current) !== JSON.stringify(nextCurrent)) {
-        this.undos.push({
-          type: "UPDATE",
-          json: this.current,
-        })
+      const objects = canvasJSON.objects.filter((object: any) => !nonRenderableLayerTypes.includes(object.type || ""))
+      const nextHistory: HistoryAction = {
+        type: "UPDATE",
+        objects,
       }
-      this.current = nextCurrent
+
+      const current = this.history[this.index]
+      if (JSON.stringify(current) !== JSON.stringify(nextHistory)) {
+        this.push(nextHistory)
+      }
     } catch (err) {
       console.log(err)
     }
@@ -48,38 +64,24 @@ class History extends Base {
   }
 
   public undo = throttle(() => {
-    if (this.undos.length >= 1) {
-      this.editor.objects.deselect()
-      const undo = this.undos.pop()
-      if (!undo) {
-        return
-      }
-      this.redos.push({
-        type: "redo",
-        json: this.current,
-      })
-      this.restore(undo)
-    }
+    this.restore(this.index - 1)
   }, 100)
 
   public redo = throttle(() => {
-    const redo = this.redos.pop()
-    if (!redo) {
-      return
-    }
-    this.undos.push({
-      type: "undo",
-      json: this.current,
-    })
-    this.restore(redo)
+    this.restore(this.index + 1)
   }, 100)
 
-  private restore = (transaction: any) => {
+  private restore = (index: number) => {
+    const nextIndex = Math.min(Math.max(index, 0), this.history.length - 1)
+    if (this.index == nextIndex) return
+
+    const action = this.history[nextIndex]
+    if (!action) return
+
     this.isActive = true
+
     this.editor.objects.clear()
-    const objects = transaction.json
-    this.current = objects
-    fabric.util.enlivenObjects(objects).then((enlivenObjects) => {
+    fabric.util.enlivenObjects(action.objects).then((enlivenObjects) => {
       enlivenObjects.forEach((enlivenObject) => {
         if (!nonRenderableLayerTypes.includes(enlivenObject.type || "")) {
           this.canvas.add(enlivenObject)
@@ -87,31 +89,21 @@ class History extends Base {
       })
       this.emitStatus()
     })
+
+    this.index = nextIndex
+
     setTimeout(() => {
       this.isActive = false
     }, 100)
   }
 
   public reset = () => {
-    this.redos = []
-    this.undos = []
-
+    this.history = []
     this.emitStatus()
   }
 
   public emitStatus = () => {
-    this.editor.emit("history:changed", {
-      hasUndo: this.undos.length >= 1,
-      hasRedo: this.redos.length > 0,
-    })
-  }
-
-  public get status() {
-    return {
-      undos: this.undos,
-      redos: this.redos,
-      state: this.current,
-    }
+    this.editor.emit("history:changed")
   }
 }
 

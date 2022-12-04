@@ -26,7 +26,7 @@ import SceneItem from "./SceneItem"
 const Scenes = () => {
   const scenes = useRecoilValue(scenesState)
   const setScenes = useSetRecoilState(scenesState)
-  const [currentScene, setCurrentScene] = useRecoilState(currentSceneState)
+  const [currentScene, _setCurrentScene] = useRecoilState(currentSceneState)
   const [currentDesign, setCurrentDesign] = useRecoilState(currentDesignState)
   const editor = useEditor()
   const [css] = useStyletron()
@@ -44,6 +44,19 @@ const Scenes = () => {
     }),
   ]
 
+  const setCurrentScene = useCallback(
+    async (nextScene: IScene) => {
+      _setCurrentScene(nextScene)
+
+      if (!editor || !nextScene) return
+
+      await editor.history.runWithoutAffectingHistory(async () => {
+        await editor.scene.importFromJSON(nextScene)
+      })
+    },
+    [_setCurrentScene, editor]
+  )
+
   // Scene setup, once editor loads
   useEffect(() => {
     if (!editor) return
@@ -53,10 +66,12 @@ const Scenes = () => {
 
     if (loadedFile) {
       setCurrentDesign(loadedFile)
-      setCurrentScene(loadedFile.scenes[0])
       setScenes(loadedFile.scenes)
+      setCurrentScene(loadedFile.scenes[0]).then(() => {
+        editor.history.save()
+      })
     } else {
-      getDefaultTemplate(editor.canvas.canvas, { width: 512, height: 512 }).then((defaultTemplate) => {
+      getDefaultTemplate(editor.canvas.canvas, { width: 512, height: 512 }).then(async (defaultTemplate) => {
         setCurrentDesign({
           id: nanoid(),
           frame: defaultTemplate.frame,
@@ -66,10 +81,14 @@ const Scenes = () => {
           scenes: [],
         })
 
-        editor.renderer.render(defaultTemplate).then((data) => {
-          setCurrentScene({ ...defaultTemplate, preview: data })
-          setScenes([{ ...defaultTemplate, preview: data }])
-        })
+        const data = await editor.renderer.render(defaultTemplate)
+
+        setScenes([{ ...defaultTemplate, preview: data }])
+        await setCurrentScene({ ...defaultTemplate, preview: data })
+        editor.history.save()
+
+        // Save new file when scene is first set
+        saveIfNewFile()
       })
     }
 
@@ -90,26 +109,13 @@ const Scenes = () => {
   }, 100)
 
   useEffect(() => {
-    if (editor) {
-      editor.on("history:changed", rerenderPreview)
-    }
+    if (!editor) return
+
+    editor.on("history:changed", rerenderPreview)
     return () => {
-      if (editor) {
-        editor.off("history:changed", rerenderPreview)
-      }
+      editor.off("history:changed", rerenderPreview)
     }
-  }, [currentScene, editor, scenes, setScenes, rerenderPreview])
-
-  // Updates canvas when selecting a different scene
-  useEffect(() => {
-    if (!editor || !currentScene) return
-
-    editor.scene.importFromJSON(currentScene).then(() => {
-      // Save new file when scene is first set
-      saveIfNewFile()
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentScene])
+  }, [editor, rerenderPreview])
 
   const addScene = React.useCallback(async () => {
     const updatedTemplate = editor.scene.exportToJSON()
