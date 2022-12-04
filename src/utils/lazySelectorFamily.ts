@@ -6,6 +6,7 @@ import {
   useRecoilValueLoadable,
   useRecoilValue,
   Loadable,
+  RecoilValue,
 } from "recoil"
 
 type LazySelector<T, P> = {
@@ -15,7 +16,7 @@ type LazySelector<T, P> = {
 
 export const lazySelectorFamily = <T, P>(props: {
   key: string
-  get: (id: string) => (params: P) => Promise<T>
+  get: (opts: { id: string | undefined; refresh: (recoilValue: RecoilValue<any>) => void }) => (params: P) => Promise<T>
 }): ((id: string | undefined) => LazySelector<T, P>) => {
   const requests: RecoilState<{ [key: string]: Promise<T> }> = atom({
     key: props.key,
@@ -38,9 +39,9 @@ export const lazySelectorFamily = <T, P>(props: {
       async ({ get, getCallback }) => {
         const currentRequests = get(requests)
 
-        return getCallback(({ set }) => (params: P) => {
+        return getCallback(({ set, refresh }) => (params: P) => {
           if (!id) return
-          const newValue = props.get(id.toString())(params)
+          const newValue = props.get({ id: id.toString(), refresh })(params)
 
           set(requests, {
             ...currentRequests,
@@ -53,7 +54,9 @@ export const lazySelectorFamily = <T, P>(props: {
   return (id: string | undefined) => ({ get: getter(id), call: caller(id) })
 }
 
-export const useRecoilLazyLoadable = <T, P>(lazySelector: LazySelector<T, P>): [Loadable<T | undefined>, (params: P) => void] => {
+export const useRecoilLazyLoadable = <T, P>(
+  lazySelector: LazySelector<T, P>
+): [Loadable<T | undefined>, (params: P) => void] => {
   const get = useRecoilValueLoadable(lazySelector.get)
   const call = useRecoilValue(lazySelector.call)
 

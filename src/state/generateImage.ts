@@ -9,15 +9,26 @@ import { canvasFromImage } from "../utils/canvas-from-image"
 import { paintItBlack } from "../utils/clip-mask"
 import { lazySelectorFamily } from "../utils/lazySelectorFamily"
 import { addGaussianNoise } from "../utils/noise"
+import { currentUserQuery } from "./user"
 
 export const DEFAULT_PROMPT_STRENGTH = 0.8
 export const DEFAULT_GUIDANCE = 7.5
 
 export const generateImageRequest = lazySelectorFamily({
   key: "generateImageRequest",
-  get: (_id) => (params: { frame: fabric.GenerationFrame; editor: Editor }) => {
-    return generateImage(params)
-  },
+  get:
+    ({ refresh }) =>
+    async (params: { frame: fabric.GenerationFrame; editor: Editor }) => {
+      try {
+        await generateImage(params)
+      } catch (err) {
+        if ((err as any).status == 401) {
+          refresh(currentUserQuery)
+        }
+
+        throw err
+      }
+    },
 })
 
 export const hidePopupState = atom({

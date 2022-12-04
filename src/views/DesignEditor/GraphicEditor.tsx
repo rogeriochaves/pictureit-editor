@@ -35,7 +35,14 @@ const SignInAgain = () => {
   }
 
   return (
-    <Modal onClose={redirect} closeable isOpen={true} animate autoFocus size={SIZE.default} role={ROLE.dialog}>
+    <Modal onClose={redirect} closeable isOpen={true} animate autoFocus size={SIZE.default} role={ROLE.dialog}
+      overrides={{
+        Root: {
+          style: {
+            zIndex: 130,
+          },
+        }
+      }}>
       <ModalHeader>Signed Out</ModalHeader>
       <ModalBody>
         You were signed out from Picture it, you will now be redirected to the login page to be able sign in again and

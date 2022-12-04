@@ -54,6 +54,7 @@ async function postApi(url: string, params: object) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Accept: "application/json",
     },
     body: JSON.stringify(params),
     credentials: "include",
