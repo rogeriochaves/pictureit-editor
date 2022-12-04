@@ -46,7 +46,7 @@ class ObjectImporter {
         object = await this.generationFrame(item, params)
         break
       default:
-        object = await this.background(item)
+        object = await this.rect(item)
     }
     return object as fabric.Object
   }
@@ -209,6 +209,25 @@ class ObjectImporter {
     })
   }
 
+  public rect(item: ILayer): Promise<fabric.Rect> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const baseOptions = this.getBaseOptions(item)
+        const { fill } = item as any
+        // @ts-ignore
+        const element = new fabric.Rect({
+          ...baseOptions,
+          fill: typeof fill === "object" && fill.source == transparentB64 ? transparentPattern : fill,
+          type: item.type,
+        })
+
+        resolve(element)
+      } catch (err) {
+        reject(err)
+      }
+    })
+  }
+
   public staticVector(item: ILayer): Promise<fabric.StaticVector> {
     return new Promise(async (resolve, reject) => {
       try {
@@ -287,8 +306,8 @@ class ObjectImporter {
       originY,
       angle,
     } = item
-    let metadata = item.metadata ? item.metadata : {}
-    let baseOptions = {
+    const metadata = item.metadata ? item.metadata : {}
+    const baseOptions = {
       id,
       name,
       angle: angle,

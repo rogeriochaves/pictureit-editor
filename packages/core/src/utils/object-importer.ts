@@ -55,10 +55,10 @@ class ObjectImporter {
         object = await this.staticAudio(item, options, inGroup)
         break
       case LayerType.GENERATION_FRAME:
-        object = await this.generationFrame(item, options, inGroup) as fabric.Object
+        object = (await this.generationFrame(item, options, inGroup)) as fabric.Object
         break
       default:
-        object = await this.background(item, options, inGroup)
+        object = await this.rect(item, options, inGroup)
     }
     return object
   }
@@ -272,6 +272,25 @@ class ObjectImporter {
     })
   }
 
+  public rect(item: ILayer, options: Required<ILayer>, inGroup: boolean): Promise<fabric.Rect> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const baseOptions = this.getBaseOptions(item, options, inGroup)
+        const { fill } = item as any
+        // @ts-ignore
+        const element = new fabric.Rect({
+          ...baseOptions,
+          fill: typeof fill === "object" && fill.source == transparentB64 ? transparentPattern : fill,
+          type: item.type,
+        })
+
+        resolve(element)
+      } catch (err) {
+        reject(err)
+      }
+    })
+  }
+
   public staticVector(item: ILayer, options: Required<ILayer>, inGroup: boolean): Promise<fabric.StaticVector> {
     return new Promise(async (resolve, reject) => {
       try {
@@ -322,7 +341,7 @@ class ObjectImporter {
           {
             ...baseOptions,
             type: item.type,
-            fill: typeof fill === "object" && fill.source == transparentB64 ? transparentPattern : fill,
+            fill
           }
         )
 

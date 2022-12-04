@@ -48,7 +48,7 @@ class ObjectExporter {
         object = this.generationFrame(item, options, inGroup)
         break
       default:
-        object = this.background(item, options, inGroup)
+        object = this.rect(item, options, inGroup)
     }
     return object
   }
@@ -170,6 +170,19 @@ class ObjectExporter {
       ...baseOptions,
       fill,
       metadata,
+    }
+
+    return object
+  }
+
+  public rect(item: ILayer, options: Required<ILayer>, inGroup: boolean): IBackground {
+    const baseOptions = this.getBaseOptions(item, options, inGroup)
+    const { fill, metadata, type } = item as any
+    const object = {
+      ...baseOptions,
+      fill,
+      metadata,
+      type
     }
 
     return object
