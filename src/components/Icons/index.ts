@@ -24,6 +24,8 @@ import ArrowBackOutline from "./ArrowBackOutline"
 import Underline from "./Underline"
 import Add from "./Add"
 import Video from "./Video"
+import Cursor from "./Cursor"
+
 class Icons {
   static Background = Background
   static Elements = Elements
@@ -52,6 +54,7 @@ class Icons {
   static Underline = Underline
   static Add = Add
   static Drawing = Pixabay
+  static Move = Cursor
 }
 
 export default Icons

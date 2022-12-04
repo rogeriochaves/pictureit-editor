@@ -1,11 +1,22 @@
+export enum PanelType {
+  TEMPLATES = "Templates",
+  BACKGROUND = "Background",
+  MOVE = "Move",
+  DRAWING = "Drawing"
+}
+
 export const BASE_ITEMS = [
+  {
+    id: "move",
+    name: PanelType.MOVE,
+  },
   {
     id: "elements",
     name: "Elements",
   },
   {
     id: "drawing",
-    name: "Drawing",
+    name: PanelType.DRAWING,
   },
   {
     id: "templates",
@@ -81,8 +92,3 @@ export const VIDEO_PANEL_ITEMS = [
     name: "Pixabay",
   },
 ]
-
-export enum PanelType {
-  TEMPLATES = "Templates",
-  BACKGROUND = "Background",
-}

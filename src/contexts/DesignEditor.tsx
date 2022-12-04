@@ -47,7 +47,7 @@ export const DesignEditorContext = React.createContext<ISceneEditorContext>({
   setCurrentDesign: () => {},
   isSidebarOpen: true,
   setIsSidebarOpen: () => {},
-  editorType: "NONE",
+  editorType: "GRAPHIC",
   setEditorType: () => {},
   displayPlayback: false,
   setDisplayPlayback: () => {},
@@ -90,7 +90,7 @@ export const DesignEditorProvider = ({ children }: { children: React.ReactNode }
     type: "",
   })
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true)
-  const [editorType, setEditorType] = React.useState<DesignType>("NONE")
+  const [editorType, setEditorType] = React.useState<DesignType>("GRAPHIC")
   const [displayPlayback, setDisplayPlayback] = React.useState<boolean>(false)
   const [displayPreview, setDisplayPreview] = React.useState<boolean>(false)
   const [currentPreview, setCurrentPreview] = React.useState<string>("")
