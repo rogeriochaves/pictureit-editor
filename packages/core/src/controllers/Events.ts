@@ -150,6 +150,7 @@ class Events extends Base {
       const initialSelection = this.canvas.getActiveObject() as any
       const isNotMultipleSelection =
         (initialSelection && initialSelection.type === LayerType.GROUP.toLowerCase()) ||
+        (initialSelection && initialSelection.type === LayerType.GENERATION_FRAME) ||
         (initialSelection && initialSelection.type === LayerType.STATIC_VECTOR)
 
       if (initialSelection && !isNotMultipleSelection && initialSelection._objects) {

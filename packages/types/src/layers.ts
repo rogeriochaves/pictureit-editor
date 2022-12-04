@@ -160,6 +160,7 @@ export interface IBackground extends LayerBaseOptions {
 
 export interface IGenerationFrame extends LayerBaseOptions {
   fill: string | fabric.Pattern
+  objects?: ILayer[]
 }
 
 export type ILayer =

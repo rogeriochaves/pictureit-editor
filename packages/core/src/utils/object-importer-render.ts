@@ -43,8 +43,10 @@ class ObjectImporter {
         object = await this.group(item, params)
         break
       case LayerType.GENERATION_FRAME:
-        object = await this.generationFrame(item)
+        object = await this.generationFrame(item, params)
         break
+      default:
+        object = await this.background(item)
     }
     return object as fabric.Object
   }
@@ -236,19 +238,26 @@ class ObjectImporter {
     })
   }
 
-  public generationFrame(item: ILayer): Promise<fabric.Rect> {
+  public generationFrame(item: ILayer, params: any): Promise<fabric.GenerationFrame> {
     return new Promise(async (resolve, reject) => {
       try {
         const baseOptions = this.getBaseOptions(item)
         const { fill } = item as IGenerationFrame
+        let objects: fabric.Object[] = []
 
-        // @ts-ignore
-        const element = new fabric.GenerationFrame({
-          ...baseOptions,
-          type: item.type,
+        for (const object of (item as IGenerationFrame).objects || []) {
+          objects = objects.concat(await this.import(object, params))
+        }
+
+        const element = new fabric.GenerationFrame(
+          objects,
           // @ts-ignore
-          fill: typeof fill === "object" && fill.source == transparentB64 ? transparentPattern : fill,
-        })
+          {
+            ...baseOptions,
+            type: item.type,
+            fill: typeof fill === "object" && fill.source == transparentB64 ? transparentPattern : fill,
+          }
+        )
 
         resolve(element)
       } catch (err) {

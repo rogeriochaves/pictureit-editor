@@ -9,6 +9,7 @@ import {
   IBackground,
   IGroup,
   IBackgroundImage,
+  IGenerationFrame,
 } from "@layerhub-io/types"
 import { LayerType } from "../common/constants"
 
@@ -42,6 +43,9 @@ class ObjectExporter {
         break
       case LayerType.STATIC_AUDIO:
         object = this.staticAudio(item, options, inGroup)
+        break
+      case LayerType.GENERATION_FRAME:
+        object = this.generationFrame(item, options, inGroup)
         break
       default:
         object = this.background(item, options, inGroup)
@@ -181,6 +185,21 @@ class ObjectExporter {
       ...baseOptions,
       type: "Group",
       objects: groupObjects,
+      metadata,
+    }
+  }
+
+  public generationFrame(item: ILayer, options: Required<ILayer>, inGroup: boolean): IGenerationFrame {
+    const baseOptions = this.getBaseOptions(item, options, inGroup)
+    const { objects, metadata, fill, type } = item as IGenerationFrame
+    const groupObjects = (objects || []).map((object) => {
+      return this.export(object, options, true)
+    })
+    return {
+      ...baseOptions,
+      type: type,
+      objects: groupObjects,
+      fill: fill,
       metadata,
     }
   }

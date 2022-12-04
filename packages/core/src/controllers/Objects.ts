@@ -960,7 +960,7 @@ class Objects extends Base {
         item = object
         break
       }
-      if (object.type === "group") {
+      if (object.type === "group" || object.type == "GenerationFrame") {
         // @ts-ignore
         const itemInGroup = this.findByIdInObjecs(id, object._objects)
         if (itemInGroup) {

@@ -1,13 +1,32 @@
 import { fabric } from "fabric"
 // @ts-ignore
-export class GenerationFrameObject extends fabric.Rect {
+export class GenerationFrameObject extends fabric.Group {
   static type = "GenerationFrame"
-  initialize(options: GenerationFrameOptions) {
-    super.initialize({
-      ...options,
-      selectable: true,
-      hasControls: false,
-      hasBorders: true,
+  //@ts-ignore
+  initialize(objects?: fabric.Object[], options?: GenerationFrameOptions) {
+    const id = options.id
+
+    const groupObjects =
+      objects.length > 0
+        ? objects
+        : [
+            new fabric.Rect({
+              ...options,
+              //@ts-ignore
+              id: `${id}-rect`,
+              type: "rect",
+              selectable: true,
+              hasControls: true,
+              hasBorders: true,
+              absolutePositioned: true,
+            }),
+          ]
+
+    //@ts-ignore
+    super.initialize(groupObjects, {
+      //@ts-ignore
+      id,
+      type: GenerationFrameObject.type,
     })
     return this
   }
@@ -19,8 +38,8 @@ export class GenerationFrameObject extends fabric.Rect {
     return super.toObject(propertiesToInclude)
   }
 
-  static fromObject(options: GenerationFrameOptions, callback: Function) {
-    return callback && callback(new fabric.GenerationFrame(options))
+  static fromObject(objects: fabric.Object[], options: GenerationFrameOptions, callback: Function) {
+    return callback && callback(new fabric.GenerationFrame(objects, options))
   }
 }
 
@@ -29,14 +48,14 @@ fabric.GenerationFrame = fabric.util.createClass(GenerationFrameObject, {
 })
 fabric.GenerationFrame.fromObject = GenerationFrameObject.fromObject
 
-export interface GenerationFrameOptions extends fabric.IRectOptions {
+export interface GenerationFrameOptions extends fabric.IGroupOptions {
   id: string
 }
 
 declare module "fabric" {
   namespace fabric {
     class GenerationFrame extends GenerationFrameObject {
-      constructor(options: GenerationFrameOptions)
+      constructor(objects: fabric.Object[], options: GenerationFrameOptions)
     }
   }
 }

@@ -55,7 +55,7 @@ class Scene extends Base {
     if (activeObject && selectionType) {
       const isMixed = selectionType.length > 1
 
-      if (activeObject.type === "activeSelection" || activeObject.type === "group") {
+      if (activeObject.type === "activeSelection" || activeObject.type === "group" || activeObject.type == LayerType.GENERATION_FRAME) {
         let clonedObjects: any[] = []
         // @ts-ignore
         const objects = activeObject._objects

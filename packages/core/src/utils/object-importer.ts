@@ -55,7 +55,7 @@ class ObjectImporter {
         object = await this.staticAudio(item, options, inGroup)
         break
       case LayerType.GENERATION_FRAME:
-        object = await this.generationFrame(item, options, inGroup)
+        object = await this.generationFrame(item, options, inGroup) as fabric.Object
         break
       default:
         object = await this.background(item, options, inGroup)
@@ -304,18 +304,27 @@ class ObjectImporter {
     })
   }
 
-  public generationFrame(item: ILayer, options: Required<ILayer>, inGroup: boolean): Promise<fabric.Rect> {
+  public generationFrame(item: ILayer, options: Required<ILayer>, inGroup: boolean): Promise<fabric.GenerationFrame> {
     return new Promise(async (resolve, reject) => {
       try {
         const baseOptions = this.getBaseOptions(item, options, inGroup)
         const { fill } = item as IGenerationFrame
 
-        // @ts-ignore
-        const element = new fabric.GenerationFrame({
-          ...baseOptions,
-          type: item.type,
-          fill: typeof fill === "object" && fill.source == transparentB64 ? transparentPattern : fill,
-        })
+        let objects: fabric.Object[] = []
+
+        for (const object of (item as IGenerationFrame).objects || []) {
+          objects = objects.concat(await this.import(object, options, true))
+        }
+
+        const element = new fabric.GenerationFrame(
+          objects,
+          // @ts-ignore
+          {
+            ...baseOptions,
+            type: item.type,
+            fill: typeof fill === "object" && fill.source == transparentB64 ? transparentPattern : fill,
+          }
+        )
 
         resolve(element)
       } catch (err) {
