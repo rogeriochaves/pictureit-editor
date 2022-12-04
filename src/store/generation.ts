@@ -20,7 +20,6 @@ const initialState: GenerationState = {
   hidePopup: false,
 }
 
-export const DEFAULT_NOISE = 0
 export const DEFAULT_PROMPT_STRENGTH = 0.8
 export const DEFAULT_GUIDANCE = 7.5
 
@@ -126,7 +125,7 @@ export const renderInitImage = async (
     if (renderInitImage) {
       initImage = initImageCanvas.toDataURL("image/png")
     }
-    addGaussianNoise(initImageCanvas.getContext("2d")!, generationFrame.metadata?.initImage?.noise ?? DEFAULT_NOISE)
+    addGaussianNoise(initImageCanvas.getContext("2d")!, generationFrame.getNoise())
     initImageWithNoise = initImageCanvas && initImageCanvas.toDataURL("image/png")
   }
 
@@ -195,12 +194,15 @@ const exportFrameToCanvas = async (
 }
 
 const getOverlappingFrames = (editor: Editor, generationFrame: fabric.GenerationFrame) => {
-  const zIndex = editor.canvas.canvas.getObjects().indexOf(generationFrame as fabric.Object);
-  return editor.canvas.canvas.getObjects().slice(zIndex).filter((anotherFrame) => {
-    return (
-      anotherFrame != generationFrame &&
-      anotherFrame instanceof fabric.GenerationFrame &&
-      generationFrame.intersectsWithObject(anotherFrame as fabric.Object)
-    )
-  }) as fabric.GenerationFrame[]
+  const zIndex = editor.canvas.canvas.getObjects().indexOf(generationFrame as fabric.Object)
+  return editor.canvas.canvas
+    .getObjects()
+    .slice(zIndex)
+    .filter((anotherFrame) => {
+      return (
+        anotherFrame != generationFrame &&
+        anotherFrame instanceof fabric.GenerationFrame &&
+        generationFrame.intersectsWithObject(anotherFrame as fabric.Object)
+      )
+    }) as fabric.GenerationFrame[]
 }

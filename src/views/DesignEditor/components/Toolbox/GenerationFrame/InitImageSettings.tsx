@@ -11,18 +11,13 @@ import { IEvent } from "fabric/fabric-impl"
 import { debounce } from "lodash"
 import { useCallback, useEffect, useState } from "react"
 import NoColor from "../../../../../components/Icons/NoColor"
-import {
-  DEFAULT_NOISE,
-  DEFAULT_PROMPT_STRENGTH,
-  renderInitImage,
-  renderNewInitImage,
-} from "../../../../../store/generation"
+import { DEFAULT_PROMPT_STRENGTH, renderInitImage, renderNewInitImage } from "../../../../../store/generation"
 import { ColorSquare } from "../Shared/ColorSquare"
 
 export const InitImageSettings = () => {
   const editor = useEditor()
   const activeObject = useActiveObject<fabric.GenerationFrame | undefined>()
-  const [localNoise, setLocalNoise] = useState<number>(activeObject?.metadata?.initImage?.noise ?? DEFAULT_NOISE)
+  const [localNoise, setLocalNoise] = useState<number>(activeObject?.getNoise?.() ?? 0)
   const [localPromptStrength, setLocalPromptStrength] = useState<number>(
     activeObject?.metadata?.initImage?.promptStrength ?? DEFAULT_PROMPT_STRENGTH
   )
@@ -39,8 +34,7 @@ export const InitImageSettings = () => {
             ...initImage,
           },
         }
-        const noise = activeObject.metadata.initImage?.noise
-        setLocalNoise(typeof noise == "undefined" ? DEFAULT_NOISE : noise)
+        setLocalNoise(activeObject.getNoise())
       }
     },
     [activeObject]

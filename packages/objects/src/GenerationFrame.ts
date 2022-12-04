@@ -282,6 +282,22 @@ export class GenerationFrameObject extends fabric.Group {
     )
   }
 
+  getImage() {
+    return this._objects.find(
+      (object) =>
+        //@ts-ignore
+        object.id == `${this.id}-image`
+    )
+  }
+
+  getNoise() {
+    if (this.metadata?.initImage?.noise) return this.metadata?.initImage?.noise
+    if (!this.getImage() && this._objects?.find((o) => o.type == "StaticPath")) {
+      return 2
+    }
+    return 0
+  }
+
   toObject(propertiesToInclude: string[] = []) {
     return super.toObject(propertiesToInclude.concat(["id"]))
   }

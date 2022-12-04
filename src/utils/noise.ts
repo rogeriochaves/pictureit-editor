@@ -23,15 +23,15 @@ export const addGaussianNoise = (ctx: CanvasRenderingContext2D, noise = 2) => {
     let rand3 = (randnBM() * 510 - 255) * noise
 
     if (buffer[i + 3] == 0) {
-      rand += 0 //255
-      rand2 += 0 //255
-      rand3 += 0 //255
+      rand += 255
+      rand2 += 255
+      rand3 += 255
     }
 
     buffer[i] += rand
     buffer[i + 1] += rand2
     buffer[i + 2] += rand3
-    // buffer[i + 3] = 255
+    buffer[i + 3] = 255
   }
 
   ctx.putImageData(iData, 0, 0)
