@@ -1,18 +1,35 @@
 import {
-  atom,
-  RecoilState,
-  selectorFamily,
-  RecoilValueReadOnly,
-  useRecoilValueLoadable,
-  useRecoilValue,
+  atomFamily,
   Loadable,
+  RecoilState,
   RecoilValue,
+  RecoilValueReadOnly,
+  selectorFamily,
+  SerializableParam,
+  useRecoilCallback,
+  useRecoilValueLoadable,
+  useSetRecoilState,
 } from "recoil"
 
 type LazySelector<T, P> = {
+  id: string | undefined
   get: RecoilValueReadOnly<T | undefined>
-  call: RecoilValueReadOnly<(params: P) => void>
+  call: (opts: {
+    id: string | undefined
+    refresh: (recoilValue: RecoilValue<any>) => void
+    set: <T>(recoilVal: RecoilState<T>, valOrUpdater: ((currVal: T) => T) | T) => void
+  }) => (params: P) => Promise<T>
+  requests: RecoilState<Promise<T> | undefined>
 }
+
+export const lazySelector = <T, P>(props: {
+  key: string
+  get: (opts: {
+    id: string | undefined
+    refresh: (recoilValue: RecoilValue<any>) => void
+    set: <T>(recoilVal: RecoilState<T>, valOrUpdater: ((currVal: T) => T) | T) => void
+  }) => (params: P) => Promise<T>
+}) => lazySelectorFamily(props)("fixed")
 
 export const lazySelectorFamily = <T, P>(props: {
   key: string
@@ -22,9 +39,9 @@ export const lazySelectorFamily = <T, P>(props: {
     set: <T>(recoilVal: RecoilState<T>, valOrUpdater: ((currVal: T) => T) | T) => void
   }) => (params: P) => Promise<T>
 }): ((id: string | undefined) => LazySelector<T, P>) => {
-  const requests: RecoilState<{ [key: string]: Promise<T> }> = atom({
+  const requests: (param: SerializableParam) => RecoilState<Promise<T> | undefined> = atomFamily({
     key: props.key,
-    default: {} as { [key: string]: Promise<T> },
+    default: undefined as Promise<Promise<T>> | undefined,
   })
 
   const getter = selectorFamily({
@@ -32,37 +49,31 @@ export const lazySelectorFamily = <T, P>(props: {
     get:
       (id) =>
       async ({ get }) => {
-        return id ? await get(requests)[id.toString()] : undefined
+        return await get(requests(id))
       },
   })
 
-  const caller = selectorFamily({
-    key: `${props.key}Caller`,
-    get:
-      (id) =>
-      async ({ get, getCallback }) => {
-        const currentRequests = get(requests)
-
-        return getCallback(({ set, refresh }) => (params: P) => {
-          if (!id) return
-          const newValue = props.get({ id: id.toString(), refresh, set })(params)
-
-          set(requests, {
-            ...currentRequests,
-            [id.toString()]: newValue,
-          })
-        })
-      },
+  return (id: string | undefined) => ({
+    id: id,
+    get: getter(id),
+    call: props.get,
+    requests: requests(id),
   })
-
-  return (id: string | undefined) => ({ get: getter(id), call: caller(id) })
 }
 
 export const useRecoilLazyLoadable = <T, P>(
   lazySelector: LazySelector<T, P>
-): [Loadable<T | undefined>, (params: P) => void] => {
+): [Loadable<T | undefined>, (params: P) => Promise<T | undefined>] => {
+  const setRequestsValue = useSetRecoilState(lazySelector.requests)
   const get = useRecoilValueLoadable(lazySelector.get)
-  const call = useRecoilValue(lazySelector.call)
+
+  const call = useRecoilCallback(({ refresh, set }) => (params: P) => {
+    const newValue = lazySelector.call({ id: lazySelector.id, refresh, set })(params)
+    setRequestsValue(newValue)
+
+    return newValue
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lazySelector.id, lazySelector.call, setRequestsValue])
 
   return [get, call]
 }

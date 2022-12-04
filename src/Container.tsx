@@ -1,10 +1,20 @@
+import { Button, SIZE } from "baseui/button"
 import React, { useEffect, useRef, useState } from "react"
+import { useNavigate, useParams } from "react-router-dom"
 import ResizeObserver from "resize-observer-polyfill"
 import useAppContext from "~/hooks/useAppContext"
 import Loading from "./components/Loading"
 import { editorFonts } from "./constants/fonts"
+import useAutosave from "./hooks/useAutosave"
+import { loadFileRequest } from "./state/file"
+import { useRecoilLazyLoadable } from "./utils/lazySelectorFamily"
 
 const Container = ({ children }: { children: React.ReactNode }) => {
+  useAutosave()
+  const { id } = useParams()
+  const [loadRequest, loadFile] = useRecoilLazyLoadable(loadFileRequest)
+  const navigate = useNavigate()
+
   const containerRef = useRef<HTMLDivElement>(null)
   const { isMobile, setIsMobile } = useAppContext()
   const [loaded, setLoaded] = useState(false)
@@ -36,10 +46,17 @@ const Container = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     loadFonts()
-    setTimeout(() => {
-      setLoaded(true)
-    }, 1000)
   }, [])
+
+  useEffect(() => {
+    if (id) {
+      loadFile(id).then(() => {
+        setLoaded(true)
+      })
+    } else {
+      setLoaded(true)
+    }
+  }, [id, loadFile])
 
   const loadFonts = () => {
     const promisesList = editorFonts.map((font) => {
@@ -57,6 +74,34 @@ const Container = ({ children }: { children: React.ReactNode }) => {
       .catch((err) => console.log({ err }))
   }
 
+  const ErrorLoadingFile = () => (
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+      }}
+    >
+      {loadRequest.contents.status == "404" ? (
+        <>
+          <p>File not found</p>
+          <Button
+            size={SIZE.compact}
+            onClick={() => {
+              navigate("/editor")
+            }}
+          >
+            Start New Project
+          </Button>
+        </>
+      ) : (
+        "Error loading file"
+      )}
+    </div>
+  )
+
   return (
     <div
       ref={containerRef}
@@ -67,7 +112,7 @@ const Container = ({ children }: { children: React.ReactNode }) => {
         width: "100vw",
       }}
     >
-      {loaded ? <>{children} </> : <Loading />}
+      {loaded ? <>{children} </> : loadRequest.state == "hasError" ? <ErrorLoadingFile /> : <Loading />}
     </div>
   )
 }
