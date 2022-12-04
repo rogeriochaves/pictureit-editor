@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { useEditor } from "@layerhub-io/react"
 import { useStyletron } from "baseui"
 import { Block } from "baseui/block"
@@ -11,6 +11,8 @@ import useSetIsSidebarOpen from "~/hooks/useSetIsSidebarOpen"
 const Elements = () => {
   const editor = useEditor()
   const setIsSidebarOpen = useSetIsSidebarOpen()
+
+  useEffect(() => {}, [setIsSidebarOpen(true)])
 
   const addObject = React.useCallback(
     (item: any) => {

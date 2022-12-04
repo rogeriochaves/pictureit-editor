@@ -27,7 +27,7 @@ export const defaultEditorConfig: EditorConfig = {
   propertiesToInclude: PROPERTIES_TO_INCLUDE,
   guidelines: true,
   shortcuts: true,
-  frameMargin: 300,
+  frameMargin: 200,
   background: "#ecf0f1",
   type: "GRAPHIC",
   size: {

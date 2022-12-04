@@ -28,7 +28,7 @@ export const AppContext = createContext<IAppContext>({
   setUploads: () => {},
   shapes: [],
   setShapes: () => {},
-  activePanel: PanelType.TEMPLATES,
+  activePanel: PanelType.MOVE,
   setActivePanel: () => {},
   activeSubMenu: null,
   setActiveSubMenu: (value: string) => {},
@@ -41,7 +41,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [templates, setTemplates] = useState<Template[]>([])
   const [uploads, setUploads] = useState<any[]>([])
   const [shapes, setShapes] = useState<Template[]>([])
-  const [activePanel, setActivePanel] = useState<PanelType>(PanelType.TEMPLATES)
+  const [activePanel, setActivePanel] = useState<PanelType>(PanelType.MOVE)
   const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null)
   const [currentTemplate, setCurrentTemplate] = useState(null)
   const context = {

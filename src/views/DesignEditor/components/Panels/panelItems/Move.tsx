@@ -1,5 +1,10 @@
+import { useEffect } from "react"
+import useSetIsSidebarOpen from "../../../../../hooks/useSetIsSidebarOpen"
+
 const Move = () => {
-  return null;
+  const setIsSidebarOpen = useSetIsSidebarOpen()
+  useEffect(() => {}, [setIsSidebarOpen(false)])
+  return null
 }
 
 export default Move

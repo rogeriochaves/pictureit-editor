@@ -5,6 +5,7 @@ import { IEvent } from "fabric/fabric-impl"
 import { useEffect } from "react"
 import { PanelType } from "../../../../../constants/app-options"
 import useAppContext from "../../../../../hooks/useAppContext"
+import useSetIsSidebarOpen from "../../../../../hooks/useSetIsSidebarOpen"
 
 const square = new fabric.Rect({
   width: 512,
@@ -26,6 +27,9 @@ let requestDragging = false
 const Generation = () => {
   const editor = useEditor()
   const { setActivePanel } = useAppContext()
+  const setIsSidebarOpen = useSetIsSidebarOpen()
+
+  useEffect(() => {}, [setIsSidebarOpen(false)])
 
   function mouseMoveHandler(e: IEvent) {
     if (requestDragging) {
