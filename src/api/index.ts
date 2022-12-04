@@ -1,5 +1,6 @@
 import Mocked from "./adapters/mocked"
 import PictureIt from "./adapters/pictureit"
+import Replicate from "./adapters/replicate"
 
 export type StableDiffusionInput = {
   prompt: string
@@ -30,12 +31,9 @@ export interface Api {
   stableDiffusionInpainting(params: StableDiffusionInpaintingInput): Promise<StableDiffusionInpaintingOutput>
 }
 
-const TBD = (): any => {
-  throw "Not implemented yet"
-}
 const adapter: Api =
   import.meta.env.VITE_ENV_BACKEND == "replicate"
-    ? TBD()
+    ? Replicate
     : import.meta.env.VITE_ENV_BACKEND == "mocked"
     ? Mocked
     : PictureIt
