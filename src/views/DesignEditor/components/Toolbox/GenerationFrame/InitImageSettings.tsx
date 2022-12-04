@@ -1,3 +1,4 @@
+import { transparentB64 } from "@layerhub-io/core"
 import { InitImage } from "@layerhub-io/objects"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
 import { Block } from "baseui/block"
@@ -10,14 +11,21 @@ import { IEvent } from "fabric/fabric-impl"
 import { debounce } from "lodash"
 import { useCallback, useEffect, useState } from "react"
 import NoColor from "../../../../../components/Icons/NoColor"
-import { DEFAULT_NOISE, DEFAULT_PROMPT_STRENGTH, renderInitImage, renderNewInitImage } from "../../../../../store/generation"
+import {
+  DEFAULT_NOISE,
+  DEFAULT_PROMPT_STRENGTH,
+  renderInitImage,
+  renderNewInitImage,
+} from "../../../../../store/generation"
 import { ColorSquare } from "../Shared/ColorSquare"
 
 export const InitImageSettings = () => {
   const editor = useEditor()
   const activeObject = useActiveObject<fabric.GenerationFrame | undefined>()
   const [localNoise, setLocalNoise] = useState<number>(activeObject?.metadata?.initImage?.noise ?? DEFAULT_NOISE)
-  const [localPromptStrength, setLocalPromptStrength] = useState<number>(activeObject?.metadata?.initImage?.promptStrength ?? DEFAULT_PROMPT_STRENGTH)
+  const [localPromptStrength, setLocalPromptStrength] = useState<number>(
+    activeObject?.metadata?.initImage?.promptStrength ?? DEFAULT_PROMPT_STRENGTH
+  )
   const [initImageWithNoise, setInitImageWithNoise] = useState<string | undefined>()
   const [currentCanvasImage, setCurrentCanvasImage] = useState<string | undefined>()
 
@@ -162,10 +170,15 @@ export const InitImageSettings = () => {
                 {currentCanvasAsInitButton}
               </Block>
 
-              <img width="200" src={initImageWithNoise} />
+              <Block $style={{ background: `url(${transparentB64})` }}>
+                <img width="200" src={initImageWithNoise} />
+              </Block>
 
               <NoiseSlider localNoise={localNoise} onChangeNoise={onChangeNoise} />
-              <PromptStrengthSlider promptStrength={localPromptStrength} onChangePromptStrength={onChangePromptStrength} />
+              <PromptStrengthSlider
+                promptStrength={localPromptStrength}
+                onChangePromptStrength={onChangePromptStrength}
+              />
             </Block>
           ) : !activeObject.metadata?.initImage?.fixed && !currentCanvasImage ? (
             <Block display="flex" gridGap="8px" alignItems="center">

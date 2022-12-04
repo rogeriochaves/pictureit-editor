@@ -7,6 +7,7 @@ import api from "../api"
 import { extractErrorMessage } from "../api/utils"
 import { RemoteData } from "../interfaces/common"
 import { canvasFromImage } from "../utils/canvas-from-image"
+import { paintItBlack } from "../utils/clip-mask"
 import { addGaussianNoise } from "../utils/noise"
 
 interface GenerationState {
@@ -19,8 +20,9 @@ const initialState: GenerationState = {
   hidePopup: false,
 }
 
-export const DEFAULT_NOISE = 2
+export const DEFAULT_NOISE = 0
 export const DEFAULT_PROMPT_STRENGTH = 0.8
+export const DEFAULT_GUIDANCE = 7.5
 
 export const generationSlice = createSlice({
   name: "generation",
@@ -51,6 +53,8 @@ export const generateImage = createAsyncThunk<
 
     const [initImage, initImageWithNoise] = await renderInitImage(editor, frame, true)
 
+    const clipMask = await renderClipMask(editor, frame)
+
     if (frame.metadata) {
       frame.metadata.initImage = {
         ...(frame.metadata?.initImage || {}),
@@ -59,18 +63,28 @@ export const generateImage = createAsyncThunk<
       }
     }
 
-    api
-      .stableDiffusion({
-        prompt: frame.metadata?.prompt || "",
-        num_inference_steps,
-        guidance_scale: frame.metadata?.guidance || 7.5,
-        ...(initImageWithNoise
-          ? {
-              init_image: initImageWithNoise,
-              prompt_strength: frame.metadata?.initImage?.promptStrength ?? DEFAULT_PROMPT_STRENGTH,
-            }
-          : {}),
-      })
+    const call =
+      initImageWithNoise && clipMask
+        ? api.stableDiffusionInpainting({
+            prompt: frame.metadata?.prompt || "",
+            num_inference_steps,
+            guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
+            image: initImageWithNoise,
+            mask: clipMask,
+          })
+        : api.stableDiffusion({
+            prompt: frame.metadata?.prompt || "",
+            num_inference_steps,
+            guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
+            ...(initImageWithNoise
+              ? {
+                  init_image: initImageWithNoise,
+                  prompt_strength: frame.metadata?.initImage?.promptStrength ?? DEFAULT_PROMPT_STRENGTH,
+                }
+              : {}),
+          })
+
+    call
       .then(async (result) => {
         if (result.url) {
           await frame.setImage(result.url)
@@ -114,7 +128,7 @@ export const renderInitImage = async (
       initImage = initImageCanvas.toDataURL("image/png")
     }
     addGaussianNoise(initImageCanvas.getContext("2d")!, generationFrame.metadata?.initImage?.noise ?? DEFAULT_NOISE)
-    initImageWithNoise = initImageCanvas && initImageCanvas.toDataURL("image/jpeg")
+    initImageWithNoise = initImageCanvas && initImageCanvas.toDataURL("image/png")
   }
 
   return [initImage, initImageWithNoise]
@@ -124,18 +138,34 @@ export const renderNewInitImage = async (
   editor: Editor,
   generationFrame: fabric.GenerationFrame
 ): Promise<HTMLCanvasElement | undefined> => {
-  const overlappingFrames = editor.canvas.canvas.getObjects().filter((anotherFrame) => {
-    return (
-      anotherFrame != generationFrame &&
-      anotherFrame instanceof fabric.GenerationFrame &&
-      generationFrame.intersectsWithObject(anotherFrame as fabric.Object)
-    )
-  }) as fabric.GenerationFrame[]
+  const overlappingFrames = getOverlappingFrames(editor, generationFrame)
 
+  return await exportFrameToCanvas(editor, generationFrame, [generationFrame, ...overlappingFrames])
+}
+
+export const renderClipMask = async (
+  editor: Editor,
+  generationFrame: fabric.GenerationFrame
+): Promise<string | undefined> => {
+  const overlappingFrames = getOverlappingFrames(editor, generationFrame)
+
+  const canvas = await exportFrameToCanvas(editor, generationFrame, overlappingFrames)
+  if (canvas) {
+    paintItBlack(canvas.getContext("2d")!)
+
+    return canvas.toDataURL("image/png")
+  }
+}
+
+const exportFrameToCanvas = async (
+  editor: Editor,
+  generationFrame: fabric.GenerationFrame,
+  layerList: fabric.GenerationFrame[]
+) => {
   const frame = editor.frame.options
   const objectExporter = new ObjectExporter()
 
-  const layers = [generationFrame, ...overlappingFrames]
+  const layers = layerList
     .map((layer) => {
       const exported = objectExporter.export(layer.toObject(), frame) as IGenerationFrame
       exported.objects = exported.objects?.filter(
@@ -153,9 +183,19 @@ export const renderNewInitImage = async (
     frame: { width: generationFrame.width ?? 0, height: generationFrame.height ?? 0 },
     layers,
     metadata: {},
-    top: generationFrame.top,
+    top: (generationFrame.top ?? 0) - 32, // TODO: where is this magic number comming from?
     left: generationFrame.left,
   })
 
   return canvas
+}
+
+const getOverlappingFrames = (editor: Editor, generationFrame: fabric.GenerationFrame) => {
+  return editor.canvas.canvas.getObjects().filter((anotherFrame) => {
+    return (
+      anotherFrame != generationFrame &&
+      anotherFrame instanceof fabric.GenerationFrame &&
+      generationFrame.intersectsWithObject(anotherFrame as fabric.Object)
+    )
+  }) as fabric.GenerationFrame[]
 }

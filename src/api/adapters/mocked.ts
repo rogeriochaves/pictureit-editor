@@ -1,7 +1,15 @@
-import { Api, StableDiffusionInput, StableDiffusionOutput } from "../index"
+import { Api, StableDiffusionInpaintingInput, StableDiffusionInpaintingOutput, StableDiffusionInput, StableDiffusionOutput } from "../index"
 
 const Mocked: Api = class {
   static async stableDiffusion(params: StableDiffusionInput): Promise<StableDiffusionOutput> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({ url: sampleImage })
+      }, 1000)
+    })
+  }
+
+  static async stableDiffusionInpainting(params: StableDiffusionInpaintingInput): Promise<StableDiffusionInpaintingOutput> {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve({ url: sampleImage })
