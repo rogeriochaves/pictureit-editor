@@ -25,6 +25,7 @@ class Events extends Base {
       "object:modified": this.objectModified,
       "background:selected": this.onBackgroundSelected,
       "object:added": this.objectAdded,
+      "object:removed": this.objectRemoved,
     })
 
     this.canvas.wrapperEl.addEventListener("keydown", this.onKeyDown.bind(this), false)
@@ -41,6 +42,8 @@ class Events extends Base {
       "mouse:out": this.onMouseOut,
       "object:modified": this.objectModified,
       "background:selected": this.onBackgroundSelected,
+      "object:added": this.objectAdded,
+      "object:removed": this.objectRemoved,
     })
 
     this.canvas.wrapperEl.removeEventListener("keydown", this.onKeyDown.bind(this))
@@ -96,6 +99,16 @@ class Events extends Base {
     const { target } = event
     target?.sendBackwards()
     target?.sendBackwards()
+  }
+
+  objectRemoved = (event: fabric.IEvent) => {
+    const { target } = event
+    if (target instanceof fabric.GenerationFrame) {
+      const loadingBar = target.getLoadingBar(this.canvas)
+      if (loadingBar) {
+        this.canvas.remove(loadingBar)
+      }
+    }
   }
 
   onMouseOut = () => {

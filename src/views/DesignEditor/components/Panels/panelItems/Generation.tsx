@@ -65,7 +65,7 @@ const Generation = () => {
       width: 512,
       height: 512,
       left: (square.left || 0) - editor.frame.options.left,
-      top: (square.top || 0) - editor.frame.options.top,
+      top: (square.top || 0) - editor.frame.options.top + 1,
       fill: transparentPattern,
       name: "Generation Frame",
     }

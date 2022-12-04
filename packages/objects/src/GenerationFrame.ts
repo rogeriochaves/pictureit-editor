@@ -75,13 +75,18 @@ export class GenerationFrameObject extends fabric.Group {
     this.width = options.width
     this.height = options.height
 
-    this.on("moving", this.adjustClipPath)
+    this.on("moving", this.onMove)
     this.on("resizing", this.adjustClipPath)
     this.on("scaling", this.adjustClipPath)
     this.adjustClipPath()
     this.adjustBackground()
 
     return this
+  }
+
+  private onMove() {
+    this.adjustClipPath()
+    this.adjustLoading()
   }
 
   public adjustClipPath() {
@@ -91,6 +96,16 @@ export class GenerationFrameObject extends fabric.Group {
       width: this.width * this.scaleX,
       height: this.height * this.scaleY,
     })
+  }
+
+  public adjustLoading() {
+    const loading = this.getLoadingBar()
+    if (loading) {
+      loading.set({
+        top: this.top,
+        left: this.left,
+      })
+    }
   }
 
   public adjustBackground() {
@@ -212,7 +227,7 @@ export class GenerationFrameObject extends fabric.Group {
     //@ts-ignore
     loadingBar.fill = grad.toLive(this.canvas.getContext())
 
-    this.add(loadingBar)
+    this.canvas.add(loadingBar)
 
     this.loadingAnimation = loadingBar.animate("width", this.width * 0.95, {
       onChange: this.canvas.requestRenderAll.bind(this.canvas),
@@ -230,13 +245,13 @@ export class GenerationFrameObject extends fabric.Group {
         // cancels animation
         this.loadingAnimation()
       }
-      this.remove(loadingBar)
-      this.add(loadingBar)
+      this.canvas.remove(loadingBar)
+      this.canvas.add(loadingBar)
       loadingBar.width = this.width
       loadingBar.animate("opacity", 0, {
         onChange: this.canvas.requestRenderAll.bind(this.canvas),
         onComplete: () => {
-          this.remove(loadingBar)
+          this.canvas.remove(loadingBar)
         },
         duration: 1000,
       })
@@ -251,8 +266,8 @@ export class GenerationFrameObject extends fabric.Group {
     )
   }
 
-  getLoadingBar() {
-    return this._objects.find(
+  getLoadingBar(canvas?) {
+    return (canvas || this.canvas)?.getObjects().find(
       (object) =>
         //@ts-ignore
         object.id == `${this.id}-loading-bar`
