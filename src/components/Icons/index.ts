@@ -55,7 +55,6 @@ class Icons {
   static Add = Add
   static Drawing = Pixabay
   static Move = Cursor
-  static Frame = Pixabay
 }
 
 export default Icons

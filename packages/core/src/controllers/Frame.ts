@@ -1,4 +1,3 @@
-import { FrameOptions } from "@layerhub-io/objects"
 import { ILayer } from "@layerhub-io/types"
 import { fabric } from "fabric"
 import { defaultFrameOptions, LayerType, defaultBackgroundOptions } from "../common/constants"
@@ -7,23 +6,22 @@ import setObjectGradient from "../utils/fabric"
 import Base from "./Base"
 
 class Frame extends Base {
-  constructor(props: ControllerOptions, frameOptions?: Partial<FrameOptions>) {
+  constructor(props: ControllerOptions) {
     super(props)
-    this.initialize(frameOptions)
+    this.initialize()
   }
 
-  initialize(frameOptions: Partial<FrameOptions> = {}) {
+  initialize() {
     const frame = new fabric.Frame({
       ...defaultFrameOptions,
-      ...frameOptions,
       absolutePositioned: this.config.clipToFrame,
     })
-    // const background = new fabric.Background({
-    //   ...defaultBackgroundOptions,
-    //   shadow: this.config.shadow,
-    // })
+    const background = new fabric.Background({
+      ...defaultBackgroundOptions,
+      shadow: this.config.shadow,
+    })
 
-    this.canvas.add(frame)
+    this.canvas.add(frame, background)
     // const center = this.canvas.getCenter()
     // frame.center()
     // background.center()

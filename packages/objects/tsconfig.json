@@ -1,13 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES5",
-    "module": "ES6",
-    "lib": ["DOM", "ES2015", "ESNext"],
+    "module": "CommonJS",
     "moduleResolution": "node",
     "declaration": true,
     "outDir": "./dist",
     "esModuleInterop": true,
-    "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
     "strict": false,
     "skipLibCheck": true
