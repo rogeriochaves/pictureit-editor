@@ -6,12 +6,13 @@ import { IScene } from "@layerhub-io/types"
 import { useStyletron } from "baseui"
 import { Block } from "baseui/block"
 import { nanoid } from "nanoid"
-import React, { useCallback, useEffect } from "react"
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
+import React, { useCallback, useEffect, useState } from "react"
+import { useRecoilState, useRecoilValue } from "recoil"
 import { useDebouncedCallback } from "use-debounce"
 import Add from "../../../../../components/Icons/Add"
 import { getDefaultTemplate } from "../../../../../constants/design-editor"
 import { useSaveIfNewFile } from "../../../../../hooks/useSaveLoad"
+import { useSyncWithHistory } from "../../../../../hooks/useSyncWithHistory"
 import {
   contextMenuTimelineRequestState,
   currentDesignState,
@@ -24,17 +25,20 @@ import SceneContextMenu from "./SceneContextMenu"
 import SceneItem from "./SceneItem"
 
 const Scenes = () => {
-  const scenes = useRecoilValue(scenesState)
-  const setScenes = useSetRecoilState(scenesState)
+  const [scenes, setScenes] = useRecoilState(scenesState)
   const [currentScene, _setCurrentScene] = useRecoilState(currentSceneState)
   const [currentDesign, setCurrentDesign] = useRecoilState(currentDesignState)
   const editor = useEditor()
   const [css] = useStyletron()
   const frame = useFrame()
-  const [draggedScene, setDraggedScene] = React.useState<IScene | null>(null)
+  const [draggedScene, setDraggedScene] = useState<IScene | null>(null)
   const contextMenuTimelineRequest = useRecoilValue(contextMenuTimelineRequestState)
   const saveIfNewFile = useSaveIfNewFile()
   const loadRequest = useRecoilValueLazyLoadable(loadFileRequest)
+  useSyncWithHistory({
+    currentScene: [currentScene, _setCurrentScene],
+    scenes: [scenes, setScenes],
+  })
 
   const sensors = [
     useSensor(PointerSensor, {
@@ -46,13 +50,14 @@ const Scenes = () => {
 
   const setCurrentScene = useCallback(
     async (nextScene: IScene) => {
-      _setCurrentScene(nextScene)
-
       if (!editor || !nextScene) return
 
       await editor.history.runWithoutAffectingHistory(async () => {
         await editor.scene.importFromJSON(nextScene)
       })
+
+      editor.history.save()
+      _setCurrentScene(nextScene)
     },
     [_setCurrentScene, editor]
   )
@@ -67,9 +72,7 @@ const Scenes = () => {
     if (loadedFile) {
       setCurrentDesign(loadedFile)
       setScenes(loadedFile.scenes)
-      setCurrentScene(loadedFile.scenes[0]).then(() => {
-        editor.history.save()
-      })
+      setCurrentScene(loadedFile.scenes[0])
     } else {
       getDefaultTemplate(editor.canvas.canvas, { width: 512, height: 512 }).then(async (defaultTemplate) => {
         setCurrentDesign({
@@ -85,7 +88,6 @@ const Scenes = () => {
 
         setScenes([{ ...defaultTemplate, preview: data }])
         await setCurrentScene({ ...defaultTemplate, preview: data })
-        editor.history.save()
 
         // Save new file when scene is first set
         saveIfNewFile()
@@ -111,9 +113,9 @@ const Scenes = () => {
   useEffect(() => {
     if (!editor) return
 
-    editor.on("history:changed", rerenderPreview)
+    editor.on("history:saved", rerenderPreview)
     return () => {
-      editor.off("history:changed", rerenderPreview)
+      editor.off("history:saved", rerenderPreview)
     }
   }, [editor, rerenderPreview])
 

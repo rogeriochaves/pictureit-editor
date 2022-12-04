@@ -6,6 +6,7 @@ import { nonRenderableLayerTypes } from "../common/constants"
 type HistoryAction = {
   type: "UPDATE"
   objects: object[]
+  extras: { [key: string]: any }
 }
 
 class History extends Base {
@@ -18,7 +19,7 @@ class History extends Base {
       history: this.history,
       index: this.index,
       hasUndo: this.index > 0,
-      hasRedo: this.history.length >= this.index,
+      hasRedo: this.history.length - 1 > this.index,
     }
   }
 
@@ -33,6 +34,14 @@ class History extends Base {
     this.history = this.history.slice(0, this.index + 1)
     this.history.push(action)
     this.index = this.history.length - 1
+    this.emitSaved()
+  }
+
+  public amend = (extras: { [key: string]: any }) => {
+    const current = this.history[this.index]
+    if (current) {
+      current.extras = { ...current.extras, ...extras }
+    }
   }
 
   public save = () => {
@@ -51,6 +60,7 @@ class History extends Base {
       const nextHistory: HistoryAction = {
         type: "UPDATE",
         objects,
+        extras: {},
       }
 
       const current = this.history[this.index]
@@ -88,13 +98,13 @@ class History extends Base {
         }
       })
       this.emitStatus()
+      this.emitRestored()
+      setTimeout(() => {
+        this.isActive = false
+      }, 100)
     })
 
     this.index = nextIndex
-
-    setTimeout(() => {
-      this.isActive = false
-    }, 100)
   }
 
   public reset = () => {
@@ -102,8 +112,16 @@ class History extends Base {
     this.emitStatus()
   }
 
-  public emitStatus = () => {
+  private emitStatus = () => {
     this.editor.emit("history:changed")
+  }
+
+  private emitSaved = () => {
+    this.editor.emit("history:saved")
+  }
+
+  private emitRestored = () => {
+    this.editor.emit("history:restored", this.history[this.index])
   }
 }
 
