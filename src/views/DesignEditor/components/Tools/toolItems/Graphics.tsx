@@ -6,14 +6,11 @@ import AngleDoubleLeft from "~/components/Icons/AngleDoubleLeft"
 import Scrollable from "~/components/Scrollable"
 import { vectors } from "~/constants/mock-data"
 import { useEditor } from "@layerhub-io/react"
-import { useSetRecoilState } from "recoil"
-import { isSidebarOpenState } from "../../../../../state/designEditor"
 
 const Graphics = () => {
   const inputFileRef = React.useRef<HTMLInputElement>(null)
 
   const editor = useEditor()
-  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
 
   const addObject = React.useCallback(
     (url: string) => {
@@ -58,7 +55,7 @@ const Graphics = () => {
       >
         <Block>Graphics</Block>
 
-        <Block onClick={() => setIsSidebarOpen(false)} $style={{ cursor: "pointer", display: "flex" }}>
+        <Block onClick={() => { }} $style={{ cursor: "pointer", display: "flex" }}>
           <AngleDoubleLeft size={18} />
         </Block>
       </Block>

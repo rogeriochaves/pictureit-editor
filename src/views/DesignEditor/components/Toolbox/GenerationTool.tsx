@@ -3,10 +3,9 @@ import { useEditor } from "@layerhub-io/react"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { useEffect } from "react"
-import { useSetRecoilState } from "recoil"
-import { ToolType } from "../../../../../constants/app-options"
-import useAppContext from "../../../../../hooks/useAppContext"
-import { isSidebarOpenState } from "../../../../../state/designEditor"
+import { ToolType } from "../../../../constants/app-options"
+import useAppContext from "../../../../hooks/useAppContext"
+import Canvas from "./Canvas"
 
 const square = new fabric.Rect({
   width: 512,
@@ -22,7 +21,7 @@ const square = new fabric.Rect({
 })
 
 let requestDragging = false
-const Generation = () => {
+const GenerationTool = () => {
   const editor = useEditor()
   const { setActiveTool } = useAppContext()
 
@@ -100,7 +99,7 @@ const Generation = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return null
+  return <Canvas />
 }
 
-export default Generation
+export default GenerationTool

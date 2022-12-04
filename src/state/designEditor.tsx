@@ -28,9 +28,13 @@ export const currentDesignState: RecoilState<IDesign> = atom({
   } as IDesign,
 })
 
-export const isSidebarOpenState: RecoilState<boolean> = atom({
-  key: "isSidebarOpenState",
-  default: false,
+export enum PanelType {
+  LAYERS = "Layers",
+}
+
+export const activePanelState: RecoilState<PanelType | undefined> = atom({
+  key: "activePanelState",
+  default: undefined as PanelType | undefined,
 })
 
 export const editorTypeState: RecoilState<DesignType> = atom({

@@ -7,10 +7,12 @@ import Locked from "./Locked"
 import Multiple from "./Multiple"
 import Canvas from "./Canvas"
 import GenerationFrame from "./GenerationFrame"
+import GenerationTool from "./GenerationTool"
 import { ToolType } from "../../../../constants/app-options"
 
 export const ToolItems = {
   [ToolType.DRAWING]: DrawingTool,
+  [ToolType.GENERATION]: GenerationTool,
 }
 
 export default {

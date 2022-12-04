@@ -6,7 +6,6 @@ import Scrollable from "~/components/Scrollable"
 import { useEditor } from "@layerhub-io/react"
 import useDesignEditorContext from "~/hooks/useDesignEditorContext"
 import { useSetRecoilState } from "recoil"
-import { isSidebarOpenState } from "../../../../../state/designEditor"
 
 const loadVideoResource = (videoSrc: string): Promise<HTMLVideoElement> => {
   return new Promise(function (resolve, reject) {
@@ -56,7 +55,6 @@ const captureDuration = (video: HTMLVideoElement): Promise<number> => {
 
 const Videos = () => {
   const editor = useEditor()
-  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
   const [videos, setVideos] = React.useState<any[]>([])
   const { scenes, setScenes, currentScene } = useDesignEditorContext()
   // const loadPixabayVideos = async () => {
@@ -107,7 +105,7 @@ const Videos = () => {
       >
         <Block>Videos</Block>
 
-        <Block onClick={() => setIsSidebarOpen(false)} $style={{ cursor: "pointer", display: "flex" }}>
+        <Block onClick={() => {}} $style={{ cursor: "pointer", display: "flex" }}>
           <AngleDoubleLeft size={18} />
         </Block>
       </Block>

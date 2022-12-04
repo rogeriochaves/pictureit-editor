@@ -1,6 +1,5 @@
 import React from "react"
 import { Block } from "baseui/block"
-import Common from "./Common"
 import useAppContext from "~/hooks/useAppContext"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
 
@@ -17,7 +16,7 @@ const Canvas = () => {
   }, [editor])
 
   React.useEffect(() => {
-    let watcher = async () => {
+    const watcher = async () => {
       setState({ fill: editor.canvas.backgroundColor as string })
     }
     if (editor) {

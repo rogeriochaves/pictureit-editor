@@ -5,12 +5,9 @@ import AngleDoubleLeft from "~/components/Icons/AngleDoubleLeft"
 import Scrollable from "~/components/Scrollable"
 import { images } from "~/constants/mock-data"
 import { useEditor } from "@layerhub-io/react"
-import { useSetRecoilState } from "recoil"
-import { isSidebarOpenState } from "../../../../../state/designEditor"
 
 const Images = () => {
   const editor = useEditor()
-  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
 
   const addObject = React.useCallback(
     (url: string) => {
@@ -38,7 +35,7 @@ const Images = () => {
       >
         <Block>Images</Block>
 
-        <Block onClick={() => setIsSidebarOpen(false)} $style={{ cursor: "pointer", display: "flex" }}>
+        <Block onClick={() => { }} $style={{ cursor: "pointer", display: "flex" }}>
           <AngleDoubleLeft size={18} />
         </Block>
       </Block>

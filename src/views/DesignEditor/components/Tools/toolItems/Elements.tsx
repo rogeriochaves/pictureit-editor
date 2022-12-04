@@ -1,20 +1,13 @@
 import { useEditor } from "@layerhub-io/react"
 import { useStyletron } from "baseui"
 import { Block } from "baseui/block"
-import React, { useEffect } from "react"
-import { useSetRecoilState } from "recoil"
+import React from "react"
 import AngleDoubleLeft from "~/components/Icons/AngleDoubleLeft"
 import Scrollable from "~/components/Scrollable"
 import { graphics } from "~/constants/mock-data"
-import { isSidebarOpenState } from "../../../../../state/designEditor"
 
 const Elements = () => {
   const editor = useEditor()
-  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
-
-  useEffect(() => {
-    setIsSidebarOpen(true)
-  }, [setIsSidebarOpen])
 
   const addObject = React.useCallback(
     (item: any) => {
@@ -38,7 +31,7 @@ const Elements = () => {
       >
         <Block>Elements</Block>
 
-        <Block onClick={() => setIsSidebarOpen(false)} $style={{ cursor: "pointer", display: "flex" }}>
+        <Block onClick={() => { }} $style={{ cursor: "pointer", display: "flex" }}>
           <AngleDoubleLeft size={18} />
         </Block>
       </Block>

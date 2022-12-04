@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React from "react"
 import { useEditor, useObjects } from "@layerhub-io/react"
 import { Block } from "baseui/block"
 import AngleDoubleLeft from "~/components/Icons/AngleDoubleLeft"
@@ -11,17 +11,13 @@ import EyeCrossed from "~/components/Icons/EyeCrossed"
 import Delete from "~/components/Icons/Delete"
 import { Button, KIND, SIZE } from "baseui/button"
 import { useSetRecoilState } from "recoil"
-import { isSidebarOpenState } from "../../../../../state/designEditor"
+import { activePanelState } from "../../../../state/designEditor"
 
 const Layers = () => {
   const editor = useEditor()
   const objects = useObjects() as ILayer[]
   const [layerObjects, setLayerObjects] = React.useState<any[]>([])
-  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
-
-  useEffect(() => {
-    setIsSidebarOpen(true)
-  }, [setIsSidebarOpen])
+  const setActivePanel = useSetRecoilState(activePanelState)
 
   React.useEffect(() => {
     if (objects) {
@@ -58,7 +54,7 @@ const Layers = () => {
       >
         <Block>Layers</Block>
 
-        <Block onClick={() => setIsSidebarOpen(false)} $style={{ cursor: "pointer", display: "flex" }}>
+        <Block onClick={() => setActivePanel(undefined)} $style={{ cursor: "pointer", display: "flex" }}>
           <AngleDoubleLeft size={18} />
         </Block>
       </Block>

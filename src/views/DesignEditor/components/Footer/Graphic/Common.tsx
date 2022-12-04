@@ -7,9 +7,7 @@ import { Theme } from "baseui/theme"
 import React from "react"
 import { useRecoilState } from "recoil"
 import Icons from "~/components/Icons"
-import { ToolType } from "../../../../../constants/app-options"
-import { isSidebarOpenState } from "../../../../../state/designEditor"
-import useAppContext from "../../../../../hooks/useAppContext"
+import { activePanelState, PanelType } from "../../../../../state/designEditor"
 
 const Container = styled<"div", object, Theme>("div", ({ $theme }) => ({
   height: "50px",
@@ -31,8 +29,7 @@ const Common = () => {
   })
   const editor = useEditor()
   const zoomRatio: number = useZoomRatio()
-  const { setActiveTool } = useAppContext()
-  const [ isSidebarOpen, setIsSidebarOpen ] = useRecoilState(isSidebarOpenState)
+  const [activePanel, setActivePanel] = useRecoilState(activePanelState)
 
   React.useEffect(() => {
     setOptions({ ...options, zoomRatio: Math.round(zoomRatio * 100) })
@@ -56,8 +53,7 @@ const Common = () => {
           kind={KIND.tertiary}
           size={SIZE.compact}
           onClick={() => {
-            setActiveTool(ToolType.LAYERS)
-            setIsSidebarOpen(!isSidebarOpen)
+            setActivePanel(activePanel == PanelType.LAYERS ? undefined : PanelType.LAYERS)
           }}
         >
           <Icons.Layers size={20} />

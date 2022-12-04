@@ -5,18 +5,15 @@ import { Block } from "baseui/block"
 import { Input, SIZE } from "baseui/input"
 import { groupBy } from "lodash"
 import React from "react"
-import { useSetRecoilState } from "recoil"
 import AngleDoubleLeft from "~/components/Icons/AngleDoubleLeft"
 import ArrowBackOutline from "~/components/Icons/ArrowBackOutline"
 import Search from "~/components/Icons/Search"
 import Scrollable from "~/components/Scrollable"
 import { SAMPLE_FONTS } from "~/constants/editor"
 import { loadFonts } from "~/utils/fonts"
-import { isSidebarOpenState } from "../../../../../state/designEditor"
 
 const FontSelector = () => {
   const [query, setQuery] = React.useState("")
-  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
 
   const [commonFonts, setCommonFonts] = React.useState<any[]>([])
   const [css] = useStyletron()
@@ -65,7 +62,7 @@ const FontSelector = () => {
           <ArrowBackOutline size={24} />
           <Block>Choose font</Block>
         </Block>
-        <Block onClick={() => setIsSidebarOpen(false)} $style={{ cursor: "pointer", display: "flex" }}>
+        <Block onClick={() => { }} $style={{ cursor: "pointer", display: "flex" }}>
           <AngleDoubleLeft size={18} />
         </Block>
       </Block>

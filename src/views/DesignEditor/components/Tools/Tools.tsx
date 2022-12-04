@@ -1,4 +1,4 @@
-import ToolItem from "./ToolItem"
+import ToolItem from "./PanelSidebar"
 import ToolsList from "./ToolsList"
 
 const Tools = () => {

@@ -7,12 +7,9 @@ import AngleDoubleLeft from "~/components/Icons/AngleDoubleLeft"
 import { useStyletron } from "baseui"
 import { SAMPLE_TEMPLATES } from "~/constants/editor"
 import useDesignEditorContext from "~/hooks/useDesignEditorContext"
-import { useSetRecoilState } from "recoil"
-import { isSidebarOpenState } from "../../../../../state/designEditor"
 
 const Templates = () => {
   const editor = useEditor()
-  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
   const { setCurrentScene, currentScene } = useDesignEditorContext()
 
   const loadTemplate = React.useCallback(
@@ -36,7 +33,7 @@ const Templates = () => {
         setCurrentScene({ ...template, id: currentScene?.id })
       }
     },
-    [editor, currentScene]
+    [editor, setCurrentScene, currentScene?.id]
   )
 
   return (
@@ -52,7 +49,7 @@ const Templates = () => {
       >
         <Block>Templates</Block>
 
-        <Block onClick={() => setIsSidebarOpen(false)} $style={{ cursor: "pointer", display: "flex" }}>
+        <Block onClick={() => { }} $style={{ cursor: "pointer", display: "flex" }}>
           <AngleDoubleLeft size={18} />
         </Block>
       </Block>

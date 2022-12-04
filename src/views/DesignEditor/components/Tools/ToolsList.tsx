@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 import Scrollable from "~/components/Scrollable"
 import { Block } from "baseui/block"
 import { useRecoilValue, useSetRecoilState } from "recoil"
-import { editorTypeState, isSidebarOpenState } from "../../../../state/designEditor"
+import { editorTypeState } from "../../../../state/designEditor"
 
 const Container = styled("div", (props) => ({
   width: "80px",
@@ -38,15 +38,13 @@ const ToolsList = () => {
 
 const ToolListItem = ({ label, icon, activeTool, name }: any) => {
   const { setActiveTool } = useAppContext()
-  const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState)
-  const [css, theme] = useStyletron()
+  const [_css, theme] = useStyletron()
   // @ts-ignore
   const Icon = Icons[icon]
   return (
     <Block
       id="EditorToolList"
       onClick={() => {
-        setIsSidebarOpen(true)
         setActiveTool(name)
       }}
       $style={{
