@@ -29,5 +29,5 @@ export interface IDesign {
   type: string
   scenes: any[]
   preview: string
-  metadata: {}
+  metadata: object
 }

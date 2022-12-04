@@ -5,10 +5,10 @@ import { Provider as StyletronProvider } from "styletron-react"
 import { BaseProvider, LightTheme } from "baseui"
 import { store } from "./store/store"
 import { Provider as ReduxProvier } from "react-redux"
-import { AppProvider } from "./contexts/AppContext"
 import { DesignEditorProvider } from "./contexts/DesignEditor"
 import { I18nextProvider } from "react-i18next"
 import { TimerProvider } from "@layerhub-io/use-timer"
+import { RecoilRoot } from "recoil"
 import i18next from "i18next"
 import "./translations"
 
@@ -19,7 +19,7 @@ const Provider = ({ children }: { children: React.ReactNode }) => {
     <ReduxProvier store={store}>
       <DesignEditorProvider>
         <TimerProvider>
-          <AppProvider>
+          <RecoilRoot>
             <ScenifyProvider>
               <StyletronProvider value={engine}>
                 <BaseProvider theme={LightTheme}>
@@ -27,7 +27,7 @@ const Provider = ({ children }: { children: React.ReactNode }) => {
                 </BaseProvider>
               </StyletronProvider>
             </ScenifyProvider>
-          </AppProvider>
+          </RecoilRoot>
         </TimerProvider>
       </DesignEditorProvider>
     </ReduxProvier>

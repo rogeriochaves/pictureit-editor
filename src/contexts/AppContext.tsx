@@ -1,64 +1,45 @@
 import { PanelType } from "~/constants/app-options"
-import React, { createContext, useState } from "react"
+import { User } from "../api/adapters/pictureit"
+import { RemoteData } from "../interfaces/common"
+import { atom, RecoilState } from "recoil"
+import { Template } from "@layerhub-io/core"
 
-type Template = any
-interface IAppContext {
-  isMobile: boolean | undefined
-  setIsMobile: React.Dispatch<React.SetStateAction<boolean | undefined>>
-  templates: Template[]
-  setTemplates: (templates: Template[]) => void
-  uploads: any[]
-  setUploads: (templates: any[]) => void
-  shapes: any[]
-  setShapes: (templates: any[]) => void
-  activePanel: PanelType
-  setActivePanel: (option: PanelType) => void
-  activeSubMenu: string | null
-  setActiveSubMenu: (option: string) => void
-  currentTemplate: any
-  setCurrentTemplate: any
-}
-
-export const AppContext = createContext<IAppContext>({
-  isMobile: false,
-  setIsMobile: () => {},
-  templates: [],
-  setTemplates: () => {},
-  uploads: [],
-  setUploads: () => {},
-  shapes: [],
-  setShapes: () => {},
-  activePanel: PanelType.MOVE,
-  setActivePanel: () => {},
-  activeSubMenu: null,
-  setActiveSubMenu: (value: string) => {},
-  currentTemplate: {},
-  setCurrentTemplate: {},
+export const isMobileState: RecoilState<boolean | undefined> = atom({
+  key: "isMobileState",
+  default: undefined as boolean | undefined
 })
 
-export const AppProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isMobile, setIsMobile] = useState<boolean | undefined>(undefined)
-  const [templates, setTemplates] = useState<Template[]>([])
-  const [uploads, setUploads] = useState<any[]>([])
-  const [shapes, setShapes] = useState<Template[]>([])
-  const [activePanel, setActivePanel] = useState<PanelType>(PanelType.MOVE)
-  const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null)
-  const [currentTemplate, setCurrentTemplate] = useState(null)
-  const context = {
-    isMobile,
-    setIsMobile,
-    templates,
-    setTemplates,
-    activePanel,
-    setActivePanel,
-    shapes,
-    setShapes,
-    activeSubMenu,
-    setActiveSubMenu,
-    uploads,
-    setUploads,
-    currentTemplate,
-    setCurrentTemplate,
-  }
-  return <AppContext.Provider value={context}>{children}</AppContext.Provider>
-}
+export const templatesState: RecoilState<Template[]> = atom({
+  key: "templatesState",
+  default: [] as Template[],
+})
+
+export const uploadsState: RecoilState<any[]> = atom({
+  key: "uploadsState",
+  default: [] as any[],
+})
+
+export const shapesState: RecoilState<Template[]> = atom({
+  key: "shapesState",
+  default: [] as Template[],
+})
+
+export const activePanelState: RecoilState<PanelType> = atom({
+  key: "activePanelState",
+  default: PanelType.MOVE as PanelType,
+})
+
+export const activeSubMenuState: RecoilState<string | null> = atom({
+  key: "activeSubMenuState",
+  default: null as string | null,
+})
+
+export const currentTemplateState: RecoilState<any> = atom({
+  key: "currentTemplateState",
+  default: null,
+})
+
+export const userState: RecoilState<RemoteData<User>> = atom({
+  key: "userState",
+  default: { state: "NOT_ASKED" } as RemoteData<User>,
+})
