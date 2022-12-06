@@ -316,7 +316,9 @@ const Navbar = () => {
         <Button
           style={{ marginLeft: "0.5rem", minWidth: "100px" }}
           size="compact"
-          onClick={() => window.location.replace("https://editor.layerhub.io")}
+          onClick={() => {
+            document.location = `${PICTURE_IT_URL}/account`
+          }}
           kind={KIND.primary}
         >
           {user.state == "hasValue" ? user.contents?.name : "\u00A0"}
