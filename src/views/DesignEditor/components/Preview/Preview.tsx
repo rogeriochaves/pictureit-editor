@@ -12,6 +12,7 @@ interface ComponentProps {
 }
 const Preview = ({ isOpen, setIsOpen }: ComponentProps) => {
   const editorType = useRecoilValue(editorTypeState)
+
   return (
     <Modal
       onClose={() => setIsOpen(false)}

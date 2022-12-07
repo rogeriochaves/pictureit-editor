@@ -4,7 +4,6 @@ import {
   currentDesignState,
   currentSceneState,
   displayPlaybackState,
-  displayPreviewState,
   editorTypeState,
   maxTimeState,
   scenesState,

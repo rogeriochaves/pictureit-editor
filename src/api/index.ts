@@ -39,3 +39,5 @@ const adapter: PictureItApi | Api =
     : PictureIt
 
 export default adapter
+
+export const isPictureIt = () => "isPictureIt" in adapter
