@@ -14,8 +14,8 @@ import { currentUserQuery } from "./user"
 export const DEFAULT_PROMPT_STRENGTH = 0.8
 export const DEFAULT_GUIDANCE = 7.5
 
-export const generateImageRequest = lazySelectorFamily({
-  key: "generateImageRequest",
+export const generateImageCall = lazySelectorFamily({
+  key: "generateImageCall",
   get:
     ({ set, refresh }) =>
     async (params: { frame: fabric.GenerationFrame; editor: Editor }) => {

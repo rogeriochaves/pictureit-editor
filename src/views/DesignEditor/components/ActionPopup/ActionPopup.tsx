@@ -5,7 +5,7 @@ import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
 import { useRecoilState } from "recoil"
-import { generateImageRequest, hidePopupState } from "../../../../state/generateImage"
+import { generateImageCall, hidePopupState } from "../../../../state/generateImage"
 import { useRecoilLazyLoadable } from "../../../../utils/lazySelectorFamily"
 
 const ActionPopup = () => {
@@ -19,7 +19,7 @@ const ActionPopup = () => {
   } | null>(null)
   const [_, setPrompt] = useState("")
   const [hidePopup, setHidePopup] = useRecoilState(hidePopupState)
-  const [imageRequest, generateImage] = useRecoilLazyLoadable(generateImageRequest(popup?.target.id))
+  const [imageRequest, generateImage] = useRecoilLazyLoadable(generateImageCall(popup?.target.id))
 
   const setPopupForTarget = useCallback(
     (target: fabric.Object | undefined) => {

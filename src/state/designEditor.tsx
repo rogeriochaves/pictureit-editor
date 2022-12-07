@@ -92,3 +92,8 @@ export const drawingColorState: RecoilState<string> = atom({
   key: "drawingColorState",
   default: "#000",
 })
+
+export const publishTitleState: RecoilState<string | undefined> = atom({
+  key: "publishTitleState",
+  default: undefined as string | undefined,
+})

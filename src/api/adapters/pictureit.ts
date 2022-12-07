@@ -24,6 +24,10 @@ interface FileEndpoints {
   loadFile(id: string): Promise<PictureItFile>
 }
 
+interface PublishEndpoints {
+  publish(title: string, image: string): Promise<{url: string}>
+}
+
 export type PictureItFile = {
   id: string
   name: string
@@ -31,7 +35,7 @@ export type PictureItFile = {
   content: object
 }
 
-export type PictureItApi = IsPictureIt & UserEndpoints & FileEndpoints & Api
+export type PictureItApi = IsPictureIt & UserEndpoints & FileEndpoints & PublishEndpoints & Api
 
 export interface User {
   email: string
@@ -76,6 +80,10 @@ const PictureIt: PictureItApi = class {
     })
 
     return file
+  }
+
+  static async publish(title: string, image: string) {
+    return await postApi(`/api/picture/publish`, { title, image })
   }
 
   static isPictureIt(): true {

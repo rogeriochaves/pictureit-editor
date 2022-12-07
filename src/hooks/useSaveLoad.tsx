@@ -11,7 +11,7 @@ import {
   changesWithoutExportingState,
   exponentialBackoffSaveRetryState,
   MAX_RETRY_SAVE_TIME,
-  saveFileRequest,
+  saveFileCall,
   waitingForFileSaveDebounceState,
 } from "../state/file"
 import { paymentRequiredState } from "../state/generateImage"
@@ -71,7 +71,7 @@ export const useAutosaveEffect = () => {
 export const usePreventCloseIfNotSaved = () => {
   const waitingForFileSaveDebounce = useRecoilValue(waitingForFileSaveDebounceState)
   const changesWithoutExporting = useRecoilValue(changesWithoutExportingState)
-  const saveRequest = useRecoilValueLazyLoadable(saveFileRequest)
+  const saveRequest = useRecoilValueLazyLoadable(saveFileCall)
   const user = useRecoilValueLoadable(currentUserQuery)
   const paymentRequired = useRecoilValue(paymentRequiredState)
 
@@ -171,7 +171,7 @@ export const useSaveIfNewFile = () => {
 
 export const useSave = () => {
   const scenes = useRecoilValue(scenesState)
-  const saveFile = useCallRecoilLazyLoadable(saveFileRequest)
+  const saveFile = useCallRecoilLazyLoadable(saveFileCall)
   const exportToJSON = useExportToJSON()
 
   return useCallback(

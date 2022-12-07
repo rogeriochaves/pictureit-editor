@@ -7,15 +7,15 @@ import Loading from "./components/Loading"
 import { editorFonts } from "./constants/fonts"
 import { useAutosaveEffect, usePreventCloseIfNotSaved } from "./hooks/useSaveLoad"
 import { isMobileState } from "./state/designEditor"
-import { loadFileRequest, saveFileRequest } from "./state/file"
+import { loadFileCall, saveFileCall } from "./state/file"
 import { useRecoilLazyLoadable, useRecoilValueLazyLoadable } from "./utils/lazySelectorFamily"
 
 const Container = ({ children }: { children: React.ReactNode }) => {
   useAutosaveEffect()
   usePreventCloseIfNotSaved()
   const { id } = useParams()
-  const [loadRequest, loadFile] = useRecoilLazyLoadable(loadFileRequest)
-  const saveRequest = useRecoilValueLazyLoadable(saveFileRequest)
+  const [loadRequest, loadFile] = useRecoilLazyLoadable(loadFileCall)
+  const saveRequest = useRecoilValueLazyLoadable(saveFileCall)
   const navigate = useNavigate()
 
   const containerRef = useRef<HTMLDivElement>(null)

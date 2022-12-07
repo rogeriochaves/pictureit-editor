@@ -5,12 +5,12 @@ import { useRecoilState, useRecoilValue } from "recoil"
 import CloudCheck from "~/components/Icons/CloudCheck"
 import Refresh from "../../../../components/Icons/Refresh"
 import { currentDesignState } from "../../../../state/designEditor"
-import { exponentialBackoffSaveRetryState, saveFileRequest } from "../../../../state/file"
+import { exponentialBackoffSaveRetryState, saveFileCall } from "../../../../state/file"
 import { useRecoilValueLazyLoadable } from "../../../../utils/lazySelectorFamily"
 
 const DesignTitle = () => {
   const [currentDesign, setCurrentDesign] = useRecoilState(currentDesignState)
-  const saveRequest = useRecoilValueLazyLoadable(saveFileRequest)
+  const saveRequest = useRecoilValueLazyLoadable(saveFileCall)
   const hasSaveStarted = !(saveRequest.state == "hasValue" && saveRequest.contents === undefined)
   const exponentialBackoffSaveRetry = useRecoilValue(exponentialBackoffSaveRetryState)
   const retryMessage = exponentialBackoffSaveRetry

@@ -19,7 +19,7 @@ import {
   currentSceneState,
   scenesState,
 } from "../../../../../state/designEditor"
-import { loadFileRequest } from "../../../../../state/file"
+import { loadFileCall } from "../../../../../state/file"
 import { useRecoilValueLazyLoadable } from "../../../../../utils/lazySelectorFamily"
 import SceneContextMenu from "./SceneContextMenu"
 import SceneItem from "./SceneItem"
@@ -34,7 +34,7 @@ const Scenes = () => {
   const [draggedScene, setDraggedScene] = useState<IScene | null>(null)
   const contextMenuTimelineRequest = useRecoilValue(contextMenuTimelineRequestState)
   const saveIfNewFile = useSaveIfNewFile()
-  const loadRequest = useRecoilValueLazyLoadable(loadFileRequest)
+  const loadRequest = useRecoilValueLazyLoadable(loadFileCall)
   useSyncWithHistory({
     currentScene: [currentScene, _setCurrentScene],
     scenes: [scenes, setScenes],

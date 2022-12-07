@@ -25,8 +25,8 @@ export const changesWithoutExportingState: RecoilState<boolean> = atom({
   default: false,
 })
 
-export const saveFileRequest = lazySelector({
-  key: "saveFileRequest",
+export const saveFileCall = lazySelector({
+  key: "saveFileCall",
   get: () => async (file: PictureItFile) => {
     if ("isPictureIt" in api) {
       return api.saveFile(file)
@@ -34,8 +34,8 @@ export const saveFileRequest = lazySelector({
   },
 })
 
-export const loadFileRequest = lazySelector({
-  key: "loadFileRequest",
+export const loadFileCall = lazySelector({
+  key: "loadFileCall",
   get: () => async (id: string) => {
     if ("isPictureIt" in api) {
       const file = await api.loadFile(id)
