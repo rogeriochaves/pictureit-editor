@@ -13,7 +13,6 @@ import {
 const useDesignEditorContext = () => {
   const [editorType, setEditorType] = useRecoilState(editorTypeState)
   const [displayPlayback, setDisplayPlayback] = useRecoilState(displayPlaybackState)
-  const [displayPreview, setDisplayPreview] = useRecoilState(displayPreviewState)
   const [currentScene, setCurrentScene] = useRecoilState(currentSceneState)
   const [scenes, setScenes] = useRecoilState(scenesState)
   const [maxTime, setMaxTime] = useRecoilState(maxTimeState)
@@ -25,8 +24,6 @@ const useDesignEditorContext = () => {
     setEditorType,
     displayPlayback,
     setDisplayPlayback,
-    displayPreview,
-    setDisplayPreview,
     currentScene,
     setCurrentScene,
     scenes,

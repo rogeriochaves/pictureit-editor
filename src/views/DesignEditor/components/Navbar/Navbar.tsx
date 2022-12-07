@@ -18,7 +18,7 @@ import { loadVideoEditorAssets } from "~/utils/video"
 import api from "../../../../api"
 import { PICTURE_IT_URL } from "../../../../api/adapters/pictureit"
 import { useExportToJSON } from "../../../../hooks/useSaveLoad"
-import { editorTypeState } from "../../../../state/designEditor"
+import { displayPreviewState, editorTypeState } from "../../../../state/designEditor"
 import { changesWithoutExportingState } from "../../../../state/file"
 import { currentUserQuery } from "../../../../state/user"
 import DesignTitle from "./DesignTitle"
@@ -33,7 +33,8 @@ const Container = styled<"div", object, Theme>("div", ({ $theme }) => ({
 }))
 
 const Navbar = () => {
-  const { setDisplayPreview, setScenes, setCurrentDesign, currentDesign, scenes } = useDesignEditorContext()
+  const { setScenes, setCurrentDesign, currentDesign, scenes } = useDesignEditorContext()
+  const setDisplayPreview = useSetRecoilState(displayPreviewState)
   const editorType = useRecoilValue(editorTypeState)
   const editor = useEditor()
   const inputFileRef = useRef<HTMLInputElement>(null)
@@ -371,9 +372,10 @@ const Navbar = () => {
   const PictureItNavbar = () => (
     <Block $style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
       <Button
+        style={{ gap: "4px" }}
         size="compact"
         onClick={() => setDisplayPreview(true)}
-        kind={KIND.tertiary}
+        kind={KIND.secondary}
         overrides={{
           StartEnhancer: {
             style: {
@@ -383,6 +385,7 @@ const Navbar = () => {
         }}
       >
         <Play size={24} />
+        Publish
       </Button>
       {user.state != "hasError" && <AccountMenu />}
     </Block>

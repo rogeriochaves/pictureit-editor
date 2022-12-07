@@ -16,10 +16,12 @@ import Footer from "./components/Footer"
 import Navbar from "./components/Navbar"
 import Tools from "./components/Tools"
 import ToolPropertiesBar from "./components/Tools/ToolPropertiesBar"
-import Shortcuts from "./Shortcuts"
 import PanelSidebar from "./components/Panels/PanelSidebar"
+import { useShortcuts } from "../../hooks/useShortcuts"
 
 const GraphicEditor = () => {
+  useShortcuts()
+
   const user = useRecoilValueLoadable(currentUserQuery)
   const paymentRequired = useRecoilValue(paymentRequiredState)
   const [searchParams] = useSearchParams()
@@ -30,7 +32,6 @@ const GraphicEditor = () => {
       {user.state == "hasError" && <SignInAgain />}
       {paymentRequired && <PaymentRequired />}
       {welcome && <Welcome />}
-      <Shortcuts />
       <Navbar />
       <div style={{ display: "flex", flex: 1 }}>
         <Tools />

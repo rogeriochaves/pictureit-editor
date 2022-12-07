@@ -1,9 +1,9 @@
 import { useCallback, useEffect } from "react"
 import { useEditor } from "@layerhub-io/react"
 import { useSetRecoilState } from "recoil"
-import { activeToolState, ToolType } from "../../state/designEditor"
+import { activeToolState, ToolType } from "../state/designEditor"
 
-const Shortcuts = () => {
+export const useShortcuts = () => {
   const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0
   const editor = useEditor()
   const setActiveTool = useSetRecoilState(activeToolState)
@@ -41,6 +41,10 @@ const Shortcuts = () => {
         {
           keys: ["P"],
           action: () => setActiveTool(ToolType.DRAWING),
+        },
+        {
+          keys: ["G"],
+          action: () => setActiveTool(ToolType.GENERATION),
         },
       ]
 
@@ -99,5 +103,3 @@ const Shortcuts = () => {
 
   return null
 }
-
-export default Shortcuts
