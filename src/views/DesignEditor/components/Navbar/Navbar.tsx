@@ -296,6 +296,78 @@ const Navbar = () => {
     </Block>
   )
 
+  const AccountMenu = () => {
+    const firstLetter = ((user.contents?.name || user.contents?.email || "")[0] || "").toUpperCase()
+    return (
+      <Block $style={{ marginLeft: "0.5rem" }}>
+        <StatefulPopover
+          showArrow={false}
+          placement={PLACEMENT.bottomRight}
+          content={() => (
+            <StatefulMenu
+              onItemSelect={({ item }) => {
+                if (item.action == "files") {
+                  document.location = `${PICTURE_IT_URL}/files`
+                }
+                if (item.action == "account") {
+                  document.location = `${PICTURE_IT_URL}/account`
+                }
+                if (item.action == "logout") {
+                  document.location = `${PICTURE_IT_URL}/logout`
+                }
+              }}
+              items={{
+                __ungrouped: [],
+                [user.contents?.name]: [
+                  { label: "Files", action: "files" },
+                  { label: "Account", action: "account" },
+                  { label: "Logout", action: "logout" },
+                ],
+              }}
+              overrides={{
+                List: {
+                  style: {
+                    background: "#FFF"
+                  },
+                },
+                OptgroupHeader: {
+                  style: {
+                    color: "#666",
+                    padding: "4px 12px 12px 12px",
+                  }
+                },
+                Option: {
+                  props: {
+                    getSelection: () => {},
+                    getItemLabel: (item: any) =>
+                      item.text ? (
+                        <Block display="flex" justifyContent="space-between" style={{ background: "#FFF" }}>
+                          <Block>{item.label}</Block>
+                        </Block>
+                      ) : (
+                        item.label
+                      ),
+                  },
+                },
+              }}
+            />
+          )}
+        >
+          <Button
+            style={{ width: "36px", height: "36px", borderRadius: "100%" }}
+            size="compact"
+            onClick={() => {
+              document.location = `${PICTURE_IT_URL}/account`
+            }}
+            kind={KIND.primary}
+          >
+            {firstLetter}
+          </Button>
+        </StatefulPopover>
+      </Block>
+    )
+  }
+
   const PictureItNavbar = () => (
     <Block $style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
       <Button
@@ -312,18 +384,7 @@ const Navbar = () => {
       >
         <Play size={24} />
       </Button>
-      {user.state != "hasError" && (
-        <Button
-          style={{ marginLeft: "0.5rem", minWidth: "100px" }}
-          size="compact"
-          onClick={() => {
-            document.location = `${PICTURE_IT_URL}/account`
-          }}
-          kind={KIND.primary}
-        >
-          {user.state == "hasValue" ? user.contents?.name : "\u00A0"}
-        </Button>
-      )}
+      {user.state != "hasError" && <AccountMenu />}
     </Block>
   )
 
