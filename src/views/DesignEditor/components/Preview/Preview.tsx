@@ -8,7 +8,7 @@ import { KIND, Notification } from "baseui/notification"
 import { useCallback, useEffect, useState } from "react"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { isPictureIt } from "../../../../api"
-import { currentDesignState, editorTypeState, publishTitleState } from "../../../../state/designEditor"
+import { currentDesignState, publishTitleState } from "../../../../state/designEditor"
 import { publishPictureCall } from "../../../../state/publish"
 import { useRecoilLazyLoadable } from "../../../../utils/lazySelectorFamily"
 
@@ -17,8 +17,6 @@ interface ComponentProps {
   setIsOpen: (v: boolean) => void
 }
 const Preview = ({ isOpen, setIsOpen }: ComponentProps) => {
-  const editorType = useRecoilValue(editorTypeState)
-
   return (
     <Modal
       onClose={() => setIsOpen(false)}
@@ -86,7 +84,7 @@ const PreviewContent = () => {
   const makePreview = useCallback(async () => {
     if (editor) {
       const template = editor.scene.exportToJSON()
-      const image = (await editor.renderer.render(template)) as string
+      const image = (await editor.renderer.renderWebp(template)) as string
       setImage(image)
     }
   }, [editor])
@@ -125,13 +123,19 @@ const PreviewContent = () => {
                 }}
               />
               {publishRequest.state == "hasError" && (
-                <Notification kind={KIND.negative} notificationType={"inline"} overrides={{
-                  Body: {
-                    style: {
-                      margin: "24px 0 0 0!important"
-                    }
-                  }
-                }}>Sorry, an error has occurred, please try again</Notification>
+                <Notification
+                  kind={KIND.negative}
+                  notificationType={"inline"}
+                  overrides={{
+                    Body: {
+                      style: {
+                        margin: "24px 0 0 0!important",
+                      },
+                    },
+                  }}
+                >
+                  Sorry, an error has occurred, please try again
+                </Notification>
               )}
               <Button
                 style={{ marginTop: "12px" }}

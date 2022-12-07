@@ -7,6 +7,13 @@ class Renderer {
     return await this.toDataURL(template, {})
   }
 
+  public async renderWebp(template: IScene) {
+    const staticCanvas = new fabric.StaticCanvas(null)
+    await this.loadTemplate(staticCanvas, template, {})
+
+    return staticCanvas.toCanvasElement().toDataURL("image/webp")
+  }
+
   public async renderCanvas(template: IScene): Promise<HTMLCanvasElement> {
     const staticCanvas = new fabric.StaticCanvas(null)
     await this.loadTemplate(staticCanvas, template, {})
