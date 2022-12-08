@@ -6,6 +6,7 @@ import Items, { ToolItems } from "./Items"
 import { ILayer } from "@layerhub-io/types"
 import { activeToolState } from "../../../../../state/designEditor"
 import { useRecoilValue } from "recoil"
+import Canvas from "./Canvas"
 
 const DEFAULT_TOOLBOX = "Canvas"
 
@@ -63,7 +64,7 @@ const ToolPropertiesBar = () => {
   }, [editor, activeObject])
 
   // @ts-ignore
-  const ToolProperties = ToolItems[activeTool] || Items[state.toolbox]
+  const ToolProperties = ToolItems[activeTool] || Items[state.toolbox] || Canvas
 
   return (
     <Container>

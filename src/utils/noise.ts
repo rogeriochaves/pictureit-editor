@@ -18,14 +18,14 @@ export const addGaussianNoise = (ctx: CanvasRenderingContext2D, noise = 2) => {
     len = buffer.length
 
   for (let i = 0; i < len; i += 4) {
-    let rand = (randnBM() * 510 - 255) * noise
-    let rand2 = (randnBM() * 510 - 255) * noise
-    let rand3 = (randnBM() * 510 - 255) * noise
+    let rand = (randnBM() * 508 - 254) * noise
+    let rand2 = (randnBM() * 508 - 254) * noise
+    let rand3 = (randnBM() * 508 - 254) * noise
 
     if (buffer[i + 3] == 0) {
-      rand += 255
-      rand2 += 255
-      rand3 += 255
+      rand += 254
+      rand2 += 254
+      rand3 += 254
     }
 
     buffer[i] += rand
