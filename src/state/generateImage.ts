@@ -53,10 +53,13 @@ const generateImage = async ({ frame, editor }: { frame: fabric.GenerationFrame;
     const clipMask = await renderClipMask(editor, frame)
 
     if (frame.metadata) {
-      frame.metadata.initImage = {
-        ...(frame.metadata?.initImage || {}),
-        fixed: true,
-        image: initImage,
+      frame.metadata = {
+        ...frame.metadata,
+        initImage: {
+          ...(frame.metadata?.initImage || {}),
+          fixed: true,
+          image: initImage,
+        },
       }
     }
 

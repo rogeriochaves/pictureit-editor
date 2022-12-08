@@ -172,7 +172,13 @@ class Objects extends Base {
           if (frame._objects?.indexOf(object) === -1) {
             frame.add(object)
             if (frame.metadata?.initImage) {
-              frame.metadata.initImage.fixed = false
+              frame.metadata = {
+                ...frame.metadata,
+                initImage: {
+                  ...frame.metadata.initImage,
+                  fixed: false,
+                },
+              }
             }
             if (activeObject == object) {
               setTimeout(() => {
@@ -802,7 +808,9 @@ class Objects extends Base {
       if (currentBackgroundImage) {
         const currentBackgroundImageJSON = currentBackgroundImage.toObject(this.config.propertiesToInclude)
         delete currentBackgroundImageJSON.clipPath
-        const nextImageElement = await fabric.util.loadImage(currentBackgroundImageJSON.src, { crossOrigin: "anonymous" })
+        const nextImageElement = await fabric.util.loadImage(currentBackgroundImageJSON.src, {
+          crossOrigin: "anonymous",
+        })
         nextImage = new fabric.StaticImage(nextImageElement, { ...currentBackgroundImageJSON, id: nanoid() })
         // @ts-ignore
         // this.canvas.add(nextImage)
