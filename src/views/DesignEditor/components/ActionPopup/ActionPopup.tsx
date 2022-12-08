@@ -1,12 +1,35 @@
 import { LayerType } from "@layerhub-io/core"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
+import Scrollbars from "@layerhub-io/react-custom-scrollbar"
+import { Block } from "baseui/block"
 import { Button } from "baseui/button"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
-import { useRecoilState } from "recoil"
+import { useRecoilState, useRecoilValueLoadable } from "recoil"
+import Scrollable from "../../../../components/Scrollable"
 import { generateImageCall, hidePopupState } from "../../../../state/generateImage"
+import { tagSuggestionsCall } from "../../../../state/tagSuggestions"
 import { useRecoilLazyLoadable } from "../../../../utils/lazySelectorFamily"
+
+const useTagSuggestions = (promptValue: string) => {
+  const [tagSuggestionsKey, setTagSuggestionsKey] = useState("")
+  const [lastTagSuggestions, setLastTagSuggestions] = useState<string[]>([])
+  const tagSuggestions = useRecoilValueLoadable(tagSuggestionsCall(tagSuggestionsKey))
+
+  useEffect(() => {
+    setTagSuggestionsKey(promptValue)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [promptValue?.split(",").length])
+
+  useEffect(() => {
+    if (tagSuggestions.state == "hasValue" && tagSuggestions.contents) {
+      setLastTagSuggestions(tagSuggestions.contents)
+    }
+  }, [tagSuggestions])
+
+  return lastTagSuggestions
+}
 
 const ActionPopup = () => {
   const editor = useEditor()
@@ -20,6 +43,9 @@ const ActionPopup = () => {
   const [_, setPrompt] = useState("")
   const [hidePopup, setHidePopup] = useRecoilState(hidePopupState)
   const [imageRequest, generateImage] = useRecoilLazyLoadable(generateImageCall(popup?.target.id))
+  const promptValue = popup?.target.metadata?.prompt || ""
+
+  const tagSuggestions = useTagSuggestions(promptValue)
 
   const setPopupForTarget = useCallback(
     (target: fabric.Object | undefined) => {
@@ -91,7 +117,7 @@ const ActionPopup = () => {
   }, [popup, generateImage, editor])
 
   const onPromptChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
+    (e: { target: { value: string } }) => {
       if (popup) {
         popup.target.metadata = {
           ...(popup.target.metadata || {}),
@@ -105,16 +131,25 @@ const ActionPopup = () => {
 
   const Pill = ({ value }: { value: string }) => {
     return (
-      <div
+      <button
+        onClick={() => {
+          if (!popup) return
+
+          const newPrompt = (promptValue ? promptValue + ", " : "") + value
+          onPromptChange({ target: { value: newPrompt } })
+        }}
         style={{
           borderRadius: "100px",
           background: "#ccc",
           padding: "5px 12px 5px 12px",
           fontSize: "13px",
+          border: "none",
+          fontFamily: "Uber Move Text, sans-serif",
+          cursor: "pointer",
         }}
       >
         {value}
-      </div>
+      </button>
     )
   }
 
@@ -147,7 +182,7 @@ const ActionPopup = () => {
               id="actionPopupPrompt"
               type="text"
               onChange={onPromptChange}
-              value={popup.target.metadata?.prompt || ""}
+              value={promptValue || ""}
               style={{
                 borderRadius: "5px",
                 background: "#FFF",
@@ -163,10 +198,14 @@ const ActionPopup = () => {
           1
         </Button> */}
           </div>
-          <div style={{ display: "flex", gap: "8px" }}>
-            <Pill value="trending on artstation" />
-            <Pill value="sharp focus" />
-            <Pill value="highly detailed" />
+          <div>
+            <Scrollable style={{ height: "25px" }}>
+              <div style={{ display: "flex", gap: "8px", whiteSpace: "nowrap" }}>
+                {tagSuggestions.map((tag) => (
+                  <Pill key={tag} value={tag} />
+                ))}
+              </div>
+            </Scrollable>
           </div>
         </div>
       ) : null}

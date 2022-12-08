@@ -25,7 +25,11 @@ interface FileEndpoints {
 }
 
 interface PublishEndpoints {
-  publish(title: string, image: string): Promise<{url: string}>
+  publish(title: string, image: string): Promise<{ url: string }>
+}
+
+interface TagSuggestions {
+  tagSuggestions(prompt: string): Promise<string[]>
 }
 
 export type PictureItFile = {
@@ -35,7 +39,7 @@ export type PictureItFile = {
   content: object
 }
 
-export type PictureItApi = IsPictureIt & UserEndpoints & FileEndpoints & PublishEndpoints & Api
+export type PictureItApi = IsPictureIt & UserEndpoints & FileEndpoints & PublishEndpoints & TagSuggestions & Api
 
 export interface User {
   email: string
@@ -84,6 +88,10 @@ const PictureIt: PictureItApi = class {
 
   static async publish(title: string, image: string) {
     return await postApi(`/api/picture/publish`, { title, image })
+  }
+
+  static async tagSuggestions(prompt: string) {
+    return await getApi(`/api/tag_suggestions?prompt=${encodeURIComponent(prompt)}`)
   }
 
   static isPictureIt(): true {
