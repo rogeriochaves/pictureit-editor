@@ -6,7 +6,7 @@ import { Button, KIND, SIZE } from "baseui/button"
 import { StatefulMenu } from "baseui/menu"
 import { PLACEMENT, StatefulPopover } from "baseui/popover"
 import { Theme } from "baseui/theme"
-import React, { useRef } from "react"
+import React, { useCallback, useRef } from "react"
 import { useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from "recoil"
 import Github from "~/components/Icons/Github"
 import Logo from "~/components/Icons/Logo"
@@ -206,7 +206,7 @@ const Navbar = () => {
     return { scenes, design }
   }
 
-  const handleImportTemplate = React.useCallback(
+  const handleImportTemplate = useCallback(
     async (data: any) => {
       let template
       if (data.type === "GRAPHIC") {

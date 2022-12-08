@@ -84,7 +84,7 @@ const PreviewContent = () => {
   const makePreview = useCallback(async () => {
     if (editor) {
       const template = editor.scene.exportToJSON()
-      const image = (await editor.renderer.renderWebp(template)) as string
+      const image = (await editor.renderer.render(template)) as string
       setImage(image)
     }
   }, [editor])
