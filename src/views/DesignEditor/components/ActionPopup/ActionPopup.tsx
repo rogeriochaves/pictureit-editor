@@ -1,18 +1,23 @@
 import { LayerType } from "@layerhub-io/core"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
-import Scrollbars from "@layerhub-io/react-custom-scrollbar"
 import { Block } from "baseui/block"
 import { Button, KIND } from "baseui/button"
+import { ChevronDown } from "baseui/icon"
+import { StatefulMenu } from "baseui/menu"
+import { Popover, StatefulPopover } from "baseui/popover"
 import { PLACEMENT, StatefulTooltip } from "baseui/tooltip"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useRecoilState, useRecoilValueLoadable } from "recoil"
-import FastForward from "../../../../components/Icons/FastForward"
 import Scrollable from "../../../../components/Scrollable"
-import { generateImageCall, hidePopupState } from "../../../../state/generateImage"
+import { generateActionState, generateImageCall, hidePopupState } from "../../../../state/generateImage"
 import { tagSuggestionsCall } from "../../../../state/tagSuggestions"
-import { useRecoilLazyLoadable } from "../../../../utils/lazySelectorFamily"
+import {
+  useCallRecoilLazyLoadable,
+  useRecoilLazyLoadable,
+  useRecoilValueLazyLoadable,
+} from "../../../../utils/lazySelectorFamily"
 
 const useTagSuggestions = (promptValue: string) => {
   const [tagSuggestionsKey, setTagSuggestionsKey] = useState("")
@@ -33,18 +38,20 @@ const useTagSuggestions = (promptValue: string) => {
   return lastTagSuggestions
 }
 
+type Popup = {
+  x: number
+  y: number
+  target: fabric.GenerationFrame
+}
+
 const ActionPopup = () => {
   const editor = useEditor()
   const popupRef = useRef<HTMLDivElement>(null)
   const activeObject = useActiveObject() as fabric.Object | undefined
-  const [popup, setPopup] = useState<{
-    x: number
-    y: number
-    target: fabric.GenerationFrame
-  } | null>(null)
+  const [popup, setPopup] = useState<Popup | null>(null)
   const [_, setPrompt] = useState("")
   const [hidePopup, setHidePopup] = useRecoilState(hidePopupState)
-  const [imageRequest, generateImage] = useRecoilLazyLoadable(generateImageCall(popup?.target.id))
+  const imageRequest = useRecoilValueLazyLoadable(generateImageCall(popup?.target.id))
   const promptValue = popup?.target.metadata?.prompt || ""
 
   const tagSuggestions = useTagSuggestions(promptValue)
@@ -105,22 +112,6 @@ const ActionPopup = () => {
       editor.canvas.canvas.off("mouse:up", onClick)
     }
   }, [editor, onClick, onModified, onMove])
-
-  const onGenerateImage = useCallback(
-    async ({ advanceSteps = false }: { advanceSteps?: boolean }) => {
-      if (!editor) return
-
-      const targetId = popup?.target.id
-      if (!targetId) return
-      if (!popup.target.metadata?.prompt) return
-      generateImage({
-        frame: popup.target,
-        editor: editor,
-        advanceSteps,
-      })
-    },
-    [popup, generateImage, editor]
-  )
 
   const onPromptChange = useCallback(
     (e: { target: { value: string } }) => {
@@ -198,31 +189,7 @@ const ActionPopup = () => {
                 border: "1px solid #c4c4c4",
               }}
             />
-            <Button size="compact" onClick={() => onGenerateImage({})}>
-              Generate
-            </Button>
-            {popup?.target.getImage() && (
-              <StatefulTooltip
-                overrides={{
-                  Body: {
-                    style: { zIndex: 129, marginBottom: "8px", background: "#F00" },
-                  },
-                }}
-                accessibilityType={"tooltip"}
-                placement={PLACEMENT.top}
-                showArrow={true}
-                content="Advance steps on the currently generated image"
-              >
-                <Button
-                  size="compact"
-                  kind={KIND.secondary}
-                  colors={{ color: "#FFF", backgroundColor: "#777" }}
-                  onClick={() => onGenerateImage({ advanceSteps: true })}
-                >
-                  <FastForward size={16} />
-                </Button>
-              </StatefulTooltip>
-            )}
+            <GenerateButton popup={popup} />
           </div>
           <div>
             <Scrollable style={{ height: "37px" }}>
@@ -236,6 +203,150 @@ const ActionPopup = () => {
         </div>
       ) : null}
     </div>
+  )
+}
+
+const GenerateButton = ({ popup }: { popup: Popup }) => {
+  const editor = useEditor()
+  const generateImage = useCallRecoilLazyLoadable(generateImageCall(popup.target.id))
+  const [isGenerateActionOptionsOpen, setIsGenerateActionOptionsOpen] = useState(false)
+  const [generateAction, setGenerateAction] = useRecoilState(generateActionState(popup.target.id))
+
+  const onGenerateImage = useCallback(
+    async ({ advanceSteps = false }: { advanceSteps?: boolean }) => {
+      if (!editor) return
+
+      const targetId = popup?.target.id
+      if (!targetId) return
+      if (!popup.target.metadata?.prompt) return
+      generateImage({
+        frame: popup.target,
+        editor: editor,
+        advanceSteps,
+      })
+    },
+    [popup, generateImage, editor]
+  )
+
+  return popup?.target.getImage() ? (
+    <Block display="flex">
+      <Button
+        size="compact"
+        onClick={() => onGenerateImage({})}
+        overrides={{
+          BaseButton: {
+            style: {
+              borderRadius: "8px 0 0 8px",
+              padding: "10px 6px 10px 12px",
+            },
+          },
+        }}
+      >
+        {generateAction == "generate" ? "Generate" : "Advance"}
+      </Button>
+      <Popover
+        isOpen={isGenerateActionOptionsOpen}
+        showArrow={false}
+        placement={PLACEMENT.bottomRight}
+        content={() => (
+          <StatefulMenu
+            onItemSelect={({ item }) => {
+              if (item.action == "generate") {
+                setGenerateAction("generate")
+              }
+              if (item.action == "advance") {
+                setGenerateAction("advance")
+              }
+              setIsGenerateActionOptionsOpen(false)
+            }}
+            items={[
+              {
+                label: "Generate",
+                action: "generate",
+                selected: generateAction == "generate",
+                tip: "Generate a new image based on prompt and base image",
+              },
+              {
+                label: "Advance",
+                action: "advance",
+                selected: generateAction == "advance",
+                tip: "Run more diffusion steps on currently generated image",
+              },
+            ]}
+            overrides={{
+              List: {
+                style: {
+                  width: "110px",
+                  borderRadius: "8px",
+                },
+              },
+              Option: {
+                props: {
+                  getSelection: () => {
+                    return "foo"
+                  },
+                  getItemLabel: (item: any) => (
+                    <StatefulTooltip
+                      overrides={{
+                        Body: {
+                          style: { zIndex: 129, background: "#AAA", left: "190px", width: "200px" },
+                        },
+                      }}
+                      accessibilityType={"tooltip"}
+                      placement={PLACEMENT.left}
+                      showArrow={true}
+                      content={item.tip}
+                    >
+                      {item.selected ? (
+                        <Block style={{ color: "#111", fontWeight: "bold" }}>{item.label}</Block>
+                      ) : (
+                        <Block>{item.label}</Block>
+                      )}
+                    </StatefulTooltip>
+                  ),
+                },
+              },
+            }}
+          />
+        )}
+        overrides={{
+          Body: {
+            style: {
+              zIndex: 129,
+              borderRadius: "8px",
+            },
+          },
+          Inner: {
+            style: {
+              borderRadius: "8px",
+            },
+          },
+        }}
+      >
+        <Block>
+          <Button
+            size="compact"
+            kind={KIND.primary}
+            onClick={() => setIsGenerateActionOptionsOpen((x) => !x)}
+            overrides={{
+              BaseButton: {
+                style: {
+                  borderRadius: "0 8px 8px 0",
+                  padding: "10px 6px 10px 6px",
+                  borderLeft: "1px solid #444",
+                },
+              },
+            }}
+          >
+            <ChevronDown size={18} />
+          </Button>
+        </Block>
+      </Popover>
+    </Block>
+  ) : (
+    <Button size="compact" onClick={() => onGenerateImage({ advanceSteps: generateAction == "advance" })}>
+      Generate
+    </Button>
   )
 }
 

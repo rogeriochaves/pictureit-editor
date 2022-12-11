@@ -2,7 +2,7 @@ import { Editor, nonRenderableLayerTypes } from "@layerhub-io/core"
 import ObjectExporter from "@layerhub-io/core/src/utils/object-exporter"
 import { IGenerationFrame, ILayer } from "@layerhub-io/types"
 import { fabric } from "fabric"
-import { atom } from "recoil"
+import { atom, atomFamily } from "recoil"
 import api, { StableDiffusionOutput } from "../api"
 import { extractErrorMessage } from "../api/utils"
 import { canvasFromImage } from "../utils/canvas-from-image"
@@ -42,6 +42,11 @@ export const hidePopupState = atom({
 export const paymentRequiredState = atom({
   key: "paymentRequiredState",
   default: false,
+})
+
+export const generateActionState = atomFamily({
+  key: "generateActionState",
+  default: "generate" as "generate" | "advance"
 })
 
 const generateImage = async ({
