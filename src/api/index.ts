@@ -22,13 +22,22 @@ export type StableDiffusionInpaintingInput = {
   mask?: string
 }
 
-export type StableDiffusionInpaintingOutput = {
-  url: string
+export type StableDiffusionInpaintingOutput = StableDiffusionOutput
+
+export type StableDiffusionAdvanceStepsInput = {
+  prompt: string
+  init_image: string
+  num_inference_steps: number
+  skip_timesteps: number
+  seed: number
 }
+
+export type StableDiffusionAdvanceStepsOutput = StableDiffusionOutput
 
 export interface Api {
   stableDiffusion(params: StableDiffusionInput): Promise<StableDiffusionOutput>
   stableDiffusionInpainting(params: StableDiffusionInpaintingInput): Promise<StableDiffusionInpaintingOutput>
+  stableDiffusionAdvanceSteps(params: StableDiffusionAdvanceStepsInput): Promise<StableDiffusionAdvanceStepsOutput>
 }
 
 const adapter: PictureItApi | Api =

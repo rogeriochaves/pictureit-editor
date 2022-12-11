@@ -2,11 +2,13 @@ import { LayerType } from "@layerhub-io/core"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
 import Scrollbars from "@layerhub-io/react-custom-scrollbar"
 import { Block } from "baseui/block"
-import { Button } from "baseui/button"
+import { Button, KIND } from "baseui/button"
+import { PLACEMENT, StatefulTooltip } from "baseui/tooltip"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
 import { useRecoilState, useRecoilValueLoadable } from "recoil"
+import FastForward from "../../../../components/Icons/FastForward"
 import Scrollable from "../../../../components/Scrollable"
 import { generateImageCall, hidePopupState } from "../../../../state/generateImage"
 import { tagSuggestionsCall } from "../../../../state/tagSuggestions"
@@ -104,17 +106,21 @@ const ActionPopup = () => {
     }
   }, [editor, onClick, onModified, onMove])
 
-  const onGenerateImage = useCallback(async () => {
-    if (!editor) return
+  const onGenerateImage = useCallback(
+    async ({ advanceSteps = false }: { advanceSteps?: boolean }) => {
+      if (!editor) return
 
-    const targetId = popup?.target.id
-    if (!targetId) return
-    if (!popup.target.metadata?.prompt) return
-    generateImage({
-      frame: popup.target,
-      editor: editor,
-    })
-  }, [popup, generateImage, editor])
+      const targetId = popup?.target.id
+      if (!targetId) return
+      if (!popup.target.metadata?.prompt) return
+      generateImage({
+        frame: popup.target,
+        editor: editor,
+        advanceSteps,
+      })
+    },
+    [popup, generateImage, editor]
+  )
 
   const onPromptChange = useCallback(
     (e: { target: { value: string } }) => {
@@ -191,12 +197,31 @@ const ActionPopup = () => {
                 border: "1px solid #c4c4c4",
               }}
             />
-            <Button size="compact" onClick={onGenerateImage}>
+            <Button size="compact" onClick={() => onGenerateImage({})}>
               Generate
             </Button>
-            {/* <Button size="compact" kind={KIND.secondary} colors={{color: "#FFF", backgroundColor: "#999"}}>
-          1
-        </Button> */}
+            {popup?.target.getImage() && (
+              <StatefulTooltip
+                overrides={{
+                  Body: {
+                    style: { zIndex: 129, marginBottom: "8px", background: "#F00" },
+                  },
+                }}
+                accessibilityType={"tooltip"}
+                placement={PLACEMENT.top}
+                showArrow={true}
+                content="Advance steps on the currently generated image"
+              >
+                <Button
+                  size="compact"
+                  kind={KIND.secondary}
+                  colors={{ color: "#FFF", backgroundColor: "#777" }}
+                  onClick={() => onGenerateImage({ advanceSteps: true })}
+                >
+                  <FastForward size={16} />
+                </Button>
+              </StatefulTooltip>
+            )}
           </div>
           <div>
             <Scrollable style={{ height: "37px" }}>

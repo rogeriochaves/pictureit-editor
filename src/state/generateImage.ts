@@ -3,7 +3,7 @@ import ObjectExporter from "@layerhub-io/core/src/utils/object-exporter"
 import { IGenerationFrame, ILayer } from "@layerhub-io/types"
 import { fabric } from "fabric"
 import { atom } from "recoil"
-import api from "../api"
+import api, { StableDiffusionOutput } from "../api"
 import { extractErrorMessage } from "../api/utils"
 import { canvasFromImage } from "../utils/canvas-from-image"
 import { paintItBlack } from "../utils/clip-mask"
@@ -18,7 +18,7 @@ export const generateImageCall = lazySelectorFamily({
   key: "generateImageCall",
   get:
     ({ set, refresh }) =>
-    async (params: { frame: fabric.GenerationFrame; editor: Editor }) => {
+    async (params: { frame: fabric.GenerationFrame; editor: Editor; advanceSteps: boolean }) => {
       try {
         await generateImage(params)
       } catch (err) {
@@ -44,45 +44,19 @@ export const paymentRequiredState = atom({
   default: false,
 })
 
-const generateImage = async ({ frame, editor }: { frame: fabric.GenerationFrame; editor: Editor }) => {
+const generateImage = async ({
+  frame,
+  editor,
+  advanceSteps,
+}: {
+  frame: fabric.GenerationFrame
+  editor: Editor
+  advanceSteps: boolean
+}) => {
   try {
-    const num_inference_steps = frame.metadata?.steps || 50
-    frame.showLoading((4 + num_inference_steps * 0.1) * 1000)
-
-    const [initImage, initImageWithNoise] = await renderInitImage(editor, frame, true)
-    const clipMask = await renderClipMask(editor, frame)
-
-    if (frame.metadata) {
-      frame.metadata = {
-        ...frame.metadata,
-        initImage: {
-          ...(frame.metadata?.initImage || {}),
-          fixed: true,
-          image: initImage,
-        },
-      }
-    }
-
-    const result =
-      initImageWithNoise && clipMask
-        ? await api.stableDiffusionInpainting({
-            prompt: frame.metadata?.prompt || "",
-            num_inference_steps,
-            guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
-            image: initImageWithNoise,
-            mask: clipMask,
-          })
-        : await api.stableDiffusion({
-            prompt: frame.metadata?.prompt || "",
-            num_inference_steps,
-            guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
-            ...(initImageWithNoise
-              ? {
-                  init_image: initImageWithNoise,
-                  prompt_strength: frame.metadata?.initImage?.promptStrength ?? DEFAULT_PROMPT_STRENGTH,
-                }
-              : {}),
-          })
+    const result = advanceSteps
+      ? await generateAdvanceSteps({ frame, editor })
+      : await generateNormalOrInpainting({ frame, editor })
 
     if (result.url) {
       await frame.setImage(result.url)
@@ -98,6 +72,88 @@ const generateImage = async ({ frame, editor }: { frame: fabric.GenerationFrame;
 
     throw err
   }
+}
+
+const generateAdvanceSteps = async ({
+  frame,
+  editor,
+}: {
+  frame: fabric.GenerationFrame
+  editor: Editor
+}): Promise<StableDiffusionOutput> => {
+  const numInferenceSteps = frame.metadata?.steps || 50
+  showLoading(frame, numInferenceSteps)
+
+  const renderedFrame = await renderNewInitImage(editor, frame)
+  if (!renderedFrame) {
+    throw "error rendering image to advance a step"
+  }
+
+  const image = renderedFrame.toDataURL("image/jpeg")
+  const stepsToSkip = frame.metadata?.accumulatedSteps || frame.metadata?.steps || 50
+
+  const result = await api.stableDiffusionAdvanceSteps({
+    prompt: frame.metadata?.prompt || "",
+    init_image: image,
+    num_inference_steps: stepsToSkip + numInferenceSteps,
+    skip_timesteps: stepsToSkip,
+    seed: 42
+  })
+
+  frame.metadata = {
+    ...frame.metadata,
+    accumulatedSteps: stepsToSkip + numInferenceSteps,
+  }
+
+  return result
+}
+
+const showLoading = (frame: fabric.GenerationFrame, steps: number) => {
+  frame.showLoading((4 + steps * 0.1) * 1500)
+}
+
+const generateNormalOrInpainting = async ({
+  frame,
+  editor,
+}: {
+  frame: fabric.GenerationFrame
+  editor: Editor
+}): Promise<StableDiffusionOutput> => {
+  const numInferenceSteps = frame.metadata?.steps || 50
+  showLoading(frame, numInferenceSteps)
+
+  const [initImage, initImageWithNoise] = await renderInitImage(editor, frame, true)
+  const clipMask = await renderClipMask(editor, frame)
+
+  frame.metadata = {
+    ...frame.metadata,
+    initImage: {
+      ...(frame.metadata?.initImage || {}),
+      fixed: true,
+      image: initImage,
+    },
+    accumulatedSteps: numInferenceSteps,
+  }
+
+  return initImageWithNoise && clipMask
+    ? await api.stableDiffusionInpainting({
+        prompt: frame.metadata?.prompt || "",
+        num_inference_steps: numInferenceSteps,
+        guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
+        image: initImageWithNoise,
+        mask: clipMask,
+      })
+    : await api.stableDiffusion({
+        prompt: frame.metadata?.prompt || "",
+        num_inference_steps: numInferenceSteps,
+        guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
+        ...(initImageWithNoise
+          ? {
+              init_image: initImageWithNoise,
+              prompt_strength: frame.metadata?.initImage?.promptStrength ?? DEFAULT_PROMPT_STRENGTH,
+            }
+          : {}),
+      })
 }
 
 export const renderInitImage = async (

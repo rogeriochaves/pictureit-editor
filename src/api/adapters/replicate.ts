@@ -3,6 +3,8 @@ import {
   StableDiffusionInpaintingInput,
   StableDiffusionInpaintingOutput,
   StableDiffusionInput,
+  StableDiffusionAdvanceStepsInput,
+  StableDiffusionAdvanceStepsOutput,
   StableDiffusionOutput,
 } from "../index"
 import { proxyFetch } from "../proxyFetch"
@@ -20,6 +22,13 @@ const Replicate: Api = class {
   ): Promise<StableDiffusionInpaintingOutput> {
     // https://replicate.com/andreasjansson/stable-diffusion-inpainting
     return callReplicate("8eb2da8345bee796efcd925573f077e36ed5fb4ea3ba240ef70c23cf33f0d848", params)
+  }
+
+  static async stableDiffusionAdvanceSteps(
+    params: StableDiffusionAdvanceStepsInput
+  ): Promise<StableDiffusionAdvanceStepsOutput> {
+    // https://replicate.com/devxpy/glid-3-xl-stable
+    return callReplicate("7d6a340e1815acf2b3b2ee0fcaf830fbbcd8697e9712ca63d81930c60484d2d7", params)
   }
 }
 

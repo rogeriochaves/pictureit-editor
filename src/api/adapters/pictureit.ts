@@ -3,6 +3,8 @@ import {
   StableDiffusionInpaintingInput,
   StableDiffusionInpaintingOutput,
   StableDiffusionInput,
+  StableDiffusionAdvanceStepsInput,
+  StableDiffusionAdvanceStepsOutput,
   StableDiffusionOutput,
 } from "../index"
 import { proxyFetch } from "../proxyFetch"
@@ -55,6 +57,12 @@ const PictureIt: PictureItApi = class {
     params: StableDiffusionInpaintingInput
   ): Promise<StableDiffusionInpaintingOutput> {
     return postApi("/api/editor/stable_diffusion_inpainting", params)
+  }
+
+  static async stableDiffusionAdvanceSteps(
+    params: StableDiffusionAdvanceStepsInput
+  ): Promise<StableDiffusionAdvanceStepsOutput> {
+    return postApi("/api/editor/stable_diffusion_advance_steps", params)
   }
 
   static async user(): Promise<User | undefined> {

@@ -17,6 +17,7 @@ export class GenerationFrameObject extends fabric.Group {
     steps?: number
     guidance?: number
     initImage?: InitImage
+    accumulatedSteps?: number
   }
   loadingAnimation: () => void | undefined
 
