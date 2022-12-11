@@ -10,7 +10,9 @@ import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { DetailedHTMLProps, InputHTMLAttributes, useCallback, useEffect, useRef, useState } from "react"
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil"
+import Negative from "../../../../components/Icons/Negative"
 import NegativeSquare from "../../../../components/Icons/NegativeSquare"
+import NegativeText from "../../../../components/Icons/NegativeText"
 import Scrollable from "../../../../components/Scrollable"
 import {
   generateActionState,
@@ -247,7 +249,7 @@ const ActionPopup = () => {
                         document.getElementById("actionPopupPrompt")?.focus()
                       }}
                     >
-                      <NegativeSquare size={24} color="#666" />
+                      <Negative size={24} color="#666" />
                     </button>
                   </StatefulTooltip>
                   <NegativePromptInput

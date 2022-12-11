@@ -1,4 +1,4 @@
-function Negative({ size, color = "#000" }: { size: number; color?: string }) {
+function NegativeSquare({ size, color = "#000" }: { size: number; color?: string }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 14" height={size} width={size}>
       <g>
@@ -19,4 +19,4 @@ function Negative({ size, color = "#000" }: { size: number; color?: string }) {
   )
 }
 
-export default Negative
+export default NegativeSquare
