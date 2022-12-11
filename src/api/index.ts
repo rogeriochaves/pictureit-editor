@@ -4,6 +4,7 @@ import Replicate from "./adapters/replicate"
 
 export type StableDiffusionInput = {
   prompt: string
+  negative_prompt?: string
   num_inference_steps?: number
   guidance_scale?: number
   init_image?: string

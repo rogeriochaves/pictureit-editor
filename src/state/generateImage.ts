@@ -46,7 +46,7 @@ export const paymentRequiredState = atom({
 
 export const generateActionState = atomFamily({
   key: "generateActionState",
-  default: "generate" as "generate" | "advance"
+  default: "generate" as "generate" | "advance",
 })
 
 const generateImage = async ({
@@ -102,7 +102,7 @@ const generateAdvanceSteps = async ({
     init_image: image,
     num_inference_steps: stepsToSkip + numInferenceSteps,
     skip_timesteps: stepsToSkip,
-    seed: 42
+    seed: 42,
   })
 
   frame.metadata = {
@@ -151,6 +151,7 @@ const generateNormalOrInpainting = async ({
       })
     : await api.stableDiffusion({
         prompt: frame.metadata?.prompt || "",
+        negative_prompt: frame.metadata?.negativePrompt,
         num_inference_steps: numInferenceSteps,
         guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
         ...(initImageWithNoise
@@ -254,7 +255,7 @@ const exportFrameToCanvas = async (
   return canvas
 }
 
-const getOverlappingFrames = (editor: Editor, generationFrame: fabric.GenerationFrame) => {
+export const getOverlappingFrames = (editor: Editor, generationFrame: fabric.GenerationFrame) => {
   const zIndex = editor.canvas.canvas.getObjects().indexOf(generationFrame as fabric.Object)
   return editor.canvas.canvas
     .getObjects()

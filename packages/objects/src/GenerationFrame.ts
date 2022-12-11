@@ -14,6 +14,7 @@ export class GenerationFrameObject extends fabric.Group {
   id: string
   metadata?: {
     prompt?: string
+    negativePrompt?: string
     steps?: number
     guidance?: number
     initImage?: InitImage

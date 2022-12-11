@@ -14,7 +14,7 @@ const replicateFetch = proxyFetch("https://api.replicate.com")
 const Replicate: Api = class {
   static async stableDiffusion(params: StableDiffusionInput): Promise<StableDiffusionOutput> {
     // https://replicate.com/stability-ai/stable-diffusion
-    return callReplicate("a9758cbfbd5f3c2094457d996681af52552901775aa2d6dd0b17fd15df959bef", params)
+    return callReplicate("27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478", params)
   }
 
   static async stableDiffusionInpainting(

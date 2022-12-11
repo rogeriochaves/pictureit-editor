@@ -1,23 +1,25 @@
 import { LayerType } from "@layerhub-io/core"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
 import { Block } from "baseui/block"
-import { Button, KIND } from "baseui/button"
+import { Button, KIND, SIZE } from "baseui/button"
 import { ChevronDown } from "baseui/icon"
 import { StatefulMenu } from "baseui/menu"
-import { Popover, StatefulPopover } from "baseui/popover"
+import { Popover } from "baseui/popover"
 import { PLACEMENT, StatefulTooltip } from "baseui/tooltip"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
-import { useCallback, useEffect, useRef, useState } from "react"
-import { useRecoilState, useRecoilValueLoadable } from "recoil"
+import { DetailedHTMLProps, InputHTMLAttributes, useCallback, useEffect, useRef, useState } from "react"
+import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil"
+import NegativeSquare from "../../../../components/Icons/NegativeSquare"
 import Scrollable from "../../../../components/Scrollable"
-import { generateActionState, generateImageCall, hidePopupState } from "../../../../state/generateImage"
-import { tagSuggestionsCall } from "../../../../state/tagSuggestions"
 import {
-  useCallRecoilLazyLoadable,
-  useRecoilLazyLoadable,
-  useRecoilValueLazyLoadable,
-} from "../../../../utils/lazySelectorFamily"
+  generateActionState,
+  generateImageCall,
+  getOverlappingFrames,
+  hidePopupState,
+} from "../../../../state/generateImage"
+import { tagSuggestionsCall } from "../../../../state/tagSuggestions"
+import { useCallRecoilLazyLoadable, useRecoilValueLazyLoadable } from "../../../../utils/lazySelectorFamily"
 
 const useTagSuggestions = (promptValue: string) => {
   const [tagSuggestionsKey, setTagSuggestionsKey] = useState("")
@@ -49,20 +51,36 @@ const ActionPopup = () => {
   const popupRef = useRef<HTMLDivElement>(null)
   const activeObject = useActiveObject() as fabric.Object | undefined
   const [popup, setPopup] = useState<Popup | null>(null)
-  const [_, setPrompt] = useState("")
+  const [prompt, setPrompt] = useState<string>("")
+  const [isPromptFocused, setIsPromptFocused] = useState(false)
+  const [negativePrompt, setNegativePrompt] = useState<string | undefined>(undefined)
   const [hidePopup, setHidePopup] = useRecoilState(hidePopupState)
   const imageRequest = useRecoilValueLazyLoadable(generateImageCall(popup?.target.id))
-  const promptValue = popup?.target.metadata?.prompt || ""
 
-  const tagSuggestions = useTagSuggestions(promptValue)
+  const tagSuggestions = useTagSuggestions(prompt)
+
+  useEffect(() => {
+    if (!popup) return
+    popup.target.metadata = {
+      ...(popup.target.metadata || {}),
+      prompt,
+      negativePrompt,
+    }
+  }, [popup, prompt, negativePrompt])
 
   const setPopupForTarget = useCallback(
     (target: fabric.Object | undefined) => {
-      if (target && target.type == LayerType.GENERATION_FRAME && target.oCoords) {
+      if (
+        target &&
+        target.type == LayerType.GENERATION_FRAME &&
+        target.oCoords &&
+        target instanceof fabric.GenerationFrame
+      ) {
         const { x, y } = target.oCoords.mt // mid-top
         setPrompt(target.metadata?.prompt || "")
+        setNegativePrompt(target.metadata?.negativePrompt)
         setHidePopup(false)
-        setPopup({ x, y, target: target as fabric.GenerationFrame })
+        setPopup({ x, y, target: target })
       } else {
         setPopup(null)
       }
@@ -113,27 +131,11 @@ const ActionPopup = () => {
     }
   }, [editor, onClick, onModified, onMove])
 
-  const onPromptChange = useCallback(
-    (e: { target: { value: string } }) => {
-      if (popup) {
-        popup.target.metadata = {
-          ...(popup.target.metadata || {}),
-          prompt: e.target.value,
-        }
-        setPrompt(e.target.value)
-      }
-    },
-    [popup]
-  )
-
   const Pill = ({ value }: { value: string }) => {
     return (
       <button
         onClick={() => {
-          if (!popup) return
-
-          const newPrompt = (promptValue ? promptValue + ", " : "") + value
-          onPromptChange({ target: { value: newPrompt } })
+          setPrompt((prompt) => (prompt ? prompt + ", " : "") + value)
         }}
         style={{
           borderRadius: "100px",
@@ -174,21 +176,88 @@ const ActionPopup = () => {
             gap: "8px",
           }}
         >
-          <div style={{ display: "flex", gap: "12px" }}>
-            <input
-              id="actionPopupPrompt"
-              type="text"
-              onChange={onPromptChange}
-              autoComplete="off"
-              value={promptValue || ""}
-              style={{
-                borderRadius: "5px",
-                background: "#FFF",
-                padding: "5px",
-                flexGrow: "1",
-                border: "1px solid #c4c4c4",
-              }}
-            />
+          <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+            <div style={{ flexGrow: "1", display: "flex", position: "relative", flexDirection: "column", gap: "8px" }}>
+              {negativePrompt === undefined && isPromptFocused && (
+                <div
+                  style={{
+                    position: "absolute",
+                    right: "0",
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    marginRight: "8px",
+                  }}
+                >
+                  <StatefulTooltip
+                    overrides={{
+                      Body: {
+                        style: { zIndex: 129, marginBottom: "1px" },
+                      },
+                    }}
+                    accessibilityType={"tooltip"}
+                    placement={PLACEMENT.top}
+                    showArrow={true}
+                    content="Add negative prompt"
+                  >
+                    <Button
+                      size={SIZE.mini}
+                      kind={KIND.secondary}
+                      onClick={() => {
+                        setNegativePrompt("")
+                      }}
+                    >
+                      + Neg
+                    </Button>
+                  </StatefulTooltip>
+                </div>
+              )}
+              <PromptInput
+                id="actionPopupPrompt"
+                onChange={(e) => setPrompt(e.target.value)}
+                value={prompt}
+                onFocus={() => setIsPromptFocused(true)}
+                onBlur={() => setTimeout(() => setIsPromptFocused(false), 200)}
+              />
+              {negativePrompt !== undefined && (
+                <Block display="flex">
+                  <StatefulTooltip
+                    overrides={{
+                      Body: {
+                        style: { zIndex: 129, marginBottom: "1px" },
+                      },
+                    }}
+                    accessibilityType={"tooltip"}
+                    placement={PLACEMENT.top}
+                    showArrow={true}
+                    content="What not to include in the picture"
+                  >
+                    <button
+                      style={{
+                        height: "100%",
+                        border: "none",
+                        background: "none",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        padding: "8px",
+                      }}
+                      onClick={() => {
+                        setNegativePrompt(undefined)
+                        document.getElementById("actionPopupPrompt")?.focus()
+                      }}
+                    >
+                      <NegativeSquare size={24} color="#666" />
+                    </button>
+                  </StatefulTooltip>
+                  <NegativePromptInput
+                    popup={popup}
+                    negativePrompt={negativePrompt}
+                    setNegativePrompt={setNegativePrompt}
+                  />
+                </Block>
+              )}
+            </div>
             <GenerateButton popup={popup} />
           </div>
           <div>
@@ -203,6 +272,72 @@ const ActionPopup = () => {
         </div>
       ) : null}
     </div>
+  )
+}
+
+const NegativePromptInput = ({
+  popup,
+  negativePrompt,
+  setNegativePrompt,
+}: {
+  popup: Popup
+  negativePrompt: string
+  setNegativePrompt: (value: string) => void
+}) => {
+  const editor = useEditor()!
+  const generateAction = useRecoilValue(generateActionState(popup.target.id))
+
+  const disabledDueToUnsupportedAction = generateAction == "advance"
+  const disabledDueToInpainting = getOverlappingFrames(editor, popup.target).length > 0
+  const disabled = disabledDueToUnsupportedAction || disabledDueToInpainting
+
+  const promptInput = (
+    <PromptInput disabled={!!disabled} onChange={(e) => setNegativePrompt(e.target.value)} value={negativePrompt} />
+  )
+
+  return disabled ? (
+    <StatefulTooltip
+      overrides={{
+        Body: {
+          style: { zIndex: 129 },
+        },
+      }}
+      accessibilityType={"tooltip"}
+      placement={PLACEMENT.top}
+      showArrow={true}
+      content={
+        disabledDueToUnsupportedAction
+          ? "Negative prompt is not available for Advance action"
+          : disabledDueToInpainting
+          ? "Negative prompt is not available for inpainting"
+          : "Negative prompt is not supported with the config combination"
+      }
+    >
+      <Block style={{ flexGrow: 1, display: "flex" }}>{promptInput}</Block>
+    </StatefulTooltip>
+  ) : (
+    promptInput
+  )
+}
+
+const PromptInput = (props: DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>) => {
+  const disabledStyle = props.disabled ? { color: "#777", background: "#EEE", cursor: "not-allowed" } : {}
+
+  return (
+    <input
+      type="text"
+      autoComplete="off"
+      style={{
+        borderRadius: "5px",
+        background: "#FFF",
+        padding: "5px",
+        flexGrow: "1",
+        border: "1px solid #c4c4c4",
+        height: "30px",
+        ...disabledStyle,
+      }}
+      {...props}
+    />
   )
 }
 
@@ -229,15 +364,17 @@ const GenerateButton = ({ popup }: { popup: Popup }) => {
   )
 
   return popup?.target.getImage() ? (
-    <Block display="flex">
+    <Block display="flex" alignItems="flex-start">
       <Button
+        style={{ height: "42px" }}
         size="compact"
         onClick={() => onGenerateImage({})}
         overrides={{
           BaseButton: {
             style: {
-              borderRadius: "8px 0 0 8px",
-              padding: "10px 6px 10px 12px",
+              borderTopRightRadius: "0",
+              borderBottomRightRadius: "0",
+              paddingRight: "6px",
             },
           },
         }}
@@ -325,15 +462,19 @@ const GenerateButton = ({ popup }: { popup: Popup }) => {
       >
         <Block>
           <Button
+            style={{ height: "42px" }}
             size="compact"
             kind={KIND.primary}
             onClick={() => setIsGenerateActionOptionsOpen((x) => !x)}
             overrides={{
               BaseButton: {
                 style: {
-                  borderRadius: "0 8px 8px 0",
-                  padding: "10px 6px 10px 6px",
-                  borderLeft: "1px solid #444",
+                  borderTopLeftRadius: "0",
+                  borderBottomLeftRadius: "0",
+                  paddingLeft: "6px",
+                  borderLeftWidth: "1px",
+                  borderLeftColor: "#444",
+                  borderLeftStyle: "solid",
                 },
               },
             }}
@@ -344,7 +485,11 @@ const GenerateButton = ({ popup }: { popup: Popup }) => {
       </Popover>
     </Block>
   ) : (
-    <Button size="compact" onClick={() => onGenerateImage({ advanceSteps: generateAction == "advance" })}>
+    <Button
+      size="compact"
+      style={{ height: "42px" }}
+      onClick={() => onGenerateImage({ advanceSteps: generateAction == "advance" })}
+    >
       Generate
     </Button>
   )
