@@ -131,6 +131,7 @@ const generateNormalOrInpainting = async ({
       ...(frame.metadata?.initImage || {}),
       fixed: true,
       image: initImage,
+      noise: frame.getNoise(),
     },
     accumulatedSteps: numInferenceSteps,
   }
