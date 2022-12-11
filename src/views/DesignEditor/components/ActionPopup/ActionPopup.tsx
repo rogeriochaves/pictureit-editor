@@ -168,7 +168,7 @@ const ActionPopup = () => {
             left: `${Math.max(popup.x - popupWidth / 2, minX)}px`,
             background: "#eeeaee",
             border: "1px solid #c4c4c4",
-            padding: "12px",
+            padding: "12px 12px 0 12px",
             borderRadius: "10px",
             width: `${popupWidth}px`,
             boxShadow: "0px 0px 10px rgba(0,0,0,.2)",
@@ -199,7 +199,7 @@ const ActionPopup = () => {
         </Button> */}
           </div>
           <div>
-            <Scrollable style={{ height: "25px" }}>
+            <Scrollable style={{ height: "37px" }}>
               <div style={{ display: "flex", gap: "8px", whiteSpace: "nowrap" }}>
                 {tagSuggestions.map((tag) => (
                   <Pill key={tag} value={tag} />
