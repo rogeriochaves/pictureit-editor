@@ -188,6 +188,7 @@ const ActionPopup = () => {
               id="actionPopupPrompt"
               type="text"
               onChange={onPromptChange}
+              autoComplete="off"
               value={promptValue || ""}
               style={{
                 borderRadius: "5px",
