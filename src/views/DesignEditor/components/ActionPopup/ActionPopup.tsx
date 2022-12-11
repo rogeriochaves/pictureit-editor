@@ -349,28 +349,25 @@ const GenerateButton = ({ popup }: { popup: Popup }) => {
   const [isGenerateActionOptionsOpen, setIsGenerateActionOptionsOpen] = useState(false)
   const [generateAction, setGenerateAction] = useRecoilState(generateActionState(popup.target.id))
 
-  const onGenerateImage = useCallback(
-    async ({ advanceSteps = false }: { advanceSteps?: boolean }) => {
-      if (!editor) return
+  const onGenerateImage = useCallback(async () => {
+    if (!editor) return
 
-      const targetId = popup?.target.id
-      if (!targetId) return
-      if (!popup.target.metadata?.prompt) return
-      generateImage({
-        frame: popup.target,
-        editor: editor,
-        advanceSteps,
-      })
-    },
-    [popup, generateImage, editor]
-  )
+    const targetId = popup?.target.id
+    if (!targetId) return
+    if (!popup.target.metadata?.prompt) return
+    generateImage({
+      frame: popup.target,
+      editor: editor,
+      advanceSteps: generateAction == "advance",
+    })
+  }, [editor, popup, generateImage, generateAction])
 
   return popup?.target.getImage() ? (
     <Block display="flex" alignItems="flex-start">
       <Button
         style={{ height: "42px" }}
         size="compact"
-        onClick={() => onGenerateImage({})}
+        onClick={onGenerateImage}
         overrides={{
           BaseButton: {
             style: {
@@ -487,11 +484,7 @@ const GenerateButton = ({ popup }: { popup: Popup }) => {
       </Popover>
     </Block>
   ) : (
-    <Button
-      size="compact"
-      style={{ height: "42px" }}
-      onClick={() => onGenerateImage({ advanceSteps: generateAction == "advance" })}
-    >
+    <Button size="compact" style={{ height: "42px" }} onClick={onGenerateImage}>
       Generate
     </Button>
   )
