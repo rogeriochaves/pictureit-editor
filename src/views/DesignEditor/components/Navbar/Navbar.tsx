@@ -320,7 +320,7 @@ const Navbar = () => {
               items={{
                 __ungrouped: [],
                 [user.contents?.name]: [
-                  { label: "Files", action: "files" },
+                  { label: "Artworks", action: "files" },
                   { label: "Account", action: "account" },
                   { label: "Logout", action: "logout" },
                 ],
@@ -404,7 +404,7 @@ const Navbar = () => {
               }
             }}
             items={[
-              { label: "Back to files", action: "files" },
+              { label: "Back to artworks", action: "files" },
               { label: "File", arrow: true, action: "submenu-file" },
             ]}
             overrides={{
