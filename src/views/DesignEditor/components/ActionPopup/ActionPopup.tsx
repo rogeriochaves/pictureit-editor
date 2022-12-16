@@ -10,15 +10,15 @@ import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { DetailedHTMLProps, InputHTMLAttributes, useCallback, useEffect, useRef, useState } from "react"
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil"
+import { PICTURE_IT_URL } from "../../../../api/adapters/pictureit"
 import Negative from "../../../../components/Icons/Negative"
-import NegativeSquare from "../../../../components/Icons/NegativeSquare"
-import NegativeText from "../../../../components/Icons/NegativeText"
+import Question from "../../../../components/Icons/Question"
 import Scrollable from "../../../../components/Scrollable"
 import {
   generateActionState,
   generateImageCall,
   getOverlappingFrames,
-  hidePopupState,
+  hidePopupState
 } from "../../../../state/generateImage"
 import { tagSuggestionsCall } from "../../../../state/tagSuggestions"
 import { useCallRecoilLazyLoadable, useRecoilValueLazyLoadable } from "../../../../utils/lazySelectorFamily"
@@ -200,7 +200,14 @@ const ActionPopup = () => {
                     accessibilityType={"tooltip"}
                     placement={PLACEMENT.top}
                     showArrow={true}
-                    content="Add negative prompt"
+                    content={
+                      <Block display="flex" $style={{ gap: "4px" }}>
+                        <Block>Add negative prompt</Block>
+                        <a title="Read more" href={`${PICTURE_IT_URL}/guides/negative-prompt`} rel="noreferrer" target="_blank">
+                          <Question size={16} variant="white" />
+                        </a>
+                      </Block>
+                    }
                   >
                     <Button
                       size={SIZE.mini}
@@ -232,7 +239,14 @@ const ActionPopup = () => {
                     accessibilityType={"tooltip"}
                     placement={PLACEMENT.top}
                     showArrow={true}
-                    content="What not to include in the picture"
+                    content={
+                      <Block display="flex" $style={{ gap: "4px" }}>
+                        <Block>What not to include in the picture</Block>
+                        <a title="Read more" href={`${PICTURE_IT_URL}/guides/negative-prompt`} rel="noreferrer" target="_blank">
+                          <Question size={16} variant="white" />
+                        </a>
+                      </Block>
+                    }
                   >
                     <button
                       style={{

@@ -11,7 +11,9 @@ import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { debounce } from "lodash"
 import { useCallback, useEffect, useState } from "react"
+import { PICTURE_IT_URL } from "../../../../../../api/adapters/pictureit"
 import NoColor from "../../../../../../components/Icons/NoColor"
+import Question from "../../../../../../components/Icons/Question"
 import { DEFAULT_PROMPT_STRENGTH, renderInitImage, renderNewInitImage } from "../../../../../../state/generateImage"
 import { ColorSquare } from "../Shared/ColorSquare"
 
@@ -145,6 +147,17 @@ export const InitImageSettings = () => {
     </Button>
   ) : null
 
+  const TitleWithHelpTooltip = ({ title }: { title: string }) => (
+    <Block display="flex" justifyContent="space-between" $style={{ flexGrow: 1 }}>
+      <Block>{title}</Block>
+      <Block>
+        <a title="Read more" href={`${PICTURE_IT_URL}/guides/base-image`} rel="noreferrer" target="_blank">
+          <Question size={16} />
+        </a>
+      </Block>
+    </Block>
+  )
+
   return (
     <StatefulPopover
       showArrow={true}
@@ -159,7 +172,7 @@ export const InitImageSettings = () => {
         <Block padding="12px" width="200px" backgroundColor="#ffffff" display="grid" gridGap="8px">
           {initImageWithNoise ? (
             <Block display="flex" flexDirection="column" gridGap="8px">
-              <Block>Base Image</Block>
+              <TitleWithHelpTooltip title="Base Image" />
               <Block display="flex" gridGap="8px" alignItems="center">
                 {noInitImageButton}
                 {currentCanvasAsInitButton}
@@ -178,11 +191,11 @@ export const InitImageSettings = () => {
           ) : !activeObject.metadata?.initImage?.fixed && !currentCanvasImage ? (
             <Block display="flex" gridGap="8px" alignItems="center">
               {noInitImageButton}
-              <Block>No base image</Block>
+              <TitleWithHelpTooltip title="No base Image" />
             </Block>
           ) : (
             <Block display="flex" flexDirection="column" gridGap="8px">
-              <Block>Base Image</Block>
+              <TitleWithHelpTooltip title="Base Image" />
               <Block display="flex" gridGap="8px" alignItems="center">
                 {noInitImageButton}
                 {currentCanvasAsInitButton}
@@ -193,12 +206,7 @@ export const InitImageSettings = () => {
       )}
     >
       <Block>
-        <StatefulTooltip
-          placement={PLACEMENT.bottom}
-          showArrow={true}
-          accessibilityType="tooltip"
-          content="Base Image"
-        >
+        <StatefulTooltip placement={PLACEMENT.bottom} showArrow={true} accessibilityType="tooltip" content="Base Image">
           <Button kind={KIND.tertiary} size={SIZE.mini}>
             <ColorSquare>
               {initImageWithNoise ? <img height="24" src={initImageWithNoise} /> : <NoColor size={24} />}
@@ -220,7 +228,21 @@ const NoiseSlider = ({
   return (
     <>
       <Block $style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <Block $style={{ fontSize: "14px" }}>Noise</Block>
+        <StatefulTooltip
+          accessibilityType={"tooltip"}
+          placement={PLACEMENT.top}
+          showArrow={true}
+          content={
+            <Block display="flex" $style={{ gap: "4px" }}>
+              <Block>Forces the model to modify the base image</Block>
+              <a title="Read more" href={`${PICTURE_IT_URL}/guides/base-image`} rel="noreferrer" target="_blank">
+                <Question size={16} variant="white" />
+              </a>
+            </Block>
+          }
+        >
+          <Block $style={{ fontSize: "14px" }}>Noise</Block>
+        </StatefulTooltip>
         <Block width="52px">
           <Input
             overrides={{
@@ -292,7 +314,21 @@ const PromptStrengthSlider = ({
   return (
     <>
       <Block $style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <Block $style={{ fontSize: "14px" }}>Prompt Strength</Block>
+      <StatefulTooltip
+          accessibilityType={"tooltip"}
+          placement={PLACEMENT.top}
+          showArrow={true}
+          content={
+            <Block display="flex" $style={{ gap: "4px" }}>
+              <Block>Low values prioritize the base image, high values prioritize the prompt</Block>
+              <a title="Read more" href={`${PICTURE_IT_URL}/guides/base-image`} rel="noreferrer" target="_blank">
+                <Question size={16} variant="white" />
+              </a>
+            </Block>
+          }
+        >
+          <Block $style={{ fontSize: "14px" }}>Prompt Strength</Block>
+        </StatefulTooltip>
         <Block width="52px">
           <Input
             overrides={{

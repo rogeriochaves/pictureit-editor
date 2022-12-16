@@ -7,6 +7,8 @@ import { Slider } from "baseui/slider"
 import { StatefulTooltip } from "baseui/tooltip"
 import { fabric } from "fabric"
 import { useCallback, useEffect, useState } from "react"
+import { PICTURE_IT_URL } from "../../../../../../api/adapters/pictureit"
+import Question from "../../../../../../components/Icons/Question"
 import Steps from "../../../../../../components/Icons/Steps"
 
 export const StepsSettings = () => {
@@ -45,8 +47,13 @@ export const StepsSettings = () => {
       content={() => (
         <Block padding="12px" width="200px" backgroundColor="#ffffff" display="grid" gridGap="8px">
           <Block>
-            <Block $style={{ fontSize: "13px", marginBottom: "12px", color: "#666" }}>
-              More steps take longer, but may increase the quality
+            <Block display="flex" $style={{ fontSize: "13px", marginBottom: "12px", color: "#666" }}>
+              <Block>More steps take longer, but may increase the quality</Block>
+              <Block>
+                <a title="Read more" href={`${PICTURE_IT_URL}/guides/steps-and-guidance`} rel="noreferrer" target="_blank">
+                  <Question size={16} />
+                </a>
+              </Block>
             </Block>
             <Block $style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <Block $style={{ fontSize: "14px" }}>Steps</Block>
