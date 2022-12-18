@@ -20,6 +20,8 @@ Try now: [https://pictureit.art](https://pictureit.art)
 
 🪧 [Base image inpainting](https://pictureit.art/guides/base-image)
 
+↔️ [Outpainting extending and zoom out](https://pictureit.art/guides/outpainting)
+
 ✍️ Guided drawing inpainting
 
 🙅 [Negative Prompt](https://pictureit.art/guides/negative-prompt)
