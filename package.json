@@ -6,7 +6,7 @@
     "dev": "./dev.sh",
     "build": "VITE_ENV_PROXY=disable vite build",
     "preview": "vite preview",
-    "packages:build": "npm run build --workspaces",
+    "packages:build": "cd packages/types && npm run build && cd - && npm run build --workspaces",
     "lint": "eslint"
   },
   "dependencies": {
