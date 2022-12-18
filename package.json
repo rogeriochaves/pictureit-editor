@@ -25,7 +25,7 @@
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "express-http-proxy": "^1.6.3",
-    "fabric": "github:rogeriochaves/fabric.js",
+    "fabric": "github:rogeriochaves/fabric.js#9d4037d27192f19063470134277304885b878b7d",
     "i18next": "^21.8.13",
     "immutability-helper": "^3.1.1",
     "install": "^0.13.0",

@@ -1,5 +1,7 @@
 # Picture it Editor: the open-source AI Art creation tool
 
+[![Build](https://github.com/rogeriochaves/pictureit-editor/actions/workflows/build.yml/badge.svg)](https://github.com/rogeriochaves/pictureit-editor/actions/workflows/build.yml)
+
 Picture it Editor is an open-source design editor, currently in beta version, designed to be a studio to help you create and iterate on digital art using a variety of AI models available as tools in the editor
 
 You can run the editor locally or try our hosted version.
