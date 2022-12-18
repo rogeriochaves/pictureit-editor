@@ -14,15 +14,15 @@ Try now: [https://pictureit.art](https://pictureit.art)
 
 ## Features
 
-🖼 Image generation with Stable Diffusion
+🖼 [Image generation with Stable Diffusion](https://pictureit.art/guides/getting-started)
 
-🪜 Step and guidance adjustment
+🪜 [Step and guidance adjustment](https://pictureit.art/guides/steps-and-guidance)
 
-🪧 Base image inpainting
+🪧 [Base image inpainting](https://pictureit.art/guides/base-image)
 
 ✍️ Guided drawing inpainting
 
-🙅 Negative Prompt
+🙅 [Negative Prompt](https://pictureit.art/guides/negative-prompt)
 
 🔧 Easy to extend for different backend or other models
 
