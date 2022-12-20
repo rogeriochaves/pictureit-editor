@@ -9,12 +9,15 @@ import { nanoid } from "nanoid"
 import { useCallback, useEffect } from "react"
 import { HexColorPicker } from "react-colorful"
 import { useRecoilState } from "recoil"
-import { drawingColorState } from "../../../../../state/designEditor"
+import FilledCircle from "../../../../../components/Icons/FilledCircle"
+import { drawingBrushSizeState, drawingColorState } from "../../../../../state/designEditor"
+import { BrushSize } from "./Shared/BrushSize"
 import { ColorSquare } from "./Shared/ColorSquare"
 import { Separator } from "./Shared/Separator"
 
 const DrawingTool = () => {
   const [drawingColor, setDrawingColor] = useRecoilState(drawingColorState)
+  const [brushSize, setBrushSize] = useRecoilState(drawingBrushSizeState)
   const editor = useEditor()!
 
   const objectAddedHandler = useCallback(
@@ -34,7 +37,7 @@ const DrawingTool = () => {
     const canvas = editor.canvas.canvas
     canvas.isDrawingMode = true
     canvas.freeDrawingBrush = new fabric.PencilBrush(canvas)
-    canvas.freeDrawingBrush.width = 15
+    canvas.freeDrawingBrush.width = brushSize
     canvas.freeDrawingBrush.color = drawingColor
     canvas.on("object:added", objectAddedHandler)
 
@@ -42,7 +45,14 @@ const DrawingTool = () => {
       canvas.isDrawingMode = false
       canvas.off("object:added", objectAddedHandler)
     }
-  }, [drawingColor, editor, objectAddedHandler])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    const canvas = editor.canvas.canvas
+    canvas.freeDrawingBrush.width = brushSize
+    canvas.freeDrawingBrush.color = drawingColor
+  }, [brushSize, drawingColor, editor.canvas.canvas])
 
   return (
     <Block
@@ -89,6 +99,10 @@ const DrawingTool = () => {
             </StatefulTooltip>
           </Block>
         </StatefulPopover>
+
+        <Separator />
+
+        <BrushSize title="Brush size" brushSize={brushSize} setBrushSize={setBrushSize} icon={FilledCircle} />
       </Block>
     </Block>
   )

@@ -98,3 +98,13 @@ export const publishTitleState: RecoilState<string | undefined> = atom({
   key: "publishTitleState",
   default: undefined as string | undefined,
 })
+
+export const drawingBrushSizeState: RecoilState<number> = atom({
+  key: "drawingBrushSizeState",
+  default: 15,
+})
+
+export const eraserBrushSizeState: RecoilState<number> = atom({
+  key: "eraserBrushSizeState",
+  default: 60,
+})

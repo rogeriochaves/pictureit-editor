@@ -1,32 +1,23 @@
-import React from "react"
 import { Block } from "baseui/block"
+import { Button, KIND, SIZE } from "baseui/button"
 import { Input } from "baseui/input"
+import { PLACEMENT, StatefulPopover } from "baseui/popover"
 import { Slider } from "baseui/slider"
-import { ILayer } from "@layerhub-io/types"
-import { StatefulPopover, PLACEMENT } from "baseui/popover"
-import { useActiveObject, useEditor } from "@layerhub-io/react"
-import { Button, SIZE, KIND } from "baseui/button"
-import OpacityIcon from "~/components/Icons/Opacity"
 import { StatefulTooltip } from "baseui/tooltip"
+import { JSXElementConstructor } from "react"
 
-const Opacity = () => {
-  const editor = useEditor()!
-  const [state, setState] = React.useState({ opacity: 1 })
-  const activeObject = useActiveObject() as Required<ILayer>
-
-  React.useEffect(() => {
-    if (activeObject) {
-      setState({ opacity: activeObject.opacity * 100 })
-    }
-  }, [activeObject])
-
-  const onChange = React.useCallback(
-    (value: number) => {
-      setState({ opacity: value })
-      editor.objects.update({ opacity: value / 100 })
-    },
-    [editor]
-  )
+export const BrushSize = ({
+  title,
+  brushSize,
+  setBrushSize,
+  icon,
+}: {
+  title: string
+  brushSize: number
+  setBrushSize: (value: number) => void
+  icon: JSXElementConstructor<{ size: number }>
+}) => {
+  const Icon = icon
 
   return (
     <StatefulPopover
@@ -34,7 +25,7 @@ const Opacity = () => {
       content={() => (
         <Block width="200px" backgroundColor="#ffffff" padding="20px">
           <Block $style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <Block $style={{ fontSize: "14px" }}>Opacity</Block>
+            <Block $style={{ fontSize: "14px" }}>{title}</Block>
             <Block width="52px">
               <Input
                 overrides={{
@@ -61,7 +52,7 @@ const Opacity = () => {
                 }}
                 size={SIZE.mini}
                 onChange={() => {}}
-                value={Math.round(state.opacity)}
+                value={Math.round(brushSize)}
               />
             </Block>
           </Block>
@@ -88,23 +79,22 @@ const Opacity = () => {
               min={0}
               max={100}
               marks={false}
-              value={[state.opacity]}
+              value={[brushSize]}
               // @ts-ignore
-              onChange={({ value }) => onChange(value)}
+              onChange={({ value }) => setBrushSize(value)}
             />
           </Block>
         </Block>
       )}
     >
       <Block>
-        <StatefulTooltip placement={PLACEMENT.bottom} showArrow={true} accessibilityType="tooltip" content="Opacity">
+        <StatefulTooltip placement={PLACEMENT.bottom} showArrow={true} accessibilityType="tooltip" content={title}>
           <Button kind={KIND.tertiary} size={SIZE.mini}>
-            <OpacityIcon size={24} />
+            <Icon size={16} />
+            <Block paddingLeft="8px">{brushSize}</Block>
           </Button>
         </StatefulTooltip>
       </Block>
     </StatefulPopover>
   )
 }
-
-export default Opacity
