@@ -23,6 +23,7 @@ declare module "fabric" {
     }
     interface Object {
       fromObject(object: any): Promise<this>
+      eraser?: fabric.Eraser
     }
     interface ActiveSelection {
       enterGroup(object: fabric.Object): boolean

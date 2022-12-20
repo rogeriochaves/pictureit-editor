@@ -141,7 +141,10 @@ const generateNormalOrInpainting = async ({
     accumulatedSteps: numInferenceSteps,
   }
 
-  return initImageWithNoise && clipMask
+  const hasOverlappingFrames = getOverlappingFrames(editor, frame).length > 0
+  const hasErasing = !!frame.getImage()?.eraser
+
+  return initImageWithNoise && (hasOverlappingFrames || hasErasing)
     ? await api.stableDiffusionInpainting({
         prompt: frame.metadata?.prompt || "",
         num_inference_steps: numInferenceSteps,
@@ -209,7 +212,7 @@ export const renderClipMask = async (
 ): Promise<string | undefined> => {
   const overlappingFrames = getOverlappingFrames(editor, generationFrame)
 
-  const canvas = await exportFrameToCanvas(editor, generationFrame, overlappingFrames)
+  const canvas = await exportFrameToCanvas(editor, generationFrame, [generationFrame, ...overlappingFrames])
   if (canvas) {
     paintItBlack(canvas.getContext("2d")!)
 
