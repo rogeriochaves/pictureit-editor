@@ -13,7 +13,7 @@
             "layers": "Layers",
             "drawing": "Pencil",
             "move": "Move",
-            "generation": "Generation",
+            "generation": "Frame",
             "eraser": "Inpainting"
         }
     }

@@ -17,7 +17,7 @@ class Frame extends Base {
       absolutePositioned: this.config.clipToFrame,
       erasable: false,
     })
-    const label = new fabric.Text("Frame", {
+    const label = new fabric.Text("Canvas", {
       type: LayerType.LABEL,
       selectable: false,
       hasControls: false,
