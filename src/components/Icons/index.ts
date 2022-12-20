@@ -27,6 +27,7 @@ import Video from "./Video"
 import Cursor from "./Cursor"
 import PencilBrush from "./PencilBrush"
 import GenerationIcon from "./GenerationIcon"
+import Eraser from "./Eraser"
 
 class Icons {
   static Background = Background
@@ -58,7 +59,7 @@ class Icons {
   static Drawing = PencilBrush
   static Move = Cursor
   static Generation = GenerationIcon
-  static Eraser = PencilBrush
+  static Eraser = Eraser
 }
 
 export default Icons

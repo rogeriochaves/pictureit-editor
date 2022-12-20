@@ -4,7 +4,7 @@ import { Button, KIND, SIZE } from "baseui/button"
 import { Input } from "baseui/input"
 import { Slider } from "baseui/slider"
 import { Theme } from "baseui/theme"
-import React, { useEffect } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import { useRecoilState } from "recoil"
 import Icons from "~/components/Icons"
 import { activePanelState, PanelType } from "../../../../../state/designEditor"
@@ -30,12 +30,25 @@ const Common = () => {
   const editor = useEditor()
   const zoomRatio: number = useZoomRatio()
   const [activePanel, setActivePanel] = useRecoilState(activePanelState)
-  const historyStatus = editor?.history.getStatus()
+  const [historyStatus, setHistoryStatus] = useState(editor?.history.getStatus())
 
   useEffect(() => {
     setOptions({ ...options, zoomRatio: Math.round(zoomRatio * 100) })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zoomRatio])
+
+  const onHistoryChanged = useCallback(() => {
+    setHistoryStatus(editor?.history.getStatus())
+  }, [editor?.history])
+
+  useEffect(() => {
+    if (!editor) return
+
+    editor.on("history:changed", onHistoryChanged)
+    return () => {
+      editor.off("history:changed", onHistoryChanged)
+    }
+  }, [editor, onHistoryChanged])
 
   const handleChange = (type: string, value: any) => {
     if (!editor) return

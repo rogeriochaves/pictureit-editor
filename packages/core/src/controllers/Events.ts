@@ -26,6 +26,7 @@ class Events extends Base {
       "background:selected": this.onBackgroundSelected,
       "object:added": this.objectAdded,
       "object:removed": this.objectRemoved,
+      "erasing:end": this.erasingEnd
     })
 
     this.canvas.wrapperEl.addEventListener("touchmove", this.onTouchMove.bind(this), false)
@@ -45,6 +46,7 @@ class Events extends Base {
       "background:selected": this.onBackgroundSelected,
       "object:added": this.objectAdded,
       "object:removed": this.objectRemoved,
+      "erasing:end": this.erasingEnd
     })
 
     this.canvas.wrapperEl.removeEventListener("touchmove", this.onTouchMove.bind(this))
@@ -117,6 +119,10 @@ class Events extends Base {
         this.canvas.remove(loadingBar)
       }
     }
+  }
+
+  erasingEnd = () => {
+    this.editor.history.save()
   }
 
   onMouseOut = () => {
