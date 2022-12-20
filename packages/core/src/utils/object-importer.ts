@@ -383,7 +383,6 @@ class ObjectImporter {
       originY,
       type,
       preview,
-      clipPath,
       eraser,
     } = item as Required<ILayer>
     const metadata = item.metadata ? item.metadata : {}
@@ -416,7 +415,6 @@ class ObjectImporter {
       strokeDashOffset: item.strokeDashOffset ? item.strokeMiterLimit : 0,
       metadata: metadata,
       preview,
-      clipPath: clipPath,
       ...(eraser ? { eraser: await this.import(eraser, options) } : {}),
     }
     return baseOptions
