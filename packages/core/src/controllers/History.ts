@@ -64,7 +64,7 @@ class History extends Base {
       }
 
       const current = this.history[this.index]
-      if (JSON.stringify(current) !== JSON.stringify(nextHistory)) {
+      if (JSON.stringify(current?.objects) !== JSON.stringify(nextHistory.objects)) {
         this.push(nextHistory)
       }
     } catch (err) {

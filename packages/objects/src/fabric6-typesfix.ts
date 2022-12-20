@@ -29,14 +29,6 @@ declare module "fabric" {
       exitGroup(object: fabric.Object): void
       removeAll(): fabric.Object[]
     }
-    interface Group extends Object, ICollection<Group>, IGroupOptions {
-      enterGroup(object: fabric.Object): boolean
-      exitGroup(object: fabric.Object): void
-      removeAll(): fabric.Object[]
-    }
-    class Group extends fabric.Group {
-      static fromObject(object: any): Promise<Group>
-    }
     class Eraser extends Group {
       static fromObject(object: any): Promise<Eraser>
     }
