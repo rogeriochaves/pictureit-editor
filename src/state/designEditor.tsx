@@ -91,7 +91,7 @@ export const contextMenuTimelineRequestState: RecoilState<ContextMenuTimelineReq
 
 export const drawingColorState: RecoilState<string> = atom({
   key: "drawingColorState",
-  default: "#000",
+  default: "#E24625",
 })
 
 export const publishTitleState: RecoilState<string | undefined> = atom({

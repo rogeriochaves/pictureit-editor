@@ -1,6 +1,7 @@
 import { useEditor } from "@layerhub-io/react"
 import { Block } from "baseui/block"
 import { fabric } from "fabric"
+import { IEvent } from "fabric/fabric-impl"
 import { useEffect } from "react"
 import { useRecoilState } from "recoil"
 import Eraser from "../../../../../components/Icons/Eraser"
@@ -12,6 +13,26 @@ const EraserTool = () => {
   const [brushSize, setBrushSize] = useRecoilState(eraserBrushSizeState)
   const editor = useEditor()!
 
+  const erasingEndHandler = (e: IEvent) => {
+    if (!e.subTargets) return;
+
+    for (const target of e.subTargets) {
+      if (target.group instanceof fabric.GenerationFrame) {
+        const frame = target.group
+
+        if (frame.metadata?.initImage) {
+          frame.metadata = {
+            ...frame.metadata,
+            initImage: {
+              ...frame.metadata.initImage,
+              fixed: false,
+            },
+          }
+        }
+      }
+    }
+  }
+
   useEffect(() => {
     const canvas = editor.canvas.canvas
 
@@ -22,9 +43,11 @@ const EraserTool = () => {
 
     canvas.freeDrawingBrush = eraser
     canvas.isDrawingMode = true
+    canvas.on("erasing:end", erasingEndHandler)
 
     return () => {
       canvas.isDrawingMode = false
+      canvas.off("erasing:end", erasingEndHandler)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
