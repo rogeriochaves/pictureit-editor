@@ -16,12 +16,12 @@ export const TOOL_ITEMS = [
     name: ToolType.GENERATION,
   },
   {
-    id: "drawing",
-    name: ToolType.DRAWING,
-  },
-  {
     id: "eraser",
     name: ToolType.ERASER,
+  },
+  {
+    id: "drawing",
+    name: ToolType.DRAWING,
   },
 ]
 

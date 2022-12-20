@@ -14,7 +14,7 @@
             "drawing": "Pencil",
             "move": "Move",
             "generation": "Generation",
-            "eraser": "Eraser"
+            "eraser": "Inpainting"
         }
     }
 }
