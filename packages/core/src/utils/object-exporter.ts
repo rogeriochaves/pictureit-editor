@@ -35,6 +35,9 @@ class ObjectExporter {
       case LayerType.STATIC_PATH:
         object = this.staticPath(item, options, inGroup)
         break
+      case "path":
+        object = item
+        break
       case LayerType.BACKGROUND:
         object = this.background(item, options, inGroup)
         break
@@ -43,6 +46,9 @@ class ObjectExporter {
         break
       case LayerType.STATIC_AUDIO:
         object = this.staticAudio(item, options, inGroup)
+        break
+      case LayerType.ERASER:
+        object = item
         break
       case LayerType.GENERATION_FRAME:
         object = this.generationFrame(item, options, inGroup)
@@ -242,6 +248,7 @@ class ObjectExporter {
       skewY,
       shadow,
       preview,
+      eraser,
     } = item as Required<ILayer>
     const baseOptions = {
       id,
@@ -266,6 +273,7 @@ class ObjectExporter {
       visible: true,
       shadow,
       preview,
+      ...(eraser ? { eraser: this.export(eraser, options) } : {}),
     }
     return baseOptions
   }

@@ -19,6 +19,10 @@ export const TOOL_ITEMS = [
     id: "drawing",
     name: ToolType.DRAWING,
   },
+  {
+    id: "eraser",
+    name: ToolType.ERASER,
+  },
 ]
 
 const Container = styled("div", (props) => ({

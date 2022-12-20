@@ -9,10 +9,12 @@ import Canvas from "./Canvas"
 import GenerationFrame from "./GenerationFrame"
 import GenerationTool from "./GenerationTool"
 import { ToolType } from "../../../../../state/designEditor"
+import EraserTool from "./EraserTool"
 
 export const ToolItems = {
-  [ToolType.DRAWING]: DrawingTool,
   [ToolType.GENERATION]: GenerationTool,
+  [ToolType.DRAWING]: DrawingTool,
+  [ToolType.ERASER]: EraserTool,
 }
 
 export default {

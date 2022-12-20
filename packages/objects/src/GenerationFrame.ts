@@ -56,6 +56,7 @@ export class GenerationFrameObject extends fabric.Group {
               hasControls: false,
               hasBorders: false,
               evented: false,
+              erasable: false,
             }),
           ]
 
@@ -67,6 +68,7 @@ export class GenerationFrameObject extends fabric.Group {
       clipPath: clipPath,
       subTargetCheck: true,
       interactive: true,
+      erasable: "deep",
     }
     //@ts-ignore
     super.initialize(groupObjects, initOptions, true)
@@ -82,6 +84,11 @@ export class GenerationFrameObject extends fabric.Group {
     this.on("scaling", this.adjustClipPath)
     this.adjustClipPath()
     this.adjustBackground()
+
+    const background = this.getBackground()
+    if (background) {
+      background.erasable = false
+    }
 
     return this
   }

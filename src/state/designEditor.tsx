@@ -32,6 +32,7 @@ export enum ToolType {
   MOVE = "Move",
   GENERATION = "Generation",
   DRAWING = "Drawing",
+  ERASER = "Eraser",
 }
 
 export const activeToolState: RecoilState<ToolType> = atom({

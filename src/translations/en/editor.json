@@ -11,9 +11,10 @@
             "graphics": "Graphics",
             "pixabay": "Pixabay",
             "layers": "Layers",
-            "drawing": "Drawing",
+            "drawing": "Pencil",
             "move": "Move",
-            "generation": "Generation"
+            "generation": "Generation",
+            "eraser": "Eraser"
         }
     }
 }

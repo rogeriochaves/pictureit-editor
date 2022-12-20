@@ -89,6 +89,7 @@ export enum LayerType {
   POSITIONING_HELPER = "PositioningHelper",
   GENERATION_FRAME = "GenerationFrame",
   GENERIC_NON_RENDERABLE = "GenericNonRenderable",
+  ERASER = "eraser",
 }
 
 export const nonRenderableLayerTypes: string[] = [

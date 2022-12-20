@@ -15,6 +15,7 @@ class Frame extends Base {
     const frame = new fabric.Frame({
       ...defaultFrameOptions,
       absolutePositioned: this.config.clipToFrame,
+      erasable: false,
     })
     const label = new fabric.Text("Frame", {
       type: LayerType.LABEL,
@@ -24,28 +25,16 @@ class Frame extends Base {
       fontSize: 22,
       fill: defaultFrameOptions.stroke,
       fontFamily: "Uber Move Text, sans-serif",
+      erasable: false,
       ...this.labelPosition(frame),
     })
 
-    // const background = new fabric.Background({
-    //   ...defaultBackgroundOptions,
-    //   shadow: this.config.shadow,
-    // })
-
     this.canvas.add(frame, label)
-    // const center = this.canvas.getCenter()
-    // frame.center()
-    // background.center()
 
     this.state.setFrame({
       height: defaultFrameOptions.width,
       width: defaultFrameOptions.height,
     })
-
-    // setTimeout(() => {
-    //   this.editor.zoom.zoomToFit()
-    //   this.editor.history.initialize()
-    // }, 50)
   }
 
   get frame() {

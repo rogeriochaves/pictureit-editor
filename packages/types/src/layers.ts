@@ -97,6 +97,7 @@ interface LayerBaseOptions {
   display?: TimeRange
   cut?: TimeRange
   params?: Param[]
+  eraser?: any
 }
 
 interface Animation {
@@ -163,6 +164,10 @@ export interface IGenerationFrame extends LayerBaseOptions {
   objects?: ILayer[]
 }
 
+export interface IEraser extends LayerBaseOptions {
+  objects?: ILayer[]
+}
+
 export type ILayer =
   | IStaticText
   | IDynamicText
@@ -176,6 +181,7 @@ export type ILayer =
   | IGroup
   | IBackgroundImage
   | IGenerationFrame
+  | IEraser
 
 export type ILayerOptions = IStaticText &
   IDynamicText &
@@ -188,4 +194,5 @@ export type ILayerOptions = IStaticText &
   IStaticVector &
   IGroup &
   IBackgroundImage &
-  IGenerationFrame
+  IGenerationFrame &
+  IEraser

@@ -56,6 +56,9 @@ class ObjectImporter {
       case LayerType.GENERATION_FRAME:
         object = (await this.generationFrame(item, options, inGroup)) as fabric.Object
         break
+      case LayerType.ERASER:
+        object = await this.eraser(item, options)
+        break
       default:
         object = await this.rect(item, options, inGroup)
     }
@@ -63,9 +66,9 @@ class ObjectImporter {
   }
 
   public staticText(item: ILayer, options: Required<ILayer>, inGroup: boolean): Promise<fabric.StaticText> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
-        const baseOptions = this.getBaseOptions(item, options, inGroup)
+        const baseOptions = await this.getBaseOptions(item, options, inGroup)
 
         const metadata = item.metadata
 
@@ -101,7 +104,7 @@ class ObjectImporter {
   public staticImage(item: ILayer, options: Required<ILayer>, inGroup: boolean): Promise<fabric.StaticImage> {
     return new Promise(async (resolve, reject) => {
       try {
-        const baseOptions = this.getBaseOptions(item, options, inGroup)
+        const baseOptions = await this.getBaseOptions(item, options, inGroup)
         const { src, cropX, cropY } = item as IStaticImage
 
         const image = await fabric.util.loadImage(src, { crossOrigin: "anonymous" })
@@ -131,7 +134,7 @@ class ObjectImporter {
   public backgroundImage(item: ILayer, options: Required<ILayer>, inGroup: boolean): Promise<fabric.BackgroundImage> {
     return new Promise(async (resolve, reject) => {
       try {
-        const baseOptions = this.getBaseOptions(item, options, inGroup)
+        const baseOptions = await this.getBaseOptions(item, options, inGroup)
         const { src, cropX, cropY } = item as IBackgroundImage
 
         const image = await fabric.util.loadImage(src, { crossOrigin: "anonymous" })
@@ -161,7 +164,7 @@ class ObjectImporter {
   public staticVideo(item: ILayer, options: Required<ILayer>, inGroup: boolean): Promise<fabric.Object> {
     return new Promise(async (resolve, reject) => {
       try {
-        const baseOptions = this.getBaseOptions(item, options, inGroup)
+        const baseOptions = await this.getBaseOptions(item, options, inGroup)
         const { src } = item as IStaticVideo
         const id = item.id
         const videoElement = await createVideoElement(id, src)
@@ -191,7 +194,7 @@ class ObjectImporter {
   public staticAudio(item: ILayer, options: Required<ILayer>, inGroup: boolean): Promise<fabric.StaticAudio> {
     return new Promise(async (resolve, reject) => {
       try {
-        const baseOptions = this.getBaseOptions(item, options, inGroup)
+        const baseOptions = await this.getBaseOptions(item, options, inGroup)
         const { src } = item as IStaticAudio
         // @ts-ignore
         const element = new fabric.StaticAudio({
@@ -208,7 +211,7 @@ class ObjectImporter {
   public staticPath(item: ILayer, options: Required<ILayer>, inGroup: boolean): Promise<fabric.StaticPath> {
     return new Promise(async (resolve, reject) => {
       try {
-        const baseOptions = this.getBaseOptions(item, options, inGroup)
+        const baseOptions = await this.getBaseOptions(item, options, inGroup)
         const { path, fill } = item as IStaticPath
 
         const element = new fabric.StaticPath({
@@ -231,7 +234,7 @@ class ObjectImporter {
   public group(item: ILayer, options: Required<ILayer>, inGroup: boolean): Promise<fabric.Group> {
     return new Promise(async (resolve, reject) => {
       try {
-        const baseOptions = this.getBaseOptions(item, options, inGroup)
+        const baseOptions = await this.getBaseOptions(item, options, inGroup)
         let objects: fabric.Object[] = []
 
         for (const object of (item as IGroup).objects) {
@@ -254,7 +257,7 @@ class ObjectImporter {
   public background(item: ILayer, options: Required<ILayer>, inGroup: boolean): Promise<fabric.Background> {
     return new Promise(async (resolve, reject) => {
       try {
-        const baseOptions = this.getBaseOptions(item, options, inGroup)
+        const baseOptions = await this.getBaseOptions(item, options, inGroup)
         const { fill } = item as IBackground
         // @ts-ignore
         const element = new fabric.Background({
@@ -271,10 +274,14 @@ class ObjectImporter {
     })
   }
 
+  public async eraser(item: ILayer, options: Required<ILayer>): Promise<fabric.Eraser> {
+    return fabric.Eraser.fromObject(item)
+  }
+
   public rect(item: ILayer, options: Required<ILayer>, inGroup: boolean): Promise<fabric.Rect> {
     return new Promise(async (resolve, reject) => {
       try {
-        const baseOptions = this.getBaseOptions(item, options, inGroup)
+        const baseOptions = await this.getBaseOptions(item, options, inGroup)
         const { fill } = item as any
         // @ts-ignore
         const element = new fabric.Rect({
@@ -293,7 +300,7 @@ class ObjectImporter {
   public staticVector(item: ILayer, options: Required<ILayer>, inGroup: boolean): Promise<fabric.StaticVector> {
     return new Promise(async (resolve, reject) => {
       try {
-        const baseOptions = this.getBaseOptions(item, options, inGroup)
+        const baseOptions = await this.getBaseOptions(item, options, inGroup)
         const { src, colorMap = {} } = item as IStaticVector
 
         fabric.loadSVGFromURL(src, (objects, opts) => {
@@ -325,7 +332,7 @@ class ObjectImporter {
   public generationFrame(item: ILayer, options: Required<ILayer>, inGroup: boolean): Promise<fabric.GenerationFrame> {
     return new Promise(async (resolve, reject) => {
       try {
-        const baseOptions = this.getBaseOptions(item, options, inGroup)
+        const baseOptions = await this.getBaseOptions(item, options, inGroup)
         const { fill } = item as IGenerationFrame
 
         let objects: fabric.Object[] = []
@@ -343,7 +350,7 @@ class ObjectImporter {
           {
             ...baseOptions,
             type: item.type,
-            fill
+            fill,
           }
         )
 
@@ -354,7 +361,7 @@ class ObjectImporter {
     })
   }
 
-  public getBaseOptions(item: ILayer, options: Required<ILayer>, inGroup: boolean) {
+  public async getBaseOptions(item: ILayer, options: Required<ILayer>, inGroup: boolean) {
     const {
       id,
       name,
@@ -377,6 +384,7 @@ class ObjectImporter {
       type,
       preview,
       clipPath,
+      eraser,
     } = item as Required<ILayer>
     const metadata = item.metadata ? item.metadata : {}
     const { fill } = metadata
@@ -409,6 +417,7 @@ class ObjectImporter {
       metadata: metadata,
       preview,
       clipPath: clipPath,
+      ...(eraser ? { eraser: await this.import(eraser, options) } : {}),
     }
     return baseOptions
   }

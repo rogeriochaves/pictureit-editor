@@ -44,6 +44,9 @@ class ObjectImporter {
       case LayerType.GENERATION_FRAME:
         object = await this.generationFrame(item, params)
         break
+      case LayerType.ERASER:
+        object = await this.eraser(item)
+        break
       default:
         object = await this.rect(item)
     }
@@ -51,9 +54,9 @@ class ObjectImporter {
   }
 
   public staticText(item: ILayer): Promise<fabric.StaticText> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
-        const baseOptions = this.getBaseOptions(item)
+        const baseOptions = await this.getBaseOptions(item)
         const metadata = item.metadata
         const { textAlign, fontFamily, fontSize, charSpacing, lineHeight, text, underline, fill } = item as IStaticText
 
@@ -85,7 +88,7 @@ class ObjectImporter {
   public staticImage(item: ILayer): Promise<fabric.StaticImage> {
     return new Promise(async (resolve, reject) => {
       try {
-        const baseOptions = this.getBaseOptions(item)
+        const baseOptions = await this.getBaseOptions(item)
         const { src, cropX, cropY } = item as IStaticImage
 
         const image = await fabric.util.loadImage(src, { crossOrigin: "anonymous" })
@@ -106,7 +109,7 @@ class ObjectImporter {
   public backgroundImage(item: ILayer): Promise<fabric.BackgroundImage> {
     return new Promise(async (resolve, reject) => {
       try {
-        const baseOptions = this.getBaseOptions(item)
+        const baseOptions = await this.getBaseOptions(item)
         const { src, cropX, cropY } = item as IBackgroundImage
 
         const image = await fabric.util.loadImage(src, { crossOrigin: "anonymous" })
@@ -127,7 +130,7 @@ class ObjectImporter {
   public staticVideo(item: ILayer): Promise<fabric.StaticImage> {
     return new Promise(async (resolve, reject) => {
       try {
-        const baseOptions = this.getBaseOptions(item)
+        const baseOptions = await this.getBaseOptions(item)
         const { preview: src, cropX, cropY } = item as IStaticImage
 
         const image = await fabric.util.loadImage(src as string, { crossOrigin: "anonymous" })
@@ -148,7 +151,7 @@ class ObjectImporter {
   public staticPath(item: ILayer): Promise<fabric.StaticPath> {
     return new Promise(async (resolve, reject) => {
       try {
-        const baseOptions = this.getBaseOptions(item)
+        const baseOptions = await this.getBaseOptions(item)
         const { path, fill } = item as IStaticPath
 
         const element = new fabric.StaticPath({
@@ -170,7 +173,7 @@ class ObjectImporter {
   public group(item: ILayer, params: any): Promise<fabric.Group> {
     return new Promise(async (resolve, reject) => {
       try {
-        const baseOptions = this.getBaseOptions(item)
+        const baseOptions = await this.getBaseOptions(item)
         let objects: fabric.Object[] = []
 
         for (const object of (item as IGroup).objects) {
@@ -191,7 +194,7 @@ class ObjectImporter {
   public background(item: ILayer): Promise<fabric.Background> {
     return new Promise(async (resolve, reject) => {
       try {
-        const baseOptions = this.getBaseOptions(item)
+        const baseOptions = await this.getBaseOptions(item)
         const { fill } = item as IBackground
         // @ts-ignore
         const element = new fabric.Background({
@@ -208,15 +211,19 @@ class ObjectImporter {
     })
   }
 
+  public async eraser(item: ILayer): Promise<fabric.Eraser> {
+    return fabric.Eraser.fromObject(item);
+  }
+
   public rect(item: ILayer): Promise<fabric.Rect> {
     return new Promise(async (resolve, reject) => {
       try {
-        const baseOptions = this.getBaseOptions(item)
+        const baseOptions = await this.getBaseOptions(item)
         const { fill } = item as any
         // @ts-ignore
         const element = new fabric.Rect({
           ...baseOptions,
-          fill: typeof fill === "object" && fill.source == transparentB64 ? transparentPattern : fill,
+          fill: fill && typeof fill === "object" && fill.source == transparentB64 ? transparentPattern : fill,
           type: item.type,
         })
 
@@ -230,7 +237,7 @@ class ObjectImporter {
   public staticVector(item: ILayer): Promise<fabric.StaticVector> {
     return new Promise(async (resolve, reject) => {
       try {
-        const baseOptions = this.getBaseOptions(item)
+        const baseOptions = await this.getBaseOptions(item)
         const { src, colorMap = {} } = item as IStaticVector
 
         fabric.loadSVGFromURL(src, (objects, opts) => {
@@ -259,7 +266,7 @@ class ObjectImporter {
   public generationFrame(item: ILayer, params: any): Promise<fabric.GenerationFrame> {
     return new Promise(async (resolve, reject) => {
       try {
-        const baseOptions = this.getBaseOptions(item)
+        const baseOptions = await this.getBaseOptions(item)
         const { fill } = item as IGenerationFrame
         let objects: fabric.Object[] = []
 
@@ -287,7 +294,7 @@ class ObjectImporter {
     })
   }
 
-  getBaseOptions(item: ILayer) {
+  async getBaseOptions(item: ILayer) {
     const {
       id,
       name,
@@ -307,6 +314,14 @@ class ObjectImporter {
       originX,
       originY,
       angle,
+      eraser,
+      strokeDashArray,
+      strokeLineCap,
+      strokeLineJoin,
+      strokeUniform,
+      strokeMiterLimit,
+      strokeDashOffset,
+      clipPath,
     } = item
     const metadata = item.metadata ? item.metadata : {}
     const baseOptions = {
@@ -326,15 +341,17 @@ class ObjectImporter {
       flipY: flipY ? flipY : false,
       skewX: skewX ? skewX : 0,
       skewY: skewY ? skewY : 0,
-      ...(stroke && { stroke }),
-      strokeWidth: strokeWidth ? strokeWidth : 0,
-      strokeDashArray: item.strokeDashArray ? item.strokeDashArray : null,
-      strokeLineCap: item.strokeLineCap ? item.strokeLineCap : "butt",
-      strokeLineJoin: item.strokeLineJoin ? item.strokeLineJoin : "miter",
-      strokeUniform: item.strokeUniform || false,
-      strokeMiterLimit: item.strokeMiterLimit ? item.strokeMiterLimit : 4,
-      strokeDashOffset: item.strokeDashOffset ? item.strokeMiterLimit : 0,
       metadata: metadata,
+      ...(stroke && { stroke }),
+      ...(strokeWidth && { strokeWidth }),
+      ...(strokeDashArray && { strokeDashArray }),
+      ...(strokeLineCap && { strokeLineCap }),
+      ...(strokeLineJoin && { strokeLineJoin }),
+      ...(strokeUniform && { strokeUniform }),
+      ...(strokeMiterLimit && { strokeMiterLimit }),
+      ...(strokeDashOffset && { strokeDashOffset }),
+      ...(eraser ? { eraser: await this.import(eraser, {}) } : {}),
+      ...(clipPath ? { clipPath: await this.import(clipPath, {}) } : {}),
     }
     return baseOptions
   }

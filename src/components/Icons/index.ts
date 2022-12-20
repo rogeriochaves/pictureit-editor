@@ -58,6 +58,7 @@ class Icons {
   static Drawing = PencilBrush
   static Move = Cursor
   static Generation = GenerationIcon
+  static Eraser = PencilBrush
 }
 
 export default Icons
