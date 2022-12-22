@@ -59,6 +59,8 @@ const generateImage = async ({
   advanceSteps: boolean
 }) => {
   try {
+    trackGa()
+
     const result = advanceSteps
       ? await generateAdvanceSteps({ frame, editor })
       : await generateNormalOrInpainting({ frame, editor })
@@ -270,4 +272,18 @@ export const getOverlappingFrames = (editor: Editor, generationFrame: fabric.Gen
         generationFrame.intersectsWithObject(anotherFrame as fabric.Object)
       )
     }) as fabric.GenerationFrame[]
+}
+
+const trackGa = () => {
+  try {
+    if ("gtag" in window) {
+      //@ts-ignore
+      window.gtag("event", "editor", {
+        category: "generate",
+        label: "click",
+      })
+    }
+  } catch (e) {
+    // no problemo
+  }
 }
