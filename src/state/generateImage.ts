@@ -9,6 +9,7 @@ import { canvasFromImage } from "../utils/canvas-from-image"
 import { paintItBlack } from "../utils/clip-mask"
 import { lazySelectorFamily } from "../utils/lazySelectorFamily"
 import { addGaussianNoise } from "../utils/noise"
+import { hasAnyTransparentPixel } from "../utils/transparency"
 import { currentUserQuery } from "./user"
 
 export const DEFAULT_PROMPT_STRENGTH = 0.8
@@ -69,6 +70,13 @@ const generateImage = async ({
       await frame.setImage(result.url)
       editor.objects.afterAddHook(frame as fabric.Object, false)
 
+      // Quickfix for unselecting the recently generated image and being able to move it freely, and selecting just the frame instead
+      const currentActive = editor.canvas.canvas.getActiveObject()
+      if (currentActive?.type == "GenerationFrame") {
+        editor.canvas.canvas.discardActiveObject()
+        editor.canvas.canvas.setActiveObject(currentActive)
+      }
+
       return { image: result.url }
     }
 
@@ -119,6 +127,24 @@ const showLoading = (frame: fabric.GenerationFrame, steps: number) => {
   frame.showLoading((4 + steps * 0.1) * 1500)
 }
 
+type AiModel = "inpainting" | "normal"
+
+const detectModelToUse = (
+  editor: Editor,
+  frame: fabric.GenerationFrame,
+  initImageWithNoise: string | undefined,
+  initImageCanvas: HTMLCanvasElement | undefined
+): AiModel => {
+  const hasOverlappingFrames = getOverlappingFrames(editor, frame).length > 0
+  const hasImageAndTransparency =
+    initImageCanvas && frame.getImage() && hasAnyTransparentPixel(initImageCanvas.getContext("2d")!)
+
+  if (initImageWithNoise && (hasOverlappingFrames || hasImageAndTransparency)) {
+    return "inpainting"
+  }
+  return "normal"
+}
+
 const generateNormalOrInpainting = async ({
   frame,
   editor,
@@ -129,8 +155,8 @@ const generateNormalOrInpainting = async ({
   const numInferenceSteps = frame.metadata?.steps || 50
   showLoading(frame, numInferenceSteps)
 
-  const [initImage, initImageWithNoise] = await renderInitImage(editor, frame, true)
-  const clipMask = await renderClipMask(editor, frame)
+  const [initImage, initImageWithNoise, initImageCanvas] = await renderInitImage(editor, frame, true)
+  const clipMask = initImage && await renderClipMask(editor, frame)
 
   frame.metadata = {
     ...frame.metadata,
@@ -143,10 +169,9 @@ const generateNormalOrInpainting = async ({
     accumulatedSteps: numInferenceSteps,
   }
 
-  const hasOverlappingFrames = getOverlappingFrames(editor, frame).length > 0
-  const hasErasing = !!frame.getImage()?.eraser
+  const model = detectModelToUse(editor, frame, initImageWithNoise, initImageCanvas)
 
-  return initImageWithNoise && (hasOverlappingFrames || hasErasing)
+  return model == "inpainting"
     ? await api.stableDiffusionInpainting({
         prompt: frame.metadata?.prompt || "",
         num_inference_steps: numInferenceSteps,
@@ -172,7 +197,7 @@ export const renderInitImage = async (
   editor: Editor,
   generationFrame: fabric.GenerationFrame,
   renderInitImage: boolean
-): Promise<[string | undefined, string | undefined]> => {
+): Promise<[string | undefined, string | undefined, HTMLCanvasElement | undefined]> => {
   let initImageCanvas
   let initImage
   let initImageWithNoise
@@ -196,7 +221,7 @@ export const renderInitImage = async (
     initImageWithNoise = initImageCanvas && initImageCanvas.toDataURL("image/png")
   }
 
-  return [initImage, initImageWithNoise]
+  return [initImage, initImageWithNoise, initImageCanvas]
 }
 
 export const renderNewInitImage = async (
@@ -212,9 +237,7 @@ export const renderClipMask = async (
   editor: Editor,
   generationFrame: fabric.GenerationFrame
 ): Promise<string | undefined> => {
-  const overlappingFrames = getOverlappingFrames(editor, generationFrame)
-
-  const canvas = await exportFrameToCanvas(editor, generationFrame, [generationFrame, ...overlappingFrames])
+  const [_, __, canvas] = await renderInitImage(editor, generationFrame, false)
   if (canvas) {
     paintItBlack(canvas.getContext("2d")!)
 

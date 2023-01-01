@@ -3,6 +3,7 @@ import { InitImage } from "@layerhub-io/objects"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
 import { Block } from "baseui/block"
 import { Button, KIND } from "baseui/button"
+import { Upload } from "baseui/icon"
 import { Input, SIZE } from "baseui/input"
 import { PLACEMENT, StatefulPopover } from "baseui/popover"
 import { Slider } from "baseui/slider"
@@ -10,12 +11,13 @@ import { StatefulTooltip } from "baseui/tooltip"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { debounce } from "lodash"
-import { useCallback, useEffect, useState } from "react"
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
 import { PICTURE_IT_URL } from "../../../../../../api/adapters/pictureit"
 import NoColor from "../../../../../../components/Icons/NoColor"
 import Question from "../../../../../../components/Icons/Question"
 import { DEFAULT_PROMPT_STRENGTH, renderInitImage, renderNewInitImage } from "../../../../../../state/generateImage"
 import { ColorSquare } from "../Shared/ColorSquare"
+import { toBase64 } from "../../../../../../utils/data"
 
 export const InitImageSettings = () => {
   const editor = useEditor()!
@@ -26,6 +28,7 @@ export const InitImageSettings = () => {
   )
   const [initImageWithNoise, setInitImageWithNoise] = useState<string | undefined>()
   const [currentCanvasImage, setCurrentCanvasImage] = useState<string | undefined>()
+  const hiddenFileInput = useRef<HTMLInputElement>(null)
 
   const setInitImage = useCallback(
     (initImage: Partial<InitImage>) => {
@@ -120,6 +123,23 @@ export const InitImageSettings = () => {
     })
   }, [setInitImage, updateInitImage])
 
+  const onUploadImage = useCallback(
+    async (event: ChangeEvent<HTMLInputElement>) => {
+      if (!activeObject) return
+
+      const fileUploaded = event.target.files?.[0]
+      if (!fileUploaded) return
+
+      const image = await toBase64(fileUploaded)
+      if (!image) return
+
+      await activeObject.setImage(image)
+      editor.canvas.requestRenderAll()
+      onClickCanvasAsInit()
+    },
+    [activeObject, editor.canvas, onClickCanvasAsInit]
+  )
+
   useEffect(() => {
     editor.canvas.canvas.on("object:modified", onModified)
     updateInitImage()
@@ -140,11 +160,11 @@ export const InitImageSettings = () => {
   )
 
   const currentCanvasAsInitButton = currentCanvasImage ? (
-    <Button size={SIZE.mini} kind={KIND.tertiary} onClick={onClickCanvasAsInit}>
-      <ColorSquare>
+    <ColorSquare>
+      <Button size={SIZE.mini} kind={KIND.tertiary} onClick={onClickCanvasAsInit}>
         <img height={24} src={currentCanvasImage} />
-      </ColorSquare>
-    </Button>
+      </Button>
+    </ColorSquare>
   ) : null
 
   const TitleWithHelpTooltip = ({ title }: { title: string }) => (
@@ -156,6 +176,21 @@ export const InitImageSettings = () => {
         </a>
       </Block>
     </Block>
+  )
+
+  const uploadImageButton = (
+    <ColorSquare>
+      <Button
+        size={SIZE.mini}
+        kind={KIND.tertiary}
+        onClick={() => {
+          hiddenFileInput.current?.click()
+        }}
+      >
+        <Upload size={24} />
+      </Button>
+      <input type="file" ref={hiddenFileInput} onChange={onUploadImage} style={{ display: "none" }} />
+    </ColorSquare>
   )
 
   return (
@@ -170,38 +205,27 @@ export const InitImageSettings = () => {
       }}
       content={() => (
         <Block padding="12px" width="200px" backgroundColor="#ffffff" display="grid" gridGap="8px">
-          {initImageWithNoise ? (
-            <Block display="flex" flexDirection="column" gridGap="8px">
-              <TitleWithHelpTooltip title="Base Image" />
-              <Block display="flex" gridGap="8px" alignItems="center">
-                {noInitImageButton}
-                {currentCanvasAsInitButton}
-              </Block>
-
-              <Block $style={{ background: `url(${transparentB64})` }}>
-                <img width="200" src={initImageWithNoise} style={{ display: "block" }} />
-              </Block>
-
-              <NoiseSlider localNoise={localNoise} onChangeNoise={onChangeNoise} />
-              <PromptStrengthSlider
-                promptStrength={localPromptStrength}
-                onChangePromptStrength={onChangePromptStrength}
-              />
-            </Block>
-          ) : !activeObject.metadata?.initImage?.fixed && !currentCanvasImage ? (
-            <Block display="flex" gridGap="8px" alignItems="center">
+          <Block display="flex" flexDirection="column" gridGap="8px">
+            <TitleWithHelpTooltip title="Base Image" />
+            <Block display="flex" gridGap="12px" alignItems="center" padding="4px 0">
               {noInitImageButton}
-              <TitleWithHelpTooltip title="No base Image" />
+              {currentCanvasAsInitButton}
+              {uploadImageButton}
             </Block>
-          ) : (
-            <Block display="flex" flexDirection="column" gridGap="8px">
-              <TitleWithHelpTooltip title="Base Image" />
-              <Block display="flex" gridGap="8px" alignItems="center">
-                {noInitImageButton}
-                {currentCanvasAsInitButton}
-              </Block>
-            </Block>
-          )}
+            {initImageWithNoise ? (
+              <>
+                <Block $style={{ background: `url(${transparentB64})` }}>
+                  <img width="200" src={initImageWithNoise} style={{ display: "block" }} />
+                </Block>
+
+                <NoiseSlider localNoise={localNoise} onChangeNoise={onChangeNoise} />
+                <PromptStrengthSlider
+                  promptStrength={localPromptStrength}
+                  onChangePromptStrength={onChangePromptStrength}
+                />
+              </>
+            ) : null}
+          </Block>
         </Block>
       )}
     >
@@ -314,7 +338,7 @@ const PromptStrengthSlider = ({
   return (
     <>
       <Block $style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-      <StatefulTooltip
+        <StatefulTooltip
           accessibilityType={"tooltip"}
           placement={PLACEMENT.top}
           showArrow={true}

@@ -150,8 +150,6 @@ export class GenerationFrameObject extends fabric.Group {
           type: StaticImageObject.type,
           top: this.top,
           left: this.left,
-          width: this.width,
-          height: this.height,
           evented: false,
         })
 
