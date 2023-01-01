@@ -153,6 +153,20 @@ export class GenerationFrameObject extends fabric.Group {
           evented: false,
         })
 
+        if (staticImage.width > this.width) {
+          staticImage.scaleToWidth(this.width)
+        } else if (staticImage.height > this.height) {
+          staticImage.scaleToHeight(this.height)
+        }
+
+        const centerY = Math.round(this.top + this.height / 2)
+        const centerX = Math.round(this.left + this.width / 2)
+        const imgHalfHeight = Math.round((staticImage.height * staticImage.scaleY) / 2)
+        const imgHalfWidth = Math.round((staticImage.width * staticImage.scaleX) / 2)
+
+        staticImage.top = centerY - imgHalfHeight
+        staticImage.left = centerX - imgHalfWidth
+
         this.add(staticImage as any)
         this.finishLoading()
       })

@@ -70,13 +70,6 @@ const generateImage = async ({
       await frame.setImage(result.url)
       editor.objects.afterAddHook(frame as fabric.Object, false)
 
-      // Quickfix for unselecting the recently generated image and being able to move it freely, and selecting just the frame instead
-      const currentActive = editor.canvas.canvas.getActiveObject()
-      if (currentActive?.type == "GenerationFrame") {
-        editor.canvas.canvas.discardActiveObject()
-        editor.canvas.canvas.setActiveObject(currentActive)
-      }
-
       return { image: result.url }
     }
 
