@@ -58,7 +58,6 @@ type Popup = {
 
 const ActionPopup = () => {
   const editor = useEditor()
-  const popupRef = useRef<HTMLDivElement>(null)
   const activeObject = useActiveObject() as fabric.Object | undefined
   const [popup, setPopup] = useState<Popup | null>(null)
   const [prompt, setPrompt] = useState<string>("")
@@ -139,13 +138,57 @@ const ActionPopup = () => {
     }
   }, [editor, onClick, onModified, onMove])
 
+  return (
+    <ActionPopupLayout popup={popup}>
+      {popup && !hidePopup && imageRequest.state != "loading" ? (
+        <>
+          <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+            <div style={{ flexGrow: "1", display: "flex", position: "relative", flexDirection: "column", gap: "8px" }}>
+              {negativePrompt === undefined && isPromptFocused && (
+                <AddNegativePromptButton onClick={() => setNegativePrompt("")} />
+              )}
+              <PromptInput
+                id="actionPopupPrompt"
+                onChange={(e) => setPrompt(e.target.value)}
+                value={prompt}
+                onFocus={() => setIsPromptFocused(true)}
+                onBlur={() => setTimeout(() => setIsPromptFocused(false), 200)}
+              />
+              {negativePrompt !== undefined && (
+                <Block display="flex">
+                  <RemoveNegativePromptButton
+                    onClick={() => {
+                      setNegativePrompt(undefined)
+                      document.getElementById("actionPopupPrompt")?.focus()
+                    }}
+                  />
+                  <NegativePromptInput
+                    popup={popup}
+                    negativePrompt={negativePrompt}
+                    setNegativePrompt={setNegativePrompt}
+                  />
+                </Block>
+              )}
+            </div>
+            <GenerateButton popup={popup} />
+          </div>
+          <TagSuggestions prompt={prompt} setPrompt={setPrompt} />
+        </>
+      ) : null}
+    </ActionPopupLayout>
+  )
+}
+
+const ActionPopupLayout = ({ popup, children }: { popup: Popup | null; children: React.ReactNode }) => {
+  const popupRef = useRef<HTMLDivElement>(null)
+
   const popupWidth = 500
   const minX = (popupRef.current?.getBoundingClientRect().x || 0) * -1 + 12
   const minY = (popupRef.current?.getBoundingClientRect().y || 0) * -1 + 12
 
   return (
     <div ref={popupRef}>
-      {popup && !hidePopup && imageRequest.state != "loading" ? (
+      {popup && children ? (
         <div
           style={{
             position: "absolute",
@@ -163,72 +206,7 @@ const ActionPopup = () => {
             gap: "8px",
           }}
         >
-          <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-            <div style={{ flexGrow: "1", display: "flex", position: "relative", flexDirection: "column", gap: "8px" }}>
-              {negativePrompt === undefined && isPromptFocused && (
-                <AddNegativePromptButton onClick={() => setNegativePrompt("")} />
-              )}
-              <PromptInput
-                id="actionPopupPrompt"
-                onChange={(e) => setPrompt(e.target.value)}
-                value={prompt}
-                onFocus={() => setIsPromptFocused(true)}
-                onBlur={() => setTimeout(() => setIsPromptFocused(false), 200)}
-              />
-              {negativePrompt !== undefined && (
-                <Block display="flex">
-                  <StatefulTooltip
-                    overrides={{
-                      Body: {
-                        style: { zIndex: 129, marginBottom: "1px" },
-                      },
-                    }}
-                    accessibilityType={"tooltip"}
-                    placement={PLACEMENT.top}
-                    showArrow={true}
-                    content={
-                      <Block display="flex" $style={{ gap: "4px" }}>
-                        <Block>What not to include in the picture</Block>
-                        <a
-                          title="Read more"
-                          href={`${PICTURE_IT_URL}/guides/negative-prompt`}
-                          rel="noreferrer"
-                          target="_blank"
-                        >
-                          <Question size={16} variant="white" />
-                        </a>
-                      </Block>
-                    }
-                  >
-                    <button
-                      style={{
-                        height: "100%",
-                        border: "none",
-                        background: "none",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        padding: "8px",
-                      }}
-                      onClick={() => {
-                        setNegativePrompt(undefined)
-                        document.getElementById("actionPopupPrompt")?.focus()
-                      }}
-                    >
-                      <Negative size={24} color="#666" />
-                    </button>
-                  </StatefulTooltip>
-                  <NegativePromptInput
-                    popup={popup}
-                    negativePrompt={negativePrompt}
-                    setNegativePrompt={setNegativePrompt}
-                  />
-                </Block>
-              )}
-            </div>
-            <GenerateButton popup={popup} />
-          </div>
-          <TagSuggestions prompt={prompt} setPrompt={setPrompt} />
+          {children}
         </div>
       ) : null}
     </div>
@@ -270,6 +248,44 @@ const AddNegativePromptButton = ({ onClick }: { onClick: () => void }) => {
         </Button>
       </StatefulTooltip>
     </div>
+  )
+}
+
+const RemoveNegativePromptButton = ({ onClick }: { onClick: () => void }) => {
+  return (
+    <StatefulTooltip
+      overrides={{
+        Body: {
+          style: { zIndex: 129, marginBottom: "1px" },
+        },
+      }}
+      accessibilityType={"tooltip"}
+      placement={PLACEMENT.top}
+      showArrow={true}
+      content={
+        <Block display="flex" $style={{ gap: "4px" }}>
+          <Block>What not to include in the picture</Block>
+          <a title="Read more" href={`${PICTURE_IT_URL}/guides/negative-prompt`} rel="noreferrer" target="_blank">
+            <Question size={16} variant="white" />
+          </a>
+        </Block>
+      }
+    >
+      <button
+        style={{
+          height: "100%",
+          border: "none",
+          background: "none",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          padding: "8px",
+        }}
+        onClick={onClick}
+      >
+        <Negative size={24} color="#666" />
+      </button>
+    </StatefulTooltip>
   )
 }
 
