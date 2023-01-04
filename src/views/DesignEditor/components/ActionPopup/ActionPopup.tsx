@@ -8,7 +8,15 @@ import { Popover } from "baseui/popover"
 import { PLACEMENT, StatefulTooltip } from "baseui/tooltip"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
-import { DetailedHTMLProps, InputHTMLAttributes, useCallback, useEffect, useRef, useState } from "react"
+import {
+  DetailedHTMLProps,
+  InputHTMLAttributes,
+  MouseEventHandler,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react"
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil"
 import { PICTURE_IT_URL } from "../../../../api/adapters/pictureit"
 import Negative from "../../../../components/Icons/Negative"
@@ -18,7 +26,7 @@ import {
   generateActionState,
   generateImageCall,
   getOverlappingFrames,
-  hidePopupState
+  hidePopupState,
 } from "../../../../state/generateImage"
 import { tagSuggestionsCall } from "../../../../state/tagSuggestions"
 import { useCallRecoilLazyLoadable, useRecoilValueLazyLoadable } from "../../../../utils/lazySelectorFamily"
@@ -58,8 +66,6 @@ const ActionPopup = () => {
   const [negativePrompt, setNegativePrompt] = useState<string | undefined>(undefined)
   const [hidePopup, setHidePopup] = useRecoilState(hidePopupState)
   const imageRequest = useRecoilValueLazyLoadable(generateImageCall(popup?.target.id))
-
-  const tagSuggestions = useTagSuggestions(prompt)
 
   useEffect(() => {
     if (!popup) return
@@ -133,27 +139,6 @@ const ActionPopup = () => {
     }
   }, [editor, onClick, onModified, onMove])
 
-  const Pill = ({ value }: { value: string }) => {
-    return (
-      <button
-        onClick={() => {
-          setPrompt((prompt) => (prompt ? prompt + ", " : "") + value)
-        }}
-        style={{
-          borderRadius: "100px",
-          background: "#ccc",
-          padding: "5px 12px 5px 12px",
-          fontSize: "13px",
-          border: "none",
-          fontFamily: "Uber Move Text, sans-serif",
-          cursor: "pointer",
-        }}
-      >
-        {value}
-      </button>
-    )
-  }
-
   const popupWidth = 500
   const minX = (popupRef.current?.getBoundingClientRect().x || 0) * -1 + 12
   const minY = (popupRef.current?.getBoundingClientRect().y || 0) * -1 + 12
@@ -203,7 +188,12 @@ const ActionPopup = () => {
                     content={
                       <Block display="flex" $style={{ gap: "4px" }}>
                         <Block>Add negative prompt</Block>
-                        <a title="Read more" href={`${PICTURE_IT_URL}/guides/negative-prompt`} rel="noreferrer" target="_blank">
+                        <a
+                          title="Read more"
+                          href={`${PICTURE_IT_URL}/guides/negative-prompt`}
+                          rel="noreferrer"
+                          target="_blank"
+                        >
                           <Question size={16} variant="white" />
                         </a>
                       </Block>
@@ -242,7 +232,12 @@ const ActionPopup = () => {
                     content={
                       <Block display="flex" $style={{ gap: "4px" }}>
                         <Block>What not to include in the picture</Block>
-                        <a title="Read more" href={`${PICTURE_IT_URL}/guides/negative-prompt`} rel="noreferrer" target="_blank">
+                        <a
+                          title="Read more"
+                          href={`${PICTURE_IT_URL}/guides/negative-prompt`}
+                          rel="noreferrer"
+                          target="_blank"
+                        >
                           <Question size={16} variant="white" />
                         </a>
                       </Block>
@@ -276,17 +271,52 @@ const ActionPopup = () => {
             </div>
             <GenerateButton popup={popup} />
           </div>
-          <div>
-            <Scrollable style={{ height: "37px" }}>
-              <div style={{ display: "flex", gap: "8px", whiteSpace: "nowrap" }}>
-                {tagSuggestions.map((tag) => (
-                  <Pill key={tag} value={tag} />
-                ))}
-              </div>
-            </Scrollable>
-          </div>
+          <TagSuggestions prompt={prompt} setPrompt={setPrompt} />
         </div>
       ) : null}
+    </div>
+  )
+}
+
+const TagSuggestions = ({
+  prompt,
+  setPrompt,
+}: {
+  prompt: string
+  setPrompt: (callback: (current: string) => string) => void
+}) => {
+  const tagSuggestions = useTagSuggestions(prompt)
+
+  const Pill = ({ value }: { value: string }) => {
+    return (
+      <button
+        onClick={() => {
+          setPrompt((prompt) => (prompt ? prompt + ", " : "") + value)
+        }}
+        style={{
+          borderRadius: "100px",
+          background: "#ccc",
+          padding: "5px 12px 5px 12px",
+          fontSize: "13px",
+          border: "none",
+          fontFamily: "Uber Move Text, sans-serif",
+          cursor: "pointer",
+        }}
+      >
+        {value}
+      </button>
+    )
+  }
+
+  return (
+    <div>
+      <Scrollable style={{ height: "37px" }}>
+        <div style={{ display: "flex", gap: "8px", whiteSpace: "nowrap" }}>
+          {tagSuggestions.map((tag) => (
+            <Pill key={tag} value={tag} />
+          ))}
+        </div>
+      </Scrollable>
     </div>
   )
 }
