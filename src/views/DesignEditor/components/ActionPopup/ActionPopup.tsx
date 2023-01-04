@@ -166,50 +166,7 @@ const ActionPopup = () => {
           <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
             <div style={{ flexGrow: "1", display: "flex", position: "relative", flexDirection: "column", gap: "8px" }}>
               {negativePrompt === undefined && isPromptFocused && (
-                <div
-                  style={{
-                    position: "absolute",
-                    right: "0",
-                    height: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    marginRight: "8px",
-                  }}
-                >
-                  <StatefulTooltip
-                    overrides={{
-                      Body: {
-                        style: { zIndex: 129, marginBottom: "1px" },
-                      },
-                    }}
-                    accessibilityType={"tooltip"}
-                    placement={PLACEMENT.top}
-                    showArrow={true}
-                    content={
-                      <Block display="flex" $style={{ gap: "4px" }}>
-                        <Block>Add negative prompt</Block>
-                        <a
-                          title="Read more"
-                          href={`${PICTURE_IT_URL}/guides/negative-prompt`}
-                          rel="noreferrer"
-                          target="_blank"
-                        >
-                          <Question size={16} variant="white" />
-                        </a>
-                      </Block>
-                    }
-                  >
-                    <Button
-                      size={SIZE.mini}
-                      kind={KIND.secondary}
-                      onClick={() => {
-                        setNegativePrompt("")
-                      }}
-                    >
-                      + Neg
-                    </Button>
-                  </StatefulTooltip>
-                </div>
+                <AddNegativePromptButton onClick={() => setNegativePrompt("")} />
               )}
               <PromptInput
                 id="actionPopupPrompt"
@@ -274,6 +231,44 @@ const ActionPopup = () => {
           <TagSuggestions prompt={prompt} setPrompt={setPrompt} />
         </div>
       ) : null}
+    </div>
+  )
+}
+
+const AddNegativePromptButton = ({ onClick }: { onClick: () => void }) => {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        right: "0",
+        height: "100%",
+        display: "flex",
+        alignItems: "center",
+        marginRight: "8px",
+      }}
+    >
+      <StatefulTooltip
+        overrides={{
+          Body: {
+            style: { zIndex: 129, marginBottom: "1px" },
+          },
+        }}
+        accessibilityType={"tooltip"}
+        placement={PLACEMENT.top}
+        showArrow={true}
+        content={
+          <Block display="flex" $style={{ gap: "4px" }}>
+            <Block>Add negative prompt</Block>
+            <a title="Read more" href={`${PICTURE_IT_URL}/guides/negative-prompt`} rel="noreferrer" target="_blank">
+              <Question size={16} variant="white" />
+            </a>
+          </Block>
+        }
+      >
+        <Button size={SIZE.mini} kind={KIND.secondary} onClick={onClick}>
+          + Neg
+        </Button>
+      </StatefulTooltip>
     </div>
   )
 }
