@@ -267,7 +267,7 @@ class ObjectImporter {
     return new Promise(async (resolve, reject) => {
       try {
         const baseOptions = await this.getBaseOptions(item)
-        const { fill } = item as IGenerationFrame
+        const { fill, image } = item as IGenerationFrame
         let objects: fabric.Object[] = []
 
         for (const object of (item as IGenerationFrame).objects || []) {
@@ -283,9 +283,13 @@ class ObjectImporter {
           {
             ...baseOptions,
             type: item.type,
-            fill: typeof fill === "object" && fill.source == transparentB64 ? transparentPattern : fill,
+            fill: typeof fill === "object" && fill.source == transparentB64 ? transparentPattern : fill
           }
         )
+
+        if (image) {
+          await element.setImage(image)
+        }
 
         resolve(element)
       } catch (err) {

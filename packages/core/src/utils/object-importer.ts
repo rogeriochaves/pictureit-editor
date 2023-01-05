@@ -333,7 +333,7 @@ class ObjectImporter {
     return new Promise(async (resolve, reject) => {
       try {
         const baseOptions = await this.getBaseOptions(item, options, inGroup)
-        const { fill } = item as IGenerationFrame
+        const { fill, image } = item as IGenerationFrame
 
         let objects: fabric.Object[] = []
 
@@ -353,6 +353,10 @@ class ObjectImporter {
             fill,
           }
         )
+
+        if (image) {
+          await element.setImage(image)
+        }
 
         resolve(element)
       } catch (err) {

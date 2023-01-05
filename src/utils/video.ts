@@ -1,8 +1,9 @@
 import { IScene, ILayer } from "@layerhub-io/types"
+import { canvasFromBitmap } from "./canvas-from-bitmap"
 
 export const loadVideoResource = (videoSrc: string): Promise<HTMLVideoElement> => {
   return new Promise(function (resolve, reject) {
-    var video = document.createElement("video")
+    const video = document.createElement("video")
     video.src = videoSrc
     video.crossOrigin = "anonymous"
     video.addEventListener("loadedmetadata", function (event) {
@@ -66,4 +67,37 @@ export const loadVideoEditorAssets = async (payload: IScene) => {
     ...payload,
     layers: layers,
   }
+}
+
+export const captureAllFrames = (videoUrl: string) : Promise<HTMLCanvasElement[]> => {
+  // eslint-disable-next-line no-async-promise-executor
+  return new Promise(async (resolve, reject) => {
+    const frames: ImageBitmap[] = []
+
+    async function getVideoElement() {
+      const video = document.createElement("video")
+      video.crossOrigin = "anonymous"
+      video.src = videoUrl
+      document.body.append(video)
+      await video.play()
+      return video
+    }
+
+    if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) {
+      const video = await getVideoElement()
+      const drawingLoop: VideoFrameRequestCallback = async (_timestamp, _frame) => {
+        const bitmap = await createImageBitmap(video)
+        frames.push(bitmap)
+
+        if (!video.ended) {
+          video.requestVideoFrameCallback(drawingLoop)
+        }
+      }
+      // the last call to rVFC may happen before .ended is set but never resolve
+      video.onended = () => resolve(frames.map(canvasFromBitmap))
+      video.requestVideoFrameCallback(drawingLoop)
+    } else {
+      reject("your browser doesn't support this API yet")
+    }
+  });
 }

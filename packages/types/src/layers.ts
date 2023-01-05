@@ -162,6 +162,8 @@ export interface IBackground extends LayerBaseOptions {
 export interface IGenerationFrame extends LayerBaseOptions {
   fill: string | fabric.Pattern
   objects?: ILayer[]
+  // This is here only to support creating new scenes with an initial frame using a pre-set image for video expanding, perhaps we can find a less hacky way for it in the future
+  image?: string
 }
 
 export interface IEraser extends LayerBaseOptions {

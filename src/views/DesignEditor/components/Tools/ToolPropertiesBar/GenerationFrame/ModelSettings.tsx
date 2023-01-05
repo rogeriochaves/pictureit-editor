@@ -80,6 +80,7 @@ export const ModelSettings = () => {
     { label: "Stable Diffusion", id: "stable-diffusion" },
     { label: "Stable Diffusion Inpainting", id: "stable-diffusion-inpainting" },
     { label: "OpenJourney", id: "openjourney" },
+    { label: "Stable Diffusion Animation", id: "stable-diffusion-animation" },
   ]
 
   return (

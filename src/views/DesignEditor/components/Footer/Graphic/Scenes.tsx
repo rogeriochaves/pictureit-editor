@@ -7,7 +7,7 @@ import { useStyletron } from "baseui"
 import { Block } from "baseui/block"
 import { nanoid } from "nanoid"
 import { useCallback, useEffect, useState } from "react"
-import { useRecoilState, useRecoilValue } from "recoil"
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import { useDebouncedCallback } from "use-debounce"
 import Add from "../../../../../components/Icons/Add"
 import { getDefaultTemplate } from "../../../../../constants/design-editor"
@@ -24,10 +24,71 @@ import { useRecoilValueLazyLoadable } from "../../../../../utils/lazySelectorFam
 import SceneContextMenu from "./SceneContextMenu"
 import SceneItem from "./SceneItem"
 
+export const useAddScene = () => {
+  const editor = useEditor()
+  const [scenes, setScenes] = useRecoilState(scenesState)
+  const setCurrentScene = useSetCurrentScene()
+  const [currentDesign] = useRecoilState(currentDesignState)
+
+  return useCallback(
+    async (switchToIt = true, imgSrcs: (string | undefined)[] = [undefined]) => {
+      if (!editor) return
+
+      const updatedTemplate = editor.scene.exportToJSON()
+      const updatedPreview = await editor.renderer.render(updatedTemplate!)
+
+      const updatedPages = scenes.map((p) => {
+        if (p.id === updatedTemplate.id) {
+          return { ...updatedTemplate, preview: updatedPreview }
+        }
+        return p
+      })
+
+      const newPages = []
+
+      for (const imgSrc of imgSrcs) {
+        const defaultTemplate = await getDefaultTemplate(editor.canvas.canvas, currentDesign.frame)
+        if (imgSrc) {
+          //@ts-ignore
+          defaultTemplate.layers[0].image = imgSrc
+        }
+        const newPreview = await editor.renderer.render(defaultTemplate)
+        newPages.push({ ...defaultTemplate, id: nanoid(), preview: newPreview })
+        setScenes([...updatedPages, ...newPages])
+      }
+
+      setScenes([...updatedPages, ...newPages])
+      if (switchToIt && newPages[0]) {
+        setCurrentScene(newPages[0])
+      }
+    },
+    [editor, scenes, currentDesign, setScenes, setCurrentScene]
+  )
+}
+
+const useSetCurrentScene = () => {
+  const editor = useEditor()
+  const [_, setCurrentScenePrivate] = useRecoilState(currentSceneState)
+
+  return useCallback(
+    async (nextScene: IScene) => {
+      if (!editor || !nextScene) return
+
+      await editor.history.runWithoutAffectingHistory(async () => {
+        await editor.scene.importFromJSON(nextScene)
+      })
+
+      editor.history.save()
+      setCurrentScenePrivate(nextScene)
+    },
+    [setCurrentScenePrivate, editor]
+  )
+}
+
 const Scenes = () => {
   const [scenes, setScenes] = useRecoilState(scenesState)
-  const [currentScene, _setCurrentScene] = useRecoilState(currentSceneState)
-  const [currentDesign, setCurrentDesign] = useRecoilState(currentDesignState)
+  const [currentScene, setCurrentScenePrivate] = useRecoilState(currentSceneState)
+  const setCurrentDesign = useSetRecoilState(currentDesignState)
   const editor = useEditor()
   const [css] = useStyletron()
   const frame = useFrame()
@@ -36,7 +97,7 @@ const Scenes = () => {
   const saveIfNewFile = useSaveIfNewFile()
   const loadRequest = useRecoilValueLazyLoadable(loadFileCall)
   useSyncWithHistory({
-    currentScene: [currentScene, _setCurrentScene],
+    currentScene: [currentScene, setCurrentScenePrivate],
     scenes: [scenes, setScenes],
   })
 
@@ -48,19 +109,7 @@ const Scenes = () => {
     }),
   ]
 
-  const setCurrentScene = useCallback(
-    async (nextScene: IScene) => {
-      if (!editor || !nextScene) return
-
-      await editor.history.runWithoutAffectingHistory(async () => {
-        await editor.scene.importFromJSON(nextScene)
-      })
-
-      editor.history.save()
-      _setCurrentScene(nextScene)
-    },
-    [_setCurrentScene, editor]
-  )
+  const setCurrentScene = useSetCurrentScene()
 
   // Scene setup, once editor loads
   useEffect(() => {
@@ -121,26 +170,7 @@ const Scenes = () => {
     }
   }, [editor, rerenderPreview])
 
-  const addScene = useCallback(async () => {
-    if (!editor) return
-
-    const updatedTemplate = editor.scene.exportToJSON()
-    const updatedPreview = await editor.renderer.render(updatedTemplate!)
-
-    const updatedPages = scenes.map((p) => {
-      if (p.id === updatedTemplate.id) {
-        return { ...updatedTemplate, preview: updatedPreview }
-      }
-      return p
-    })
-
-    const defaultTemplate = await getDefaultTemplate(editor.canvas.canvas, currentDesign.frame)
-    const newPreview = await editor.renderer.render(defaultTemplate)
-    const newPage = { ...defaultTemplate, id: nanoid(), preview: newPreview }
-    const newPages = [...updatedPages, newPage]
-    setScenes(newPages)
-    setCurrentScene(newPage)
-  }, [editor, scenes, currentDesign, setScenes, setCurrentScene])
+  const addScene = useAddScene()
 
   const changePage = useCallback(
     async (page: any) => {
