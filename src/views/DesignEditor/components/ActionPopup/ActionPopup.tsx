@@ -30,6 +30,7 @@ import {
 } from "../../../../state/generateImage"
 import { tagSuggestionsCall } from "../../../../state/tagSuggestions"
 import { useCallRecoilLazyLoadable, useRecoilValueLazyLoadable } from "../../../../utils/lazySelectorFamily"
+import { useFrameModel } from "../Tools/ToolPropertiesBar/GenerationFrame/ModelSettings"
 
 const useTagSuggestions = (promptValue: string) => {
   const [tagSuggestionsKey, setTagSuggestionsKey] = useState("")
@@ -344,8 +345,10 @@ const NegativePromptInput = ({
   const editor = useEditor()!
   const generateAction = useRecoilValue(generateActionState(popup.target.id))
 
+  const [model] = useFrameModel(editor, popup.target)
+
   const disabledDueToUnsupportedAction = generateAction == "advance"
-  const disabledDueToInpainting = getOverlappingFrames(editor, popup.target).length > 0
+  const disabledDueToInpainting = model == "stable-diffusion-inpainting"
   const disabled = disabledDueToUnsupportedAction || disabledDueToInpainting
 
   const promptInput = (
