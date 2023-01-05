@@ -7,6 +7,7 @@ import { StepsSettings } from "./GenerationFrame/StepsSettings"
 import { Separator } from "./Shared/Separator"
 import { useSetRecoilState } from "recoil"
 import { hidePopupState } from "../../../../../state/generateImage"
+import { ModelSettings } from "./GenerationFrame/ModelSettings"
 
 const GenerationFrame = () => {
   const activeObject = useActiveObject<fabric.GenerationFrame | undefined>()
@@ -28,7 +29,7 @@ const GenerationFrame = () => {
       }}
     >
       <Block display="flex" gridGap="0.5rem" alignItems="center">
-        <Block>{activeObject.name}</Block>
+        <ModelSettings />
         <Separator />
         <InitImageSettings />
         <Separator />

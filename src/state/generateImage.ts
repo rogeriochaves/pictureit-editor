@@ -1,5 +1,6 @@
 import { Editor, nonRenderableLayerTypes } from "@layerhub-io/core"
 import ObjectExporter from "@layerhub-io/core/src/utils/object-exporter"
+import { ModelTypes } from "@layerhub-io/objects"
 import { IGenerationFrame, ILayer } from "@layerhub-io/types"
 import { fabric } from "fabric"
 import { atom, atomFamily } from "recoil"
@@ -21,6 +22,7 @@ export const generateImageCall = lazySelectorFamily({
     ({ set, refresh }) =>
     async (params: { frame: fabric.GenerationFrame; editor: Editor; advanceSteps: boolean }) => {
       try {
+        params.editor.history.save()
         await generateImage(params)
       } catch (err) {
         if ((err as any).status == 401) {
@@ -120,22 +122,26 @@ const showLoading = (frame: fabric.GenerationFrame, steps: number) => {
   frame.showLoading((4 + steps * 0.1) * 1500)
 }
 
-type AiModel = "inpainting" | "normal"
+export const renderToDetectModelToUse = async (editor: Editor, frame: fabric.GenerationFrame) => {
+  const [_initImage, initImageWithNoise, initImageCanvas] = await renderInitImage(editor, frame, false)
+
+  return detectModelToUse(editor, frame, initImageWithNoise, initImageCanvas)
+}
 
 const detectModelToUse = (
   editor: Editor,
   frame: fabric.GenerationFrame,
   initImageWithNoise: string | undefined,
   initImageCanvas: HTMLCanvasElement | undefined
-): AiModel => {
+): ModelTypes => {
   const hasOverlappingFrames = getOverlappingFrames(editor, frame).length > 0
   const hasImageAndTransparency =
     initImageCanvas && frame.getImage() && hasAnyTransparentPixel(initImageCanvas.getContext("2d")!)
 
   if (initImageWithNoise && (hasOverlappingFrames || hasImageAndTransparency)) {
-    return "inpainting"
+    return "stable-diffusion-inpainting"
   }
-  return "normal"
+  return "stable-diffusion"
 }
 
 const generateNormalOrInpainting = async ({
@@ -149,7 +155,7 @@ const generateNormalOrInpainting = async ({
   showLoading(frame, numInferenceSteps)
 
   const [initImage, initImageWithNoise, initImageCanvas] = await renderInitImage(editor, frame, true)
-  const clipMask = initImage && await renderClipMask(editor, frame)
+  const clipMask = initImage && (await renderClipMask(editor, frame))
 
   frame.metadata = {
     ...frame.metadata,
@@ -162,9 +168,9 @@ const generateNormalOrInpainting = async ({
     accumulatedSteps: numInferenceSteps,
   }
 
-  const model = detectModelToUse(editor, frame, initImageWithNoise, initImageCanvas)
+  const model = frame.metadata.model || detectModelToUse(editor, frame, initImageWithNoise, initImageCanvas)
 
-  return model == "inpainting"
+  return model == "stable-diffusion-inpainting"
     ? await api.stableDiffusionInpainting({
         prompt: frame.metadata?.prompt || "",
         num_inference_steps: numInferenceSteps,
