@@ -35,10 +35,19 @@ export type StableDiffusionAdvanceStepsInput = {
 
 export type StableDiffusionAdvanceStepsOutput = StableDiffusionOutput
 
+export type OpenJourneyInput = {
+  prompt: string
+  num_inference_steps: number
+  guidance_scale?: number
+}
+
+export type OpenJourneyOutput = StableDiffusionOutput
+
 export interface Api {
   stableDiffusion(params: StableDiffusionInput): Promise<StableDiffusionOutput>
   stableDiffusionInpainting(params: StableDiffusionInpaintingInput): Promise<StableDiffusionInpaintingOutput>
   stableDiffusionAdvanceSteps(params: StableDiffusionAdvanceStepsInput): Promise<StableDiffusionAdvanceStepsOutput>
+  openJourney(params: OpenJourneyInput): Promise<OpenJourneyOutput>
 }
 
 const adapter: PictureItApi | Api =

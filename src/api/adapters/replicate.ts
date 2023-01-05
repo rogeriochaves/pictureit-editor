@@ -6,6 +6,8 @@ import {
   StableDiffusionAdvanceStepsInput,
   StableDiffusionAdvanceStepsOutput,
   StableDiffusionOutput,
+  OpenJourneyInput,
+  OpenJourneyOutput,
 } from "../index"
 import { proxyFetch } from "../proxyFetch"
 
@@ -29,6 +31,13 @@ const Replicate: Api = class {
   ): Promise<StableDiffusionAdvanceStepsOutput> {
     // https://replicate.com/devxpy/glid-3-xl-stable
     return callReplicate("7d6a340e1815acf2b3b2ee0fcaf830fbbcd8697e9712ca63d81930c60484d2d7", params)
+  }
+
+  static async openJourney(params: OpenJourneyInput): Promise<OpenJourneyOutput> {
+    params = { ...params, prompt: `mdjrny-v4 style ${params.prompt}` }
+
+    // https://replicate.com/prompthero/openjourney
+    return callReplicate("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb", params)
   }
 }
 

@@ -349,7 +349,8 @@ const NegativePromptInput = ({
 
   const disabledDueToUnsupportedAction = generateAction == "advance"
   const disabledDueToInpainting = model == "stable-diffusion-inpainting"
-  const disabled = disabledDueToUnsupportedAction || disabledDueToInpainting
+  const disabledDueToOpenJourney = model == "openjourney"
+  const disabled = disabledDueToUnsupportedAction || disabledDueToInpainting || disabledDueToOpenJourney
 
   const promptInput = (
     <PromptInput disabled={!!disabled} onChange={(e) => setNegativePrompt(e.target.value)} value={negativePrompt} />
@@ -370,6 +371,8 @@ const NegativePromptInput = ({
           ? "Negative prompt is not available for Advance action"
           : disabledDueToInpainting
           ? "Negative prompt is not available for inpainting"
+          : disabledDueToOpenJourney
+          ? "Negative prompt is not available for OpenJourney"
           : "Negative prompt is not supported with the config combination"
       }
     >

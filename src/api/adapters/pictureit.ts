@@ -6,6 +6,8 @@ import {
   StableDiffusionAdvanceStepsInput,
   StableDiffusionAdvanceStepsOutput,
   StableDiffusionOutput,
+  OpenJourneyInput,
+  OpenJourneyOutput,
 } from "../index"
 import { proxyFetch } from "../proxyFetch"
 
@@ -63,6 +65,12 @@ const PictureIt: PictureItApi = class {
     params: StableDiffusionAdvanceStepsInput
   ): Promise<StableDiffusionAdvanceStepsOutput> {
     return postApi("/api/editor/stable_diffusion_advance_steps", params)
+  }
+
+  static async openJourney(params: OpenJourneyInput): Promise<OpenJourneyOutput> {
+    params = { ...params, prompt: `mdjrny-v4 style ${params.prompt}` }
+
+    return postApi("/api/editor/open_journey", params)
   }
 
   static async user(): Promise<User | undefined> {

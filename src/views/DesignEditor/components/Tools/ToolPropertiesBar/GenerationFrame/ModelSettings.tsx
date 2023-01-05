@@ -79,6 +79,7 @@ export const ModelSettings = () => {
   const options: { label: string; id: ModelTypes }[] = [
     { label: "Stable Diffusion", id: "stable-diffusion" },
     { label: "Stable Diffusion Inpainting", id: "stable-diffusion-inpainting" },
+    { label: "OpenJourney", id: "openjourney" },
   ]
 
   return (

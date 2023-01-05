@@ -14,7 +14,7 @@ const EraserTool = () => {
   const editor = useEditor()!
 
   const erasingEndHandler = (e: IEvent) => {
-    if (!e.subTargets) return;
+    if (!e.subTargets) return
 
     for (const target of e.subTargets) {
       if (target.group instanceof fabric.GenerationFrame) {
@@ -28,6 +28,7 @@ const EraserTool = () => {
               fixed: false,
             },
           }
+          delete frame.metadata.model
         }
       }
     }
