@@ -3,7 +3,7 @@ import { ModelTypes } from "@layerhub-io/objects"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
 import { OnChangeParams, Select } from "baseui/select"
 import { fabric } from "fabric"
-import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect } from "react"
 import { atom, RecoilState, useRecoilState } from "recoil"
 import { renderToDetectModelToUse } from "../../../../../../state/generateImage"
 
@@ -15,11 +15,12 @@ const frameModelState: RecoilState<ModelTypes> = atom({
 // Prevent multiple components from rerendering frame every time just to detect the model to be used
 let useEffectRegistered = false
 
+// Wrapps chosen model attached to the frame, or auto-detect one if not set
 export const useFrameModel = (
   editor: Editor | null,
   frame: fabric.GenerationFrame | undefined
-): [ModelTypes, Dispatch<SetStateAction<ModelTypes>>] => {
-  const [model, setModel] = useRecoilState(frameModelState)
+): [ModelTypes, (model: ModelTypes) => void] => {
+  const [model, setModelPrivate] = useRecoilState(frameModelState)
 
   useEffect(() => {
     if (!editor || !frame) return
@@ -28,10 +29,10 @@ export const useFrameModel = (
     const { model } = frame.metadata || {}
 
     if (model) {
-      setModel(model)
+      setModelPrivate(model)
     } else {
       renderToDetectModelToUse(editor, frame).then((model) => {
-        setModel(model)
+        setModelPrivate(model)
       })
     }
 
@@ -39,7 +40,22 @@ export const useFrameModel = (
     return () => {
       useEffectRegistered = false
     }
-  }, [editor, frame, setModel])
+  }, [editor, frame, setModelPrivate])
+
+  const setModel = useCallback(
+    (model: ModelTypes) => {
+      if (!frame) return
+
+      if (model) {
+        setModelPrivate(model as ModelTypes)
+        frame.metadata = {
+          ...(frame.metadata || {}),
+          model: model as ModelTypes,
+        }
+      }
+    },
+    [frame, setModelPrivate]
+  )
 
   return [model, setModel]
 }
@@ -52,18 +68,12 @@ export const ModelSettings = () => {
 
   const handleChange = useCallback(
     (params: OnChangeParams) => {
-      if (!frame) return
-
       const model = params.value[0].id
       if (model) {
         setModel(model as ModelTypes)
-        frame.metadata = {
-          ...(frame.metadata || {}),
-          model: model as ModelTypes,
-        }
       }
     },
-    [frame, setModel]
+    [setModel]
   )
 
   const options: { label: string; id: ModelTypes }[] = [

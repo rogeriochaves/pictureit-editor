@@ -403,6 +403,7 @@ const PromptInput = (props: DetailedHTMLProps<InputHTMLAttributes<HTMLInputEleme
 
 const GenerateButton = ({ popup }: { popup: Popup }) => {
   const editor = useEditor()
+  const [model] = useFrameModel(editor, popup.target)
   const generateImage = useCallRecoilLazyLoadable(generateImageCall(popup.target.id))
   const [isGenerateActionOptionsOpen, setIsGenerateActionOptionsOpen] = useState(false)
   const [generateAction, setGenerateAction] = useRecoilState(generateActionState(popup.target.id))
@@ -420,7 +421,7 @@ const GenerateButton = ({ popup }: { popup: Popup }) => {
     })
   }, [editor, popup, generateImage, generateAction])
 
-  return popup?.target.getImage() ? (
+  return popup?.target.getImage() && model == "stable-diffusion" ? (
     <Block display="flex" alignItems="flex-start">
       <Button
         style={{ height: "42px" }}
