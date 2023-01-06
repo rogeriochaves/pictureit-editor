@@ -125,7 +125,7 @@ class Frame extends Base {
         scaleX = scaleX * (canvasHeight / (options.height * scaleX))
       }
     }
-    return scaleX
+    return Math.min(scaleX, 1)
   }
 }
 export default Frame
