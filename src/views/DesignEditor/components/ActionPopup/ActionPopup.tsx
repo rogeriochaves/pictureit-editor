@@ -71,6 +71,20 @@ const ActionPopup = () => {
   )
 
   useEffect(() => {
+    if (!popup) return
+    const positionPopup = () => {
+      if (!popup.target.oCoords) return
+      const { x, y } = popup.target.oCoords.mt // mid-top
+      setPopup({ ...popup, x, y })
+    }
+    window.addEventListener("resize", positionPopup)
+
+    return () => {
+      window.removeEventListener("resize", positionPopup)
+    }
+  }, [popup])
+
+  useEffect(() => {
     if (!editor) return
 
     setPopupForTarget(activeObject)
@@ -191,17 +205,24 @@ const ActionPopup = () => {
 const ActionPopupLayout = ({ popup, children }: { popup: Popup | null; children: React.ReactNode }) => {
   const popupRef = useRef<HTMLDivElement>(null)
   const popupInnerRef = useRef<HTMLDivElement>(null)
-  const [height, setHeight] = useState(0)
-  const [width, setWidth] = useState(0)
+  const [top, setTop] = useState<number | undefined>(0)
+  const [left, setLeft] = useState(0)
 
   const popupRect = popupRef.current?.getBoundingClientRect()
   const minX = (popupRect?.x || 0) * -1 + 12
   const minY = (popupRect?.y || 0) * -1 + 12
 
   useEffect(() => {
+    if (!popup) return
+
     const popupInnerRect = popupInnerRef.current?.getBoundingClientRect()
-    setHeight(popupInnerRect?.height || 0)
-    setWidth(popupInnerRect?.width || 0)
+    if (!popupInnerRect) {
+      setTop(undefined)
+      return
+    }
+
+    setTop(Math.max(popup.y - popupInnerRect.height - 32, minY))
+    setLeft(Math.max(popup.x - popupInnerRect.width / 2, minX))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [popup, children == null, popup?.target.metadata?.model])
 
@@ -213,8 +234,8 @@ const ActionPopupLayout = ({ popup, children }: { popup: Popup | null; children:
           style={{
             position: "absolute",
             zIndex: 128,
-            top: `${Math.max(popup.y - height - 32, minY)}px`,
-            left: `${Math.max(popup.x - width / 2, minX)}px`,
+            top: `${top || 0}px`,
+            left: `${left}px`,
             background: "#eeeaee",
             border: "1px solid #c4c4c4",
             padding: "12px 12px 0 12px",
@@ -224,7 +245,7 @@ const ActionPopupLayout = ({ popup, children }: { popup: Popup | null; children:
             display: "flex",
             flexDirection: "column",
             gap: "8px",
-            opacity: height > 0 ? 1 : 0,
+            opacity: top !== undefined ? 1 : 0,
           }}
         >
           {children}
