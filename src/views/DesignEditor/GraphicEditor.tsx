@@ -3,12 +3,12 @@ import { useEditor } from "@layerhub-io/react"
 import { Block } from "baseui/block"
 import { Button } from "baseui/button"
 import { Modal, ModalBody, ModalButton, ModalFooter, ModalHeader, ROLE, SIZE } from "baseui/modal"
-import { useCallback } from "react"
+import { useCallback, useEffect } from "react"
 import { useSearchParams } from "react-router-dom"
-import { useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from "recoil"
+import { useRecoilState, useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from "recoil"
 import { PICTURE_IT_URL } from "../../api/adapters/pictureit"
 import GreenCheckmark from "../../components/Icons/GreenCheckmark"
-import { paymentRequiredState } from "../../state/generateImage"
+import { GenerationDoneQueueItem, generationDoneQueueState, paymentRequiredState } from "../../state/generateImage"
 import { currentUserQuery } from "../../state/user"
 import Canvas from "./components/Canvas"
 import EditorContainer from "./components/EditorContainer"
@@ -18,6 +18,9 @@ import Tools from "./components/Tools"
 import ToolPropertiesBar from "./components/Tools/ToolPropertiesBar"
 import PanelSidebar from "./components/Panels/PanelSidebar"
 import { useShortcuts } from "../../hooks/useShortcuts"
+import { useAddScene } from "./components/Footer/Graphic/Scenes"
+import { fabric } from "fabric"
+import { captureAllFrames } from "../../utils/video"
 
 const GraphicEditor = () => {
   useShortcuts()
@@ -26,6 +29,41 @@ const GraphicEditor = () => {
   const paymentRequired = useRecoilValue(paymentRequiredState)
   const [searchParams] = useSearchParams()
   const welcome = searchParams.get("welcome")
+
+  const [generationDoneQueue, setGenerationDoneQueue] = useRecoilState(generationDoneQueueState)
+
+  const editor = useEditor()
+  const addScene = useAddScene()
+
+  const processVideo = useCallback(
+    async (item: GenerationDoneQueueItem) => {
+      if (!editor) return
+
+      const generationFrame: fabric.GenerationFrame = editor.objects.findOneById(item.id)
+      if (!(generationFrame instanceof fabric.GenerationFrame)) return
+
+      const frames = await captureAllFrames(item.url)
+      const images = frames.map((frame) => frame.toDataURL("image/webp", 0.6))
+      if (images[0]) {
+        await generationFrame.setImage(images[0])
+        editor.canvas.canvas.requestRenderAll()
+      }
+      addScene(false, images.slice(1))
+    },
+    [addScene, editor]
+  )
+
+  useEffect(() => {
+    if (generationDoneQueue.length == 0) return
+
+    const item = generationDoneQueue[0]
+    console.log('processing item', item);
+    setGenerationDoneQueue(generationDoneQueue.slice(1))
+
+    if (item.type == "video") {
+      processVideo(item)
+    }
+  }, [generationDoneQueue, processVideo, setGenerationDoneQueue])
 
   return (
     <EditorContainer>

@@ -8,6 +8,8 @@ import {
   StableDiffusionOutput,
   OpenJourneyInput,
   OpenJourneyOutput,
+  StableDiffusionAnimationInput,
+  StableDiffusionAnimationOutput,
 } from "../index"
 import { proxyFetch } from "../proxyFetch"
 
@@ -38,6 +40,13 @@ const Replicate: Api = class {
 
     // https://replicate.com/prompthero/openjourney
     return callReplicate("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb", params)
+  }
+
+  static async stableDiffusionAnimation(
+    params: StableDiffusionAnimationInput
+  ): Promise<StableDiffusionAnimationOutput> {
+    // https://replicate.com/andreasjansson/stable-diffusion-animation
+    return callReplicate("ca1f5e306e5721e19c473e0d094e6603f0456fe759c10715fcd6c1b79242d4a5", params)
   }
 }
 

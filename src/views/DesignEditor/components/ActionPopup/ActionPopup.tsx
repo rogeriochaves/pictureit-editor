@@ -2,54 +2,23 @@ import { LayerType } from "@layerhub-io/core"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
 import { Block } from "baseui/block"
 import { Button, KIND, SIZE } from "baseui/button"
+import { FormControl } from "baseui/form-control"
 import { ChevronDown } from "baseui/icon"
 import { StatefulMenu } from "baseui/menu"
 import { Popover } from "baseui/popover"
 import { PLACEMENT, StatefulTooltip } from "baseui/tooltip"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
-import {
-  DetailedHTMLProps,
-  InputHTMLAttributes,
-  MouseEventHandler,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react"
+import { DetailedHTMLProps, InputHTMLAttributes, useCallback, useEffect, useRef, useState } from "react"
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil"
 import { PICTURE_IT_URL } from "../../../../api/adapters/pictureit"
 import Negative from "../../../../components/Icons/Negative"
 import Question from "../../../../components/Icons/Question"
 import Scrollable from "../../../../components/Scrollable"
-import {
-  generateActionState,
-  generateImageCall,
-  getOverlappingFrames,
-  hidePopupState,
-} from "../../../../state/generateImage"
+import { generateActionState, generateImageCall, hidePopupState } from "../../../../state/generateImage"
 import { tagSuggestionsCall } from "../../../../state/tagSuggestions"
 import { useCallRecoilLazyLoadable, useRecoilValueLazyLoadable } from "../../../../utils/lazySelectorFamily"
 import { useFrameModel } from "../Tools/ToolPropertiesBar/GenerationFrame/ModelSettings"
-
-const useTagSuggestions = (promptValue: string) => {
-  const [tagSuggestionsKey, setTagSuggestionsKey] = useState("")
-  const [lastTagSuggestions, setLastTagSuggestions] = useState<string[]>([])
-  const tagSuggestions = useRecoilValueLoadable(tagSuggestionsCall(tagSuggestionsKey))
-
-  useEffect(() => {
-    setTagSuggestionsKey(promptValue)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [promptValue?.split(",").length])
-
-  useEffect(() => {
-    if (tagSuggestions.state == "hasValue" && tagSuggestions.contents) {
-      setLastTagSuggestions(tagSuggestions.contents)
-    }
-  }, [tagSuggestions])
-
-  return lastTagSuggestions
-}
 
 type Popup = {
   x: number
@@ -64,8 +33,10 @@ const ActionPopup = () => {
   const [prompt, setPrompt] = useState<string>("")
   const [isPromptFocused, setIsPromptFocused] = useState(false)
   const [negativePrompt, setNegativePrompt] = useState<string | undefined>(undefined)
+  const [promptEnd, setPromptEnd] = useState<string | undefined>(undefined)
   const [hidePopup, setHidePopup] = useRecoilState(hidePopupState)
   const imageRequest = useRecoilValueLazyLoadable(generateImageCall(popup?.target.id))
+  const [model] = useFrameModel(editor, popup?.target)
 
   useEffect(() => {
     if (!popup) return
@@ -73,8 +44,9 @@ const ActionPopup = () => {
       ...(popup.target.metadata || {}),
       prompt,
       negativePrompt,
+      promptEnd,
     }
-  }, [popup, prompt, negativePrompt])
+  }, [popup, prompt, negativePrompt, promptEnd])
 
   const setPopupForTarget = useCallback(
     (target: fabric.Object | undefined) => {
@@ -87,6 +59,7 @@ const ActionPopup = () => {
         const { x, y } = target.oCoords.mt // mid-top
         setPrompt(target.metadata?.prompt || "")
         setNegativePrompt(target.metadata?.negativePrompt)
+        setPromptEnd(target.metadata?.promptEnd)
         setHidePopup(false)
         setPopup({ x, y, target: target })
       } else {
@@ -139,41 +112,64 @@ const ActionPopup = () => {
     }
   }, [editor, onClick, onModified, onMove])
 
+  const ImagePrompt = popup && (
+    <>
+      {negativePrompt === undefined && isPromptFocused && (
+        <AddNegativePromptButton onClick={() => setNegativePrompt("")} />
+      )}
+      <PromptInput
+        id="actionPopupPrompt"
+        onChange={(e) => setPrompt(e.target.value)}
+        value={prompt}
+        onFocus={() => setIsPromptFocused(true)}
+        onBlur={() => setTimeout(() => setIsPromptFocused(false), 200)}
+      />
+      {negativePrompt !== undefined && (
+        <Block display="flex">
+          <RemoveNegativePromptButton
+            onClick={() => {
+              setNegativePrompt(undefined)
+              document.getElementById("actionPopupPrompt")?.focus()
+            }}
+          />
+          <NegativePromptInput popup={popup} negativePrompt={negativePrompt} setNegativePrompt={setNegativePrompt} />
+        </Block>
+      )}
+    </>
+  )
+
+  const VideoPrompt = (
+    <>
+      <label style={{ fontSize: 13 }} htmlFor="actionPopupPrompt">
+        Prompt Start:
+      </label>
+      <PromptInput id="actionPopupPrompt" onChange={(e) => setPrompt(e.target.value)} value={prompt} />
+      <label style={{ fontSize: 13 }} htmlFor="actionPopupPromptEnd">
+        Prompt End:
+      </label>
+      <PromptInput id="actionPopupPromptEnd" onChange={(e) => setPromptEnd(e.target.value)} value={promptEnd} />
+    </>
+  )
+
+  const videoPromptButtonAlignment =
+    model == "stable-diffusion-animation"
+      ? {
+          paddingBottom: "12px",
+          alignItems: "flex-end",
+        }
+      : {}
+
   return (
     <ActionPopupLayout popup={popup}>
       {popup && !hidePopup && imageRequest.state != "loading" ? (
         <>
-          <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+          <div style={{ display: "flex", gap: "12px", alignItems: "flex-start", ...videoPromptButtonAlignment }}>
             <div style={{ flexGrow: "1", display: "flex", position: "relative", flexDirection: "column", gap: "8px" }}>
-              {negativePrompt === undefined && isPromptFocused && (
-                <AddNegativePromptButton onClick={() => setNegativePrompt("")} />
-              )}
-              <PromptInput
-                id="actionPopupPrompt"
-                onChange={(e) => setPrompt(e.target.value)}
-                value={prompt}
-                onFocus={() => setIsPromptFocused(true)}
-                onBlur={() => setTimeout(() => setIsPromptFocused(false), 200)}
-              />
-              {negativePrompt !== undefined && (
-                <Block display="flex">
-                  <RemoveNegativePromptButton
-                    onClick={() => {
-                      setNegativePrompt(undefined)
-                      document.getElementById("actionPopupPrompt")?.focus()
-                    }}
-                  />
-                  <NegativePromptInput
-                    popup={popup}
-                    negativePrompt={negativePrompt}
-                    setNegativePrompt={setNegativePrompt}
-                  />
-                </Block>
-              )}
+              {model == "stable-diffusion-animation" ? VideoPrompt : ImagePrompt}
             </div>
             <GenerateButton popup={popup} />
           </div>
-          <TagSuggestions prompt={prompt} setPrompt={setPrompt} />
+          {model != "stable-diffusion-animation" && <TagSuggestions prompt={prompt} setPrompt={setPrompt} />}
         </>
       ) : null}
     </ActionPopupLayout>
@@ -187,6 +183,9 @@ const ActionPopupLayout = ({ popup, children }: { popup: Popup | null; children:
   const minX = (popupRef.current?.getBoundingClientRect().x || 0) * -1 + 12
   const minY = (popupRef.current?.getBoundingClientRect().y || 0) * -1 + 12
 
+  const editor = useEditor()
+  const [model] = useFrameModel(editor, popup?.target)
+
   return (
     <div ref={popupRef}>
       {popup && children ? (
@@ -194,7 +193,7 @@ const ActionPopupLayout = ({ popup, children }: { popup: Popup | null; children:
           style={{
             position: "absolute",
             zIndex: 128,
-            top: `${Math.max(popup.y - 120, minY)}px`,
+            top: `${Math.max(popup.y - (model == "stable-diffusion-animation" ? 185 : 120), minY)}px`,
             left: `${Math.max(popup.x - popupWidth / 2, minX)}px`,
             background: "#eeeaee",
             border: "1px solid #c4c4c4",
@@ -288,6 +287,25 @@ const RemoveNegativePromptButton = ({ onClick }: { onClick: () => void }) => {
       </button>
     </StatefulTooltip>
   )
+}
+
+const useTagSuggestions = (promptValue: string) => {
+  const [tagSuggestionsKey, setTagSuggestionsKey] = useState("")
+  const [lastTagSuggestions, setLastTagSuggestions] = useState<string[]>([])
+  const tagSuggestions = useRecoilValueLoadable(tagSuggestionsCall(tagSuggestionsKey))
+
+  useEffect(() => {
+    setTagSuggestionsKey(promptValue)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [promptValue?.split(",").length])
+
+  useEffect(() => {
+    if (tagSuggestions.state == "hasValue" && tagSuggestions.contents) {
+      setLastTagSuggestions(tagSuggestions.contents)
+    }
+  }, [tagSuggestions])
+
+  return lastTagSuggestions
 }
 
 const TagSuggestions = ({
@@ -390,6 +408,7 @@ const PromptInput = (props: DetailedHTMLProps<InputHTMLAttributes<HTMLInputEleme
     <input
       type="text"
       autoComplete="off"
+      {...props}
       style={{
         borderRadius: "5px",
         background: "#FFF",
@@ -398,8 +417,8 @@ const PromptInput = (props: DetailedHTMLProps<InputHTMLAttributes<HTMLInputEleme
         border: "1px solid #c4c4c4",
         height: "30px",
         ...disabledStyle,
+        ...(props.style || {}),
       }}
-      {...props}
     />
   )
 }
@@ -417,12 +436,13 @@ const GenerateButton = ({ popup }: { popup: Popup }) => {
     const targetId = popup?.target.id
     if (!targetId) return
     if (!popup.target.metadata?.prompt) return
+    if (model == "stable-diffusion-animation" && !popup.target.metadata?.promptEnd) return
     generateImage({
       frame: popup.target,
       editor: editor,
       advanceSteps: generateAction == "advance",
     })
-  }, [editor, popup, generateImage, generateAction])
+  }, [editor, popup.target, model, generateImage, generateAction])
 
   return popup?.target.getImage() && model == "stable-diffusion" ? (
     <Block display="flex" alignItems="flex-start">

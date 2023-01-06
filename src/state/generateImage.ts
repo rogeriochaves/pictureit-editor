@@ -23,7 +23,9 @@ export const generateImageCall = lazySelectorFamily({
     async (params: { frame: fabric.GenerationFrame; editor: Editor; advanceSteps: boolean }) => {
       try {
         params.editor.history.save()
-        await generateImage(params)
+        await generateImage(params, (item: GenerationDoneQueueItem) => {
+          set(generationDoneQueueState, (queue) => [...queue, item])
+        })
       } catch (err) {
         if ((err as any).status == 401) {
           refresh(currentUserQuery)
@@ -47,31 +49,45 @@ export const paymentRequiredState = atom({
   default: false,
 })
 
+export type GenerationDoneQueueItem = { id: string; url: string; type: "video" }
+
+export const generationDoneQueueState = atom({
+  key: "generationDoneQueueState",
+  default: [] as GenerationDoneQueueItem[],
+})
+
 export const generateActionState = atomFamily({
   key: "generateActionState",
   default: "generate" as "generate" | "advance",
 })
 
-const generateImage = async ({
-  frame,
-  editor,
-  advanceSteps,
-}: {
-  frame: fabric.GenerationFrame
-  editor: Editor
-  advanceSteps: boolean
-}) => {
+const generateImage = async (
+  {
+    frame,
+    editor,
+    advanceSteps,
+  }: {
+    frame: fabric.GenerationFrame
+    editor: Editor
+    advanceSteps: boolean
+  },
+  enqueueDone: (item: GenerationDoneQueueItem) => void
+) => {
   try {
     trackGa()
 
     const result = advanceSteps
       ? await generateAdvanceSteps({ frame, editor })
-      : await generateNormalOrInpainting({ frame, editor })
+      : await generateImageOrVideo({ frame, editor })
 
     if (result.url) {
-      await frame.setImage(result.url)
-      editor.objects.afterAddHook(frame as fabric.Object, false)
-
+      if (frame.metadata?.model == "stable-diffusion-animation") {
+        enqueueDone({ id: frame.id, url: result.url, type: "video" })
+      } else {
+        // TODO: enqueue images as well so that it can be loaded even when on different scene
+        await frame.setImage(result.url)
+        editor.objects.afterAddHook(frame as fabric.Object, false)
+      }
       return { image: result.url }
     }
 
@@ -119,7 +135,15 @@ const generateAdvanceSteps = async ({
 }
 
 const showLoading = (frame: fabric.GenerationFrame, steps: number) => {
-  frame.showLoading((4 + steps * 0.1) * 1500)
+  if (frame.metadata?.model == "stable-diffusion-animation") {
+    const numAnimationFrames = 3
+    const numInterpolationSteps = 2
+
+    // Takes around 2.6s for 50 steps per frame
+    frame.showLoading((2600 / 50) * steps * numAnimationFrames * numInterpolationSteps)
+  } else {
+    frame.showLoading((4 + steps * 0.1) * 1500)
+  }
 }
 
 export const renderToDetectModelToUse = async (editor: Editor, frame: fabric.GenerationFrame) => {
@@ -144,7 +168,7 @@ const detectModelToUse = (
   return "stable-diffusion"
 }
 
-const generateNormalOrInpainting = async ({
+const generateImageOrVideo = async ({
   frame,
   editor,
 }: {
@@ -177,6 +201,22 @@ const generateNormalOrInpainting = async ({
         guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
         image: initImageWithNoise,
         mask: clipMask,
+      })
+    : model == "openjourney"
+    ? await api.openJourney({
+        prompt: frame.metadata?.prompt || "",
+        num_inference_steps: numInferenceSteps,
+        guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
+      })
+    : model == "stable-diffusion-animation"
+    ? await api.stableDiffusionAnimation({
+        prompt_start: frame.metadata?.prompt || "",
+        prompt_end: frame.metadata?.promptEnd || "",
+        num_inference_steps: numInferenceSteps,
+        num_animation_frames: 3,
+        num_interpolation_steps: 2,
+        film_interpolation: true,
+        output_format: "mp4",
       })
     : await api.stableDiffusion({
         prompt: frame.metadata?.prompt || "",

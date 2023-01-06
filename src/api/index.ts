@@ -43,11 +43,24 @@ export type OpenJourneyInput = {
 
 export type OpenJourneyOutput = StableDiffusionOutput
 
+export type StableDiffusionAnimationInput = {
+  prompt_start: string
+  prompt_end: string
+  num_inference_steps: number
+  num_animation_frames: number
+  num_interpolation_steps: number
+  film_interpolation: boolean
+  output_format: string
+}
+
+export type StableDiffusionAnimationOutput = StableDiffusionOutput
+
 export interface Api {
   stableDiffusion(params: StableDiffusionInput): Promise<StableDiffusionOutput>
   stableDiffusionInpainting(params: StableDiffusionInpaintingInput): Promise<StableDiffusionInpaintingOutput>
   stableDiffusionAdvanceSteps(params: StableDiffusionAdvanceStepsInput): Promise<StableDiffusionAdvanceStepsOutput>
   openJourney(params: OpenJourneyInput): Promise<OpenJourneyOutput>
+  stableDiffusionAnimation(params: StableDiffusionAnimationInput): Promise<StableDiffusionAnimationOutput>
 }
 
 const adapter: PictureItApi | Api =

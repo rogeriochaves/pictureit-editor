@@ -22,6 +22,7 @@ export class GenerationFrameObject extends fabric.Group {
     model?: ModelTypes
     prompt?: string
     negativePrompt?: string
+    promptEnd?: string
     steps?: number
     guidance?: number
     initImage?: InitImage
