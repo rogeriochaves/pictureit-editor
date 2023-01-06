@@ -11,6 +11,7 @@ import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { DetailedHTMLProps, InputHTMLAttributes, useCallback, useEffect, useRef, useState } from "react"
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil"
+import api from "../../../../api"
 import { PICTURE_IT_URL } from "../../../../api/adapters/pictureit"
 import Negative from "../../../../components/Icons/Negative"
 import Question from "../../../../components/Icons/Question"
@@ -151,25 +152,36 @@ const ActionPopup = () => {
     </>
   )
 
+  const showTagSuggestions = model != "stable-diffusion-animation" && "isPictureIt" in api
+
   const videoPromptButtonAlignment =
     model == "stable-diffusion-animation"
       ? {
-          paddingBottom: "12px",
           alignItems: "flex-end",
         }
       : {}
+
+  const noTagSuggestionsPadding = showTagSuggestions ? {} : { paddingBottom: "12px" }
 
   return (
     <ActionPopupLayout popup={popup}>
       {popup && !hidePopup && imageRequest.state != "loading" ? (
         <>
-          <div style={{ display: "flex", gap: "12px", alignItems: "flex-start", ...videoPromptButtonAlignment }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "12px",
+              alignItems: "flex-start",
+              ...videoPromptButtonAlignment,
+              ...noTagSuggestionsPadding,
+            }}
+          >
             <div style={{ flexGrow: "1", display: "flex", position: "relative", flexDirection: "column", gap: "8px" }}>
               {model == "stable-diffusion-animation" ? VideoPrompt : ImagePrompt}
             </div>
             <GenerateButton popup={popup} />
           </div>
-          {model != "stable-diffusion-animation" && <TagSuggestions prompt={prompt} setPrompt={setPrompt} />}
+          {showTagSuggestions && <TagSuggestions prompt={prompt} setPrompt={setPrompt} />}
         </>
       ) : null}
     </ActionPopupLayout>
@@ -178,32 +190,41 @@ const ActionPopup = () => {
 
 const ActionPopupLayout = ({ popup, children }: { popup: Popup | null; children: React.ReactNode }) => {
   const popupRef = useRef<HTMLDivElement>(null)
+  const popupInnerRef = useRef<HTMLDivElement>(null)
+  const [height, setHeight] = useState(0)
+  const [width, setWidth] = useState(0)
 
-  const popupWidth = 500
-  const minX = (popupRef.current?.getBoundingClientRect().x || 0) * -1 + 12
-  const minY = (popupRef.current?.getBoundingClientRect().y || 0) * -1 + 12
+  const popupRect = popupRef.current?.getBoundingClientRect()
+  const minX = (popupRect?.x || 0) * -1 + 12
+  const minY = (popupRect?.y || 0) * -1 + 12
 
-  const editor = useEditor()
-  const [model] = useFrameModel(editor, popup?.target)
+  useEffect(() => {
+    const popupInnerRect = popupInnerRef.current?.getBoundingClientRect()
+    setHeight(popupInnerRect?.height || 0)
+    setWidth(popupInnerRect?.width || 0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [popup, children == null, popup?.target.metadata?.model])
 
   return (
     <div ref={popupRef}>
       {popup && children ? (
         <div
+          ref={popupInnerRef}
           style={{
             position: "absolute",
             zIndex: 128,
-            top: `${Math.max(popup.y - (model == "stable-diffusion-animation" ? 185 : 120), minY)}px`,
-            left: `${Math.max(popup.x - popupWidth / 2, minX)}px`,
+            top: `${Math.max(popup.y - height - 32, minY)}px`,
+            left: `${Math.max(popup.x - width / 2, minX)}px`,
             background: "#eeeaee",
             border: "1px solid #c4c4c4",
             padding: "12px 12px 0 12px",
             borderRadius: "10px",
-            width: `${popupWidth}px`,
+            width: `500px`,
             boxShadow: "0px 0px 10px rgba(0,0,0,.2)",
             display: "flex",
             flexDirection: "column",
             gap: "8px",
+            opacity: height > 0 ? 1 : 0,
           }}
         >
           {children}
