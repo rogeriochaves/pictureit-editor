@@ -10,36 +10,43 @@ import {
   OpenJourneyOutput,
   StableDiffusionAnimationInput,
   StableDiffusionAnimationOutput,
+  LoadProgressCallback,
 } from "../index"
 import { proxyFetch } from "../proxyFetch"
+import { parseProgressFromLogs } from "../utils"
 
 const replicateFetch = proxyFetch("https://api.replicate.com")
 
 const Replicate: Api = class {
-  static async stableDiffusion(params: StableDiffusionInput): Promise<StableDiffusionOutput> {
+  static async stableDiffusion(
+    params: StableDiffusionInput,
+    onLoadProgress: LoadProgressCallback
+  ): Promise<StableDiffusionOutput> {
     // https://replicate.com/stability-ai/stable-diffusion
-    return callReplicate("27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478", params)
+    return callReplicate("27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478", params, onLoadProgress)
   }
 
   static async stableDiffusionInpainting(
-    params: StableDiffusionInpaintingInput
+    params: StableDiffusionInpaintingInput,
+    onLoadProgress: LoadProgressCallback
   ): Promise<StableDiffusionInpaintingOutput> {
     // https://replicate.com/andreasjansson/stable-diffusion-inpainting
-    return callReplicate("8eb2da8345bee796efcd925573f077e36ed5fb4ea3ba240ef70c23cf33f0d848", params)
+    return callReplicate("8eb2da8345bee796efcd925573f077e36ed5fb4ea3ba240ef70c23cf33f0d848", params, onLoadProgress)
   }
 
   static async stableDiffusionAdvanceSteps(
-    params: StableDiffusionAdvanceStepsInput
+    params: StableDiffusionAdvanceStepsInput,
+    onLoadProgress: LoadProgressCallback
   ): Promise<StableDiffusionAdvanceStepsOutput> {
     // https://replicate.com/devxpy/glid-3-xl-stable
-    return callReplicate("7d6a340e1815acf2b3b2ee0fcaf830fbbcd8697e9712ca63d81930c60484d2d7", params)
+    return callReplicate("7d6a340e1815acf2b3b2ee0fcaf830fbbcd8697e9712ca63d81930c60484d2d7", params, onLoadProgress)
   }
 
-  static async openJourney(params: OpenJourneyInput): Promise<OpenJourneyOutput> {
+  static async openJourney(params: OpenJourneyInput, onLoadProgress: LoadProgressCallback): Promise<OpenJourneyOutput> {
     params = { ...params, prompt: `mdjrny-v4 style ${params.prompt}` }
 
     // https://replicate.com/prompthero/openjourney
-    return callReplicate("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb", params)
+    return callReplicate("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb", params, onLoadProgress)
   }
 
   static async stableDiffusionAnimation(
@@ -50,7 +57,11 @@ const Replicate: Api = class {
   }
 }
 
-async function callReplicate(modelId: string, params: object) {
+async function callReplicate(
+  modelId: string,
+  params: object,
+  onLoadProgress: LoadProgressCallback | undefined = undefined
+) {
   if (!import.meta.env.VITE_ENV_REPLICATE_TOKEN) {
     console.error(
       "VITE_ENV_REPLICATE_TOKEN env var is not set, calls to the backend will fail, read more about it on the README of the project"
@@ -72,13 +83,15 @@ async function callReplicate(modelId: string, params: object) {
     throw predictionRequest
   }
 
-  await sleep(4500)
-  const result = await checkUntilDone(predictionRequest)
+  const result = await checkUntilDone(predictionRequest, onLoadProgress)
 
   return result
 }
 
-async function checkUntilDone(predictionRequest: { urls: { get: string } }): Promise<{ url: string }> {
+async function checkUntilDone(
+  predictionRequest: { urls: { get: string } },
+  onLoadProgress: LoadProgressCallback | undefined
+): Promise<{ url: string }> {
   const {
     urls: { get: getUrl },
   } = predictionRequest
@@ -95,7 +108,11 @@ async function checkUntilDone(predictionRequest: { urls: { get: string } }): Pro
     return { url: json.output[0] as string }
   } else if (json.status == "processing" || json.status == "starting") {
     await sleep(500)
-    return checkUntilDone(predictionRequest)
+    const progress = json.logs && parseProgressFromLogs(json.logs)
+    if (progress) {
+      onLoadProgress?.(progress)
+    }
+    return checkUntilDone(predictionRequest, onLoadProgress)
   } else {
     throw json.error
   }

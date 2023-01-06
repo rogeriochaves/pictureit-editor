@@ -55,11 +55,14 @@ export type StableDiffusionAnimationInput = {
 
 export type StableDiffusionAnimationOutput = StableDiffusionOutput
 
+export type GenerationProgressEvent = { progress: number }
+export type LoadProgressCallback = (event: GenerationProgressEvent) => void
+
 export interface Api {
-  stableDiffusion(params: StableDiffusionInput): Promise<StableDiffusionOutput>
-  stableDiffusionInpainting(params: StableDiffusionInpaintingInput): Promise<StableDiffusionInpaintingOutput>
-  stableDiffusionAdvanceSteps(params: StableDiffusionAdvanceStepsInput): Promise<StableDiffusionAdvanceStepsOutput>
-  openJourney(params: OpenJourneyInput): Promise<OpenJourneyOutput>
+  stableDiffusion(params: StableDiffusionInput, onLoadProgress: LoadProgressCallback): Promise<StableDiffusionOutput>
+  stableDiffusionInpainting(params: StableDiffusionInpaintingInput, onLoadProgress: LoadProgressCallback): Promise<StableDiffusionInpaintingOutput>
+  stableDiffusionAdvanceSteps(params: StableDiffusionAdvanceStepsInput, onLoadProgress: LoadProgressCallback): Promise<StableDiffusionAdvanceStepsOutput>
+  openJourney(params: OpenJourneyInput, onLoadProgress: LoadProgressCallback): Promise<OpenJourneyOutput>
   stableDiffusionAnimation(params: StableDiffusionAnimationInput): Promise<StableDiffusionAnimationOutput>
 }
 

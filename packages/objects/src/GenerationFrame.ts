@@ -267,6 +267,21 @@ export class GenerationFrameObject extends fabric.Group {
     this.canvas.requestRenderAll()
   }
 
+  moveLoading(to: number, duration: number) {
+    const loadingBar = this.getLoadingBar()
+    if (!loadingBar) return
+
+    if (this.loadingAnimation) {
+      // cancels animation
+      this.loadingAnimation()
+    }
+    this.loadingAnimation = loadingBar.animate("width", this.width * to, {
+      onChange: this.canvas.requestRenderAll.bind(this.canvas),
+      duration,
+      easing: fabric.util.ease.easeInOutQuad,
+    }) as any
+  }
+
   finishLoading() {
     const loadingBar = this.getLoadingBar()
     if (loadingBar) {

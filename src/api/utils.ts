@@ -1,3 +1,5 @@
+import { GenerationProgressEvent } from "."
+
 export const extractErrorMessage = async (error: any) => {
   if (error.json) {
     try {
@@ -12,4 +14,12 @@ export const extractErrorMessage = async (error: any) => {
   }
 
   return error.toString()
+}
+
+export const parseProgressFromLogs = (logs: string): GenerationProgressEvent | undefined => {
+  const percentMatch = logs.match(/[0-9]+%/g)
+  if (percentMatch) {
+    return { progress: parseInt(percentMatch[percentMatch.length - 1], 10) }
+  }
+  return undefined
 }

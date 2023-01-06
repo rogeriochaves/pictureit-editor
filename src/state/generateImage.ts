@@ -4,7 +4,7 @@ import { ModelTypes } from "@layerhub-io/objects"
 import { IGenerationFrame, ILayer } from "@layerhub-io/types"
 import { fabric } from "fabric"
 import { atom, atomFamily } from "recoil"
-import api, { StableDiffusionOutput } from "../api"
+import api, { GenerationProgressEvent, StableDiffusionOutput } from "../api"
 import { extractErrorMessage } from "../api/utils"
 import { canvasFromImage } from "../utils/canvas-from-image"
 import { paintItBlack } from "../utils/clip-mask"
@@ -194,6 +194,8 @@ const generateImageOrVideo = async ({
 
   const model = frame.metadata.model || detectModelToUse(editor, frame, initImageWithNoise, initImageCanvas)
 
+  const onLoadProgress = (event: GenerationProgressEvent) => frame.moveLoading(event.progress / 100, 500)
+
   return model == "stable-diffusion-inpainting"
     ? await api.stableDiffusionInpainting({
         prompt: frame.metadata?.prompt || "",
@@ -201,13 +203,13 @@ const generateImageOrVideo = async ({
         guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
         image: initImageWithNoise,
         mask: clipMask,
-      })
+      }, onLoadProgress)
     : model == "openjourney"
     ? await api.openJourney({
         prompt: frame.metadata?.prompt || "",
         num_inference_steps: numInferenceSteps,
         guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
-      })
+      }, onLoadProgress)
     : model == "stable-diffusion-animation"
     ? await api.stableDiffusionAnimation({
         prompt_start: frame.metadata?.prompt || "",
@@ -218,18 +220,21 @@ const generateImageOrVideo = async ({
         film_interpolation: true,
         output_format: "mp4",
       })
-    : await api.stableDiffusion({
-        prompt: frame.metadata?.prompt || "",
-        negative_prompt: frame.metadata?.negativePrompt,
-        num_inference_steps: numInferenceSteps,
-        guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
-        ...(initImageWithNoise
-          ? {
-              init_image: initImageWithNoise,
-              prompt_strength: frame.metadata?.initImage?.promptStrength ?? DEFAULT_PROMPT_STRENGTH,
-            }
-          : {}),
-      })
+    : await api.stableDiffusion(
+        {
+          prompt: frame.metadata?.prompt || "",
+          negative_prompt: frame.metadata?.negativePrompt,
+          num_inference_steps: numInferenceSteps,
+          guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
+          ...(initImageWithNoise
+            ? {
+                init_image: initImageWithNoise,
+                prompt_strength: frame.metadata?.initImage?.promptStrength ?? DEFAULT_PROMPT_STRENGTH,
+              }
+            : {}),
+        },
+        onLoadProgress
+      )
 }
 
 export const renderInitImage = async (
