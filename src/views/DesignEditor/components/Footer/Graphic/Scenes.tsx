@@ -246,7 +246,7 @@ const Scenes = () => {
               }}
             >
               <div
-                onClick={addScene}
+                onClick={() => addScene()}
                 className={css({
                   width: "100px",
                   height: "56px",
