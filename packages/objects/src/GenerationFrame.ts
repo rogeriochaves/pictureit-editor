@@ -370,7 +370,7 @@ export class GenerationFrameObject extends fabric.Group {
     )
   }
 
-  getLoadingStepLabel(canvas?) {
+  getLoadingStepLabel(canvas?) : fabric.Text | undefined {
     return (canvas || this.canvas)?.getObjects().find(
       (object) =>
         //@ts-ignore

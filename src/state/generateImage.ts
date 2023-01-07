@@ -109,7 +109,7 @@ const generateAdvanceSteps = async ({
   editor: Editor
 }): Promise<StableDiffusionOutput> => {
   const numInferenceSteps = frame.metadata?.steps || DEFAULT_STEPS
-  frame.showLoading(20_000, "Starting...")
+  showStartingLoading(frame, editor)
 
   const renderedFrame = await renderNewInitImage(editor, frame)
   if (!renderedFrame) {
@@ -171,6 +171,24 @@ const detectModelToUse = (
   return "stable-diffusion"
 }
 
+const showStartingLoading = (frame: fabric.GenerationFrame, editor: Editor) => {
+  frame.showLoading(20_000, "Starting...")
+  setTimeout(() => {
+    const loadingStepLabel = frame.getLoadingStepLabel()
+    if (loadingStepLabel && loadingStepLabel.text == "Starting...") {
+      loadingStepLabel.text = "Taking a little longer than usual..."
+      editor.canvas.requestRenderAll()
+    }
+  }, 20_000)
+  setTimeout(() => {
+    const loadingStepLabel = frame.getLoadingStepLabel()
+    if (loadingStepLabel && loadingStepLabel.text == "Taking a little longer than usual...") {
+      loadingStepLabel.text = "Hang in there..."
+      editor.canvas.requestRenderAll()
+    }
+  }, 50_000)
+}
+
 const onLoadProgress = (frame: fabric.GenerationFrame) => (event: GenerationProgressEvent) => {
   if ("progress" in event) {
     frame.moveLoading(event.progress / 100, 500)
@@ -185,7 +203,7 @@ const generateImageOrVideo = async ({
   editor: Editor
 }): Promise<StableDiffusionOutput> => {
   const numInferenceSteps = frame.metadata?.steps || 50
-  frame.showLoading(20_000, "Starting...")
+  showStartingLoading(frame, editor)
 
   const [initImage, initImageWithNoise, initImageCanvas] = await renderInitImage(editor, frame, true)
   const clipMask = initImage && (await renderClipMask(editor, frame))
