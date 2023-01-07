@@ -223,7 +223,7 @@ export class GenerationFrameObject extends fabric.Group {
         this.canvas.remove(currentLoadingStepLabel)
       }
       loadingStepLabel = new fabric.Text(step, {
-        type: "Label",
+        type: "GenericNonRenderable",
         top: this.top + 4,
         left: this.left + 8,
         //@ts-ignore
