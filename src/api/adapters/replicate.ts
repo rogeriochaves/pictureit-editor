@@ -50,18 +50,15 @@ const Replicate: Api = class {
   }
 
   static async stableDiffusionAnimation(
-    params: StableDiffusionAnimationInput
+    params: StableDiffusionAnimationInput,
+    onLoadProgress: LoadProgressCallback
   ): Promise<StableDiffusionAnimationOutput> {
     // https://replicate.com/andreasjansson/stable-diffusion-animation
-    return callReplicate("ca1f5e306e5721e19c473e0d094e6603f0456fe759c10715fcd6c1b79242d4a5", params)
+    return callReplicate("ca1f5e306e5721e19c473e0d094e6603f0456fe759c10715fcd6c1b79242d4a5", params, onLoadProgress)
   }
 }
 
-async function callReplicate(
-  modelId: string,
-  params: object,
-  onLoadProgress: LoadProgressCallback | undefined = undefined
-) {
+async function callReplicate(modelId: string, params: object, onLoadProgress: LoadProgressCallback) {
   if (!import.meta.env.VITE_ENV_REPLICATE_TOKEN) {
     console.error(
       "VITE_ENV_REPLICATE_TOKEN env var is not set, calls to the backend will fail, read more about it on the README of the project"
@@ -90,7 +87,7 @@ async function callReplicate(
 
 async function checkUntilDone(
   predictionRequest: { urls: { get: string } },
-  onLoadProgress: LoadProgressCallback | undefined
+  onLoadProgress: LoadProgressCallback
 ): Promise<{ url: string }> {
   const {
     urls: { get: getUrl },
@@ -110,7 +107,7 @@ async function checkUntilDone(
     await sleep(500)
     const progress = json.logs && parseProgressFromLogs(json.logs)
     if (progress) {
-      onLoadProgress?.(progress)
+      onLoadProgress(progress)
     }
     return checkUntilDone(predictionRequest, onLoadProgress)
   } else {

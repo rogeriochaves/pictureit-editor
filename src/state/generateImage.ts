@@ -15,6 +15,7 @@ import { currentUserQuery } from "./user"
 
 export const DEFAULT_PROMPT_STRENGTH = 0.8
 export const DEFAULT_GUIDANCE = 7.5
+export const DEFAULT_STEPS = 50
 
 export const generateImageCall = lazySelectorFamily({
   key: "generateImageCall",
@@ -107,8 +108,8 @@ const generateAdvanceSteps = async ({
   frame: fabric.GenerationFrame
   editor: Editor
 }): Promise<StableDiffusionOutput> => {
-  const numInferenceSteps = frame.metadata?.steps || 50
-  showLoading(frame, numInferenceSteps)
+  const numInferenceSteps = frame.metadata?.steps || DEFAULT_STEPS
+  frame.showLoading(20_000, "Starting...")
 
   const renderedFrame = await renderNewInitImage(editor, frame)
   if (!renderedFrame) {
@@ -118,13 +119,16 @@ const generateAdvanceSteps = async ({
   const image = renderedFrame.toDataURL("image/jpeg")
   const stepsToSkip = frame.metadata?.accumulatedSteps || frame.metadata?.steps || 50
 
-  const result = await api.stableDiffusionAdvanceSteps({
-    prompt: frame.metadata?.prompt || "",
-    init_image: image,
-    num_inference_steps: stepsToSkip + numInferenceSteps,
-    skip_timesteps: stepsToSkip,
-    seed: 42,
-  })
+  const result = await api.stableDiffusionAdvanceSteps(
+    {
+      prompt: frame.metadata?.prompt || "",
+      init_image: image,
+      num_inference_steps: stepsToSkip + numInferenceSteps,
+      skip_timesteps: stepsToSkip,
+      seed: 42,
+    },
+    onLoadProgress(frame)
+  )
 
   frame.metadata = {
     ...frame.metadata,
@@ -134,16 +138,15 @@ const generateAdvanceSteps = async ({
   return result
 }
 
-const showLoading = (frame: fabric.GenerationFrame, steps: number) => {
-  if (frame.metadata?.model == "stable-diffusion-animation") {
-    const numAnimationFrames = 3
-    const numInterpolationSteps = 2
+export const animationTimeEstimation = (frame: fabric.GenerationFrame) => {
+  const numAnimationFrames = 3
+  const numInterpolationSteps = 2
 
-    // Takes around 2.6s for 50 steps per frame
-    frame.showLoading((2600 / 50) * steps * numAnimationFrames * numInterpolationSteps)
-  } else {
-    frame.showLoading((4 + steps * 0.1) * 1500)
-  }
+  const steps = frame.metadata?.steps || DEFAULT_STEPS
+  // Takes around 2.6s for 50 steps per frame
+  const perFrame = (2600 / 50) * steps * numInterpolationSteps
+
+  return { total: perFrame * numAnimationFrames, perFrame }
 }
 
 export const renderToDetectModelToUse = async (editor: Editor, frame: fabric.GenerationFrame) => {
@@ -168,6 +171,12 @@ const detectModelToUse = (
   return "stable-diffusion"
 }
 
+const onLoadProgress = (frame: fabric.GenerationFrame) => (event: GenerationProgressEvent) => {
+  if ("progress" in event) {
+    frame.moveLoading(event.progress / 100, 500)
+  }
+}
+
 const generateImageOrVideo = async ({
   frame,
   editor,
@@ -176,7 +185,7 @@ const generateImageOrVideo = async ({
   editor: Editor
 }): Promise<StableDiffusionOutput> => {
   const numInferenceSteps = frame.metadata?.steps || 50
-  showLoading(frame, numInferenceSteps)
+  frame.showLoading(20_000, "Starting...")
 
   const [initImage, initImageWithNoise, initImageCanvas] = await renderInitImage(editor, frame, true)
   const clipMask = initImage && (await renderClipMask(editor, frame))
@@ -194,32 +203,43 @@ const generateImageOrVideo = async ({
 
   const model = frame.metadata.model || detectModelToUse(editor, frame, initImageWithNoise, initImageCanvas)
 
-  const onLoadProgress = (event: GenerationProgressEvent) => frame.moveLoading(event.progress / 100, 500)
-
   return model == "stable-diffusion-inpainting"
-    ? await api.stableDiffusionInpainting({
-        prompt: frame.metadata?.prompt || "",
-        num_inference_steps: numInferenceSteps,
-        guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
-        image: initImageWithNoise,
-        mask: clipMask,
-      }, onLoadProgress)
+    ? await api.stableDiffusionInpainting(
+        {
+          prompt: frame.metadata?.prompt || "",
+          num_inference_steps: numInferenceSteps,
+          guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
+          image: initImageWithNoise,
+          mask: clipMask,
+        },
+        onLoadProgress(frame)
+      )
     : model == "openjourney"
-    ? await api.openJourney({
-        prompt: frame.metadata?.prompt || "",
-        num_inference_steps: numInferenceSteps,
-        guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
-      }, onLoadProgress)
+    ? await api.openJourney(
+        {
+          prompt: frame.metadata?.prompt || "",
+          num_inference_steps: numInferenceSteps,
+          guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
+        },
+        onLoadProgress(frame)
+      )
     : model == "stable-diffusion-animation"
-    ? await api.stableDiffusionAnimation({
-        prompt_start: frame.metadata?.prompt || "",
-        prompt_end: frame.metadata?.promptEnd || "",
-        num_inference_steps: numInferenceSteps,
-        num_animation_frames: 3,
-        num_interpolation_steps: 2,
-        film_interpolation: true,
-        output_format: "mp4",
-      })
+    ? await api.stableDiffusionAnimation(
+        {
+          prompt_start: frame.metadata?.prompt || "",
+          prompt_end: frame.metadata?.promptEnd || "",
+          num_inference_steps: numInferenceSteps,
+          num_animation_frames: 3,
+          num_interpolation_steps: 2,
+          film_interpolation: true,
+          output_format: "mp4",
+        },
+        (event: GenerationProgressEvent) => {
+          if ("step" in event) {
+            frame.showLoading(animationTimeEstimation(frame).perFrame, `Frame ${event.step + 1}`)
+          }
+        }
+      )
     : await api.stableDiffusion(
         {
           prompt: frame.metadata?.prompt || "",
@@ -233,7 +253,7 @@ const generateImageOrVideo = async ({
               }
             : {}),
         },
-        onLoadProgress
+        onLoadProgress(frame)
       )
 }
 

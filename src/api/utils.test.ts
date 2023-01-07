@@ -14,4 +14,12 @@ describe("utils", () => {
       progress: 12,
     })
   })
+
+  it("parses logs for progress steps", () => {
+    const logs =
+      "Using seed: 14899\nGenerating initial latents for 9 steps\nGenerating first and last keyframes\nGenerating frame 0 of keyframe 0\nGenerating frame 1 of keyframe 0\nGenerating frame 2 of keyframe 0\nInterpolating images with FILM\nSaving MP4"
+    expect(parseProgressFromLogs(logs)).toEqual({
+      step: 2,
+    })
+  })
 })

@@ -55,7 +55,7 @@ export type StableDiffusionAnimationInput = {
 
 export type StableDiffusionAnimationOutput = StableDiffusionOutput
 
-export type GenerationProgressEvent = { progress: number }
+export type GenerationProgressEvent = { progress: number } | { step: number }
 export type LoadProgressCallback = (event: GenerationProgressEvent) => void
 
 export interface Api {
@@ -63,7 +63,7 @@ export interface Api {
   stableDiffusionInpainting(params: StableDiffusionInpaintingInput, onLoadProgress: LoadProgressCallback): Promise<StableDiffusionInpaintingOutput>
   stableDiffusionAdvanceSteps(params: StableDiffusionAdvanceStepsInput, onLoadProgress: LoadProgressCallback): Promise<StableDiffusionAdvanceStepsOutput>
   openJourney(params: OpenJourneyInput, onLoadProgress: LoadProgressCallback): Promise<OpenJourneyOutput>
-  stableDiffusionAnimation(params: StableDiffusionAnimationInput): Promise<StableDiffusionAnimationOutput>
+  stableDiffusionAnimation(params: StableDiffusionAnimationInput, onLoadProgress: LoadProgressCallback): Promise<StableDiffusionAnimationOutput>
 }
 
 const adapter: PictureItApi | Api =

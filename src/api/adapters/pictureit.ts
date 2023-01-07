@@ -83,9 +83,10 @@ const PictureIt: PictureItApi = class {
   }
 
   static async stableDiffusionAnimation(
-    params: StableDiffusionAnimationInput
+    params: StableDiffusionAnimationInput,
+    onLoadProgress: LoadProgressCallback
   ): Promise<StableDiffusionAnimationOutput> {
-    return modelCall("/api/editor/stable_diffusion_animation", params)
+    return modelCall("/api/editor/stable_diffusion_animation", params, onLoadProgress)
   }
 
   static async user(): Promise<User | undefined> {
@@ -168,13 +169,8 @@ async function getApi(url: string) {
 async function modelCall(
   modelPath: string,
   params: object,
-  onLoadProgress: LoadProgressCallback | undefined = undefined
+  onLoadProgress: LoadProgressCallback
 ) {
-  if (!import.meta.env.VITE_ENV_REPLICATE_TOKEN) {
-    console.error(
-      "VITE_ENV_REPLICATE_TOKEN env var is not set, calls to the backend will fail, read more about it on the README of the project"
-    )
-  }
   const response = await postApi(modelPath, params)
   const result = await checkUntilDone(response, onLoadProgress)
 
@@ -183,7 +179,7 @@ async function modelCall(
 
 async function checkUntilDone(
   predictionRequest: { id: string },
-  onLoadProgress: LoadProgressCallback | undefined
+  onLoadProgress: LoadProgressCallback
 ): Promise<{ url: string }> {
   const response = await getApi(`/api/editor/progress/${predictionRequest.id}`)
 
@@ -193,7 +189,7 @@ async function checkUntilDone(
     await sleep(500)
     const progress = response.logs && parseProgressFromLogs(response.logs)
     if (progress) {
-      onLoadProgress?.(progress)
+      onLoadProgress(progress)
     }
     return checkUntilDone(predictionRequest, onLoadProgress)
   } else {

@@ -213,7 +213,40 @@ export class GenerationFrameObject extends fabric.Group {
     }
   }
 
-  showLoading(duration: number) {
+  showLoading(duration: number, step: string = undefined) {
+    const currentLoadingStepLabel = this.getLoadingStepLabel()
+    let loadingStepLabel: fabric.Text
+    if (step && currentLoadingStepLabel && step == currentLoadingStepLabel.text) {
+      return
+    } else if (step) {
+      if (currentLoadingStepLabel) {
+        this.canvas.remove(currentLoadingStepLabel)
+      }
+      loadingStepLabel = new fabric.Text(step, {
+        type: "Label",
+        top: this.top + 4,
+        left: this.left + 8,
+        //@ts-ignore
+        id: `${this.id}-loading-step-label`,
+        selectable: false,
+        hasControls: false,
+        evented: false,
+        fontSize: 19,
+        fill: "rgba(255, 255, 255, 1)",
+        fontFamily: "Uber Move Text, sans-serif",
+        erasable: false,
+      })
+    }
+
+    if (this.loadingAnimation) {
+      // cancels animation
+      this.loadingAnimation()
+    }
+    const previousLoadingBar = this.getLoadingBar()
+    if (previousLoadingBar) {
+      this.canvas.remove(previousLoadingBar)
+    }
+
     this.removeError()
     const loadingBar = new fabric.Rect({
       top: this.top,
@@ -225,8 +258,8 @@ export class GenerationFrameObject extends fabric.Group {
       hasControls: false,
       hasBorders: false,
       evented: false,
-      width: 1,
-      height: 16,
+      width: loadingStepLabel ? loadingStepLabel.width + 24 : 1,
+      height: 32,
       fill: "rgba(66, 161, 214, 1)",
     })
     //@ts-ignore
@@ -257,6 +290,9 @@ export class GenerationFrameObject extends fabric.Group {
     loadingBar.fill = grad.toLive(this.canvas.getContext())
 
     this.canvas.add(loadingBar)
+    if (loadingStepLabel) {
+      this.canvas.add(loadingStepLabel)
+    }
 
     this.loadingAnimation = loadingBar.animate("width", this.width * 0.95, {
       onChange: this.canvas.requestRenderAll.bind(this.canvas),
@@ -271,6 +307,11 @@ export class GenerationFrameObject extends fabric.Group {
     const loadingBar = this.getLoadingBar()
     if (!loadingBar) return
 
+    const loadingStepLabel = this.getLoadingStepLabel()
+    if (loadingStepLabel) {
+      this.canvas.remove(loadingStepLabel)
+    }
+
     if (this.loadingAnimation) {
       // cancels animation
       this.loadingAnimation()
@@ -284,21 +325,32 @@ export class GenerationFrameObject extends fabric.Group {
 
   finishLoading() {
     const loadingBar = this.getLoadingBar()
+    if (!loadingBar) return
+
+    this.removeLoading()
+    this.canvas.add(loadingBar)
+    loadingBar.width = this.width
+    loadingBar.animate("opacity", 0, {
+      onChange: this.canvas.requestRenderAll.bind(this.canvas),
+      onComplete: () => {
+        this.canvas.remove(loadingBar)
+      },
+      duration: 1000,
+    })
+  }
+
+  removeLoading() {
+    const loadingBar = this.getLoadingBar()
     if (loadingBar) {
-      if (this.loadingAnimation) {
-        // cancels animation
-        this.loadingAnimation()
-      }
       this.canvas.remove(loadingBar)
-      this.canvas.add(loadingBar)
-      loadingBar.width = this.width
-      loadingBar.animate("opacity", 0, {
-        onChange: this.canvas.requestRenderAll.bind(this.canvas),
-        onComplete: () => {
-          this.canvas.remove(loadingBar)
-        },
-        duration: 1000,
-      })
+    }
+    if (this.loadingAnimation) {
+      // cancels animation
+      this.loadingAnimation()
+    }
+    const loadingStepLabel = this.getLoadingStepLabel()
+    if (loadingStepLabel) {
+      this.canvas.remove(loadingStepLabel)
     }
   }
 
@@ -315,6 +367,14 @@ export class GenerationFrameObject extends fabric.Group {
       (object) =>
         //@ts-ignore
         object.id == `${this.id}-loading-bar`
+    )
+  }
+
+  getLoadingStepLabel(canvas?) {
+    return (canvas || this.canvas)?.getObjects().find(
+      (object) =>
+        //@ts-ignore
+        object.id == `${this.id}-loading-step-label`
     )
   }
 

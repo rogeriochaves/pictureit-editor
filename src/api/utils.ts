@@ -17,9 +17,13 @@ export const extractErrorMessage = async (error: any) => {
 }
 
 export const parseProgressFromLogs = (logs: string): GenerationProgressEvent | undefined => {
-  const percentMatch = logs.match(/[0-9]+%/g)
-  if (percentMatch) {
-    return { progress: parseInt(percentMatch[percentMatch.length - 1], 10) }
+  const percentMatch = Array.of(...logs.matchAll(/([0-9]+%)/g))
+  if (percentMatch.length > 0) {
+    return { progress: parseInt(percentMatch[percentMatch.length - 1][1], 10) }
+  }
+  const frameMatch = Array.of(...logs.matchAll(/ frame ([0-9]+)/g))
+  if (frameMatch.length > 0) {
+    return { step: parseInt(frameMatch[frameMatch.length - 1][1], 10) }
   }
   return undefined
 }
