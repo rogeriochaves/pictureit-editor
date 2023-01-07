@@ -57,7 +57,6 @@ const GraphicEditor = () => {
     if (generationDoneQueue.length == 0) return
 
     const item = generationDoneQueue[0]
-    console.log('processing item', item);
     setGenerationDoneQueue(generationDoneQueue.slice(1))
 
     if (item.type == "video") {

@@ -162,7 +162,7 @@ const ActionPopup = () => {
       <label style={{ fontSize: 13 }} htmlFor="actionPopupPromptEnd">
         Prompt End:
       </label>
-      <PromptInput id="actionPopupPromptEnd" onChange={(e) => setPromptEnd(e.target.value)} value={promptEnd} />
+      <PromptInput id="actionPopupPromptEnd" onChange={(e) => setPromptEnd(e.target.value)} value={promptEnd || ""} />
     </>
   )
 
@@ -214,17 +214,17 @@ const ActionPopupLayout = ({ popup, children }: { popup: Popup | null; children:
 
   useEffect(() => {
     if (!popup) return
+    setTop(undefined)
 
-    const popupInnerRect = popupInnerRef.current?.getBoundingClientRect()
-    if (!popupInnerRect) {
-      setTop(undefined)
-      return
-    }
+    setTimeout(() => {
+      const popupInnerRect = popupInnerRef.current?.getBoundingClientRect()
+      if (!popupInnerRect) return
 
-    setTop(Math.max(popup.y - popupInnerRect.height - 32, minY))
-    setLeft(Math.max(popup.x - popupInnerRect.width / 2, minX))
+      setTop(Math.max(popup.y - popupInnerRect.height - 32, minY))
+      setLeft(Math.max(popup.x - popupInnerRect.width / 2, minX))
+    }, 0)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [popup, children == null, popup?.target.metadata?.model])
+  }, [popup, popup?.target.id, children == null, popup?.target.metadata?.model])
 
   return (
     <div ref={popupRef}>
