@@ -10,8 +10,10 @@ import {
   OpenJourneyOutput,
   StableDiffusionAnimationInput,
   StableDiffusionAnimationOutput,
+  LoadProgressCallback,
 } from "../index"
 import { proxyFetch } from "../proxyFetch"
+import { parseProgressFromLogs } from "../utils"
 
 export const PICTURE_IT_URL = import.meta.env.VITE_ENV_PICTURE_IT_URL || "https://pictureit.art"
 
@@ -53,32 +55,37 @@ export interface User {
 }
 
 const PictureIt: PictureItApi = class {
-  static async stableDiffusion(params: StableDiffusionInput): Promise<StableDiffusionOutput> {
-    return postApi("/api/editor/stable_diffusion", params)
+  static async stableDiffusion(
+    params: StableDiffusionInput,
+    onLoadProgress: LoadProgressCallback
+  ): Promise<StableDiffusionOutput> {
+    return modelCall("/api/editor/stable_diffusion", params, onLoadProgress)
   }
 
   static async stableDiffusionInpainting(
-    params: StableDiffusionInpaintingInput
+    params: StableDiffusionInpaintingInput,
+    onLoadProgress: LoadProgressCallback
   ): Promise<StableDiffusionInpaintingOutput> {
-    return postApi("/api/editor/stable_diffusion_inpainting", params)
+    return modelCall("/api/editor/stable_diffusion_inpainting", params, onLoadProgress)
   }
 
   static async stableDiffusionAdvanceSteps(
-    params: StableDiffusionAdvanceStepsInput
+    params: StableDiffusionAdvanceStepsInput,
+    onLoadProgress: LoadProgressCallback
   ): Promise<StableDiffusionAdvanceStepsOutput> {
-    return postApi("/api/editor/stable_diffusion_advance_steps", params)
+    return modelCall("/api/editor/stable_diffusion_advance_steps", params, onLoadProgress)
   }
 
-  static async openJourney(params: OpenJourneyInput): Promise<OpenJourneyOutput> {
+  static async openJourney(params: OpenJourneyInput, onLoadProgress: LoadProgressCallback): Promise<OpenJourneyOutput> {
     params = { ...params, prompt: `mdjrny-v4 style ${params.prompt}` }
 
-    return postApi("/api/editor/open_journey", params)
+    return modelCall("/api/editor/open_journey", params, onLoadProgress)
   }
 
   static async stableDiffusionAnimation(
     params: StableDiffusionAnimationInput
   ): Promise<StableDiffusionAnimationOutput> {
-    return postApi("/api/editor/stable_diffusion_animation", params)
+    return modelCall("/api/editor/stable_diffusion_animation", params)
   }
 
   static async user(): Promise<User | undefined> {
@@ -157,5 +164,43 @@ async function getApi(url: string) {
 
   return json
 }
+
+async function modelCall(
+  modelPath: string,
+  params: object,
+  onLoadProgress: LoadProgressCallback | undefined = undefined
+) {
+  if (!import.meta.env.VITE_ENV_REPLICATE_TOKEN) {
+    console.error(
+      "VITE_ENV_REPLICATE_TOKEN env var is not set, calls to the backend will fail, read more about it on the README of the project"
+    )
+  }
+  const response = await postApi(modelPath, params)
+  const result = await checkUntilDone(response, onLoadProgress)
+
+  return result
+}
+
+async function checkUntilDone(
+  predictionRequest: { id: string },
+  onLoadProgress: LoadProgressCallback | undefined
+): Promise<{ url: string }> {
+  const response = await getApi(`/api/editor/progress/${predictionRequest.id}`)
+
+  if (response.status == "succeeded") {
+    return { url: response.output[0] as string }
+  } else if (response.status == "processing" || response.status == "starting") {
+    await sleep(500)
+    const progress = response.logs && parseProgressFromLogs(response.logs)
+    if (progress) {
+      onLoadProgress?.(progress)
+    }
+    return checkUntilDone(predictionRequest, onLoadProgress)
+  } else {
+    throw response.error
+  }
+}
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export default PictureIt
