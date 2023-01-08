@@ -1,17 +1,21 @@
-import { useActiveObject } from "@layerhub-io/react"
+import { useActiveObject, useEditor } from "@layerhub-io/react"
 import { Block } from "baseui/block"
 import { fabric } from "fabric"
 import { useSetRecoilState } from "recoil"
+import { ModelCapabilities } from "../../../../../api"
 import { hidePopupState } from "../../../../../state/generateImage"
 import Common from "./Common"
+import { AnimationSettings } from "./GenerationFrame/AnimationSettings"
 import { InitImageSettings } from "./GenerationFrame/InitImageSettings"
-import { ModelSettings } from "./GenerationFrame/ModelSettings"
+import { ModelSettings, useFrameModel } from "./GenerationFrame/ModelSettings"
 import { StepsSettings } from "./GenerationFrame/StepsSettings"
 import { Separator } from "./Shared/Separator"
 
 const GenerationFrame = () => {
   const activeObject = useActiveObject<fabric.GenerationFrame | undefined>()
   const setHidePopup = useSetRecoilState(hidePopupState)
+  const editor = useEditor()
+  const [model] = useFrameModel(editor, activeObject)
 
   if (!activeObject) return null
 
@@ -30,8 +34,18 @@ const GenerationFrame = () => {
     >
       <Block display="flex" gridGap="0.5rem" alignItems="center">
         <ModelSettings />
-        <Separator />
-        <InitImageSettings />
+        {ModelCapabilities[model].init_image && (
+          <>
+            <Separator />
+            <InitImageSettings />
+          </>
+        )}
+        {ModelCapabilities[model].animation_frames && (
+          <>
+            <Separator />
+            <AnimationSettings />
+          </>
+        )}
         <Separator />
         <StepsSettings />
         <Separator />

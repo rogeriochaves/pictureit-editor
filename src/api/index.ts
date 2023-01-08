@@ -1,6 +1,20 @@
+import { ModelTypes } from "@layerhub-io/objects"
 import Mocked from "./adapters/mocked"
 import PictureIt, { PictureItApi } from "./adapters/pictureit"
 import Replicate from "./adapters/replicate"
+
+export enum Capabilities {
+  INIT_IMAGE = "init_image",
+  NEGATIVE_PROMPT = "negative_prompt",
+  ANIMATION_FRAMES = "animation_frames",
+}
+
+export const ModelCapabilities: { [key in ModelTypes]: Partial<{ [key in Capabilities]: boolean }> } = {
+  "stable-diffusion": { [Capabilities.INIT_IMAGE]: true, [Capabilities.NEGATIVE_PROMPT]: true },
+  "stable-diffusion-inpainting": { [Capabilities.INIT_IMAGE]: true },
+  openjourney: {},
+  "stable-diffusion-animation": { [Capabilities.ANIMATION_FRAMES]: true },
+}
 
 export type StableDiffusionInput = {
   prompt: string
@@ -60,10 +74,19 @@ export type LoadProgressCallback = (event: GenerationProgressEvent) => void
 
 export interface Api {
   stableDiffusion(params: StableDiffusionInput, onLoadProgress: LoadProgressCallback): Promise<StableDiffusionOutput>
-  stableDiffusionInpainting(params: StableDiffusionInpaintingInput, onLoadProgress: LoadProgressCallback): Promise<StableDiffusionInpaintingOutput>
-  stableDiffusionAdvanceSteps(params: StableDiffusionAdvanceStepsInput, onLoadProgress: LoadProgressCallback): Promise<StableDiffusionAdvanceStepsOutput>
+  stableDiffusionInpainting(
+    params: StableDiffusionInpaintingInput,
+    onLoadProgress: LoadProgressCallback
+  ): Promise<StableDiffusionInpaintingOutput>
+  stableDiffusionAdvanceSteps(
+    params: StableDiffusionAdvanceStepsInput,
+    onLoadProgress: LoadProgressCallback
+  ): Promise<StableDiffusionAdvanceStepsOutput>
   openJourney(params: OpenJourneyInput, onLoadProgress: LoadProgressCallback): Promise<OpenJourneyOutput>
-  stableDiffusionAnimation(params: StableDiffusionAnimationInput, onLoadProgress: LoadProgressCallback): Promise<StableDiffusionAnimationOutput>
+  stableDiffusionAnimation(
+    params: StableDiffusionAnimationInput,
+    onLoadProgress: LoadProgressCallback
+  ): Promise<StableDiffusionAnimationOutput>
 }
 
 const adapter: PictureItApi | Api =

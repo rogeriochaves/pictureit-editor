@@ -16,6 +16,8 @@ import { currentUserQuery } from "./user"
 export const DEFAULT_PROMPT_STRENGTH = 0.8
 export const DEFAULT_GUIDANCE = 7.5
 export const DEFAULT_STEPS = 50
+export const DEFAULT_NUM_ANIMATION_FRAMES = 3
+export const DEFAULT_NUM_INTERPOLATION_STEPS = 2
 
 export const generateImageCall = lazySelectorFamily({
   key: "generateImageCall",
@@ -139,8 +141,8 @@ const generateAdvanceSteps = async ({
 }
 
 export const animationTimeEstimation = (frame: fabric.GenerationFrame) => {
-  const numAnimationFrames = 3
-  const numInterpolationSteps = 2
+  const numAnimationFrames = frame.metadata?.numAnimationFrames || DEFAULT_NUM_ANIMATION_FRAMES
+  const numInterpolationSteps = frame.metadata?.numInterpolationSteps || DEFAULT_NUM_INTERPOLATION_STEPS
 
   const steps = frame.metadata?.steps || DEFAULT_STEPS
   // Takes around 2.6s for 50 steps per frame
@@ -247,8 +249,8 @@ const generateImageOrVideo = async ({
           prompt_start: frame.metadata?.prompt || "",
           prompt_end: frame.metadata?.promptEnd || "",
           num_inference_steps: numInferenceSteps,
-          num_animation_frames: 3,
-          num_interpolation_steps: 2,
+          num_animation_frames: frame.metadata?.numAnimationFrames || DEFAULT_NUM_ANIMATION_FRAMES,
+          num_interpolation_steps: frame.metadata?.numInterpolationSteps || DEFAULT_NUM_INTERPOLATION_STEPS,
           film_interpolation: true,
           output_format: "mp4",
         },

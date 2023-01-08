@@ -26,7 +26,9 @@ export class GenerationFrameObject extends fabric.Group {
     steps?: number
     guidance?: number
     initImage?: InitImage
-    accumulatedSteps?: number
+    accumulatedSteps?: number,
+    numAnimationFrames?: number,
+    numInterpolationSteps?: number,
   }
   loadingAnimation: () => void | undefined
 

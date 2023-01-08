@@ -11,7 +11,7 @@ import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { DetailedHTMLProps, InputHTMLAttributes, useCallback, useEffect, useRef, useState } from "react"
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil"
-import api from "../../../../api"
+import api, { ModelCapabilities } from "../../../../api"
 import { PICTURE_IT_URL } from "../../../../api/adapters/pictureit"
 import Negative from "../../../../components/Icons/Negative"
 import Question from "../../../../components/Icons/Question"
@@ -408,9 +408,8 @@ const NegativePromptInput = ({
   const [model] = useFrameModel(editor, popup.target)
 
   const disabledDueToUnsupportedAction = generateAction == "advance"
-  const disabledDueToInpainting = model == "stable-diffusion-inpainting"
-  const disabledDueToOpenJourney = model == "openjourney"
-  const disabled = disabledDueToUnsupportedAction || disabledDueToInpainting || disabledDueToOpenJourney
+  const disabledDueToUnsupportedModel = !ModelCapabilities[model].negative_prompt
+  const disabled = disabledDueToUnsupportedAction || disabledDueToUnsupportedModel
 
   const promptInput = (
     <PromptInput disabled={!!disabled} onChange={(e) => setNegativePrompt(e.target.value)} value={negativePrompt} />
@@ -429,10 +428,8 @@ const NegativePromptInput = ({
       content={
         disabledDueToUnsupportedAction
           ? "Negative prompt is not available for Advance action"
-          : disabledDueToInpainting
-          ? "Negative prompt is not available for inpainting"
-          : disabledDueToOpenJourney
-          ? "Negative prompt is not available for OpenJourney"
+          : disabledDueToUnsupportedModel
+          ? `Negative prompt is not available for ${model.replaceAll("-", " ")}`
           : "Negative prompt is not supported with the config combination"
       }
     >
