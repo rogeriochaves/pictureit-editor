@@ -49,7 +49,6 @@ const GraphicEditor = () => {
         editor.canvas.canvas.requestRenderAll()
       }
       addScene(false, images.slice(1), true)
-      editor.history.save()
     },
     [addScene, editor]
   )

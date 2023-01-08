@@ -333,7 +333,7 @@ export class GenerationFrameObject extends fabric.Group {
     loadingBar.animate("opacity", 0, {
       onChange: this.canvas.requestRenderAll.bind(this.canvas),
       onComplete: () => {
-        this.canvas.remove(loadingBar)
+        this.canvas?.remove(loadingBar)
       },
       duration: 1000,
     })

@@ -88,23 +88,29 @@ class History extends Base {
     const action = this.history[nextIndex]
     if (!action) return
 
-    this.isActive = true
+    let wait = 0
+    if (this.editor.canvas.canvas.getActiveObject()) {
+      this.canvas.discardActiveObject()
+      wait = 100
+    }
 
-    this.editor.objects.clear()
-    fabric.util.enlivenObjects(action.objects).then((enlivenObjects) => {
-      enlivenObjects.forEach((enlivenObject) => {
-        if (!nonRenderableLayerTypes.includes(enlivenObject.type || "")) {
-          this.canvas.add(enlivenObject)
-        }
+    setTimeout(() => {
+      this.isActive = true
+      this.editor.objects.clear()
+      fabric.util.enlivenObjects(action.objects).then((enlivenObjects) => {
+        enlivenObjects.forEach((enlivenObject) => {
+          if (!nonRenderableLayerTypes.includes(enlivenObject.type || "")) {
+            this.canvas.add(enlivenObject)
+          }
+        })
+        this.emitStatus()
+        this.emitRestored()
+        setTimeout(() => {
+          this.isActive = false
+        }, 100)
       })
-      this.emitStatus()
-      this.emitRestored()
-      setTimeout(() => {
-        this.isActive = false
-      }, 100)
-    })
-
-    this.index = nextIndex
+      this.index = nextIndex
+    }, wait)
   }
 
   public reset = () => {
