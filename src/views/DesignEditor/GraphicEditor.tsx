@@ -48,7 +48,8 @@ const GraphicEditor = () => {
         await generationFrame.setImage(images[0])
         editor.canvas.canvas.requestRenderAll()
       }
-      addScene(false, images.slice(1))
+      addScene(false, images.slice(1), true)
+      editor.history.save()
     },
     [addScene, editor]
   )

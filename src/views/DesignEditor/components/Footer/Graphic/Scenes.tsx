@@ -31,21 +31,24 @@ export const useAddScene = () => {
   const [currentDesign] = useRecoilState(currentDesignState)
 
   return useCallback(
-    async (switchToIt = true, imgSrcs: (string | undefined)[] = [undefined]) => {
+    async (switchToIt = true, imgSrcs: (string | undefined)[] = [undefined], replace = false) => {
       if (!editor) return
 
       const updatedTemplate = editor.scene.exportToJSON()
       const updatedPreview = await editor.renderer.render(updatedTemplate!)
 
-      const updatedPages = scenes.map((p) => {
-        if (p.id === updatedTemplate.id) {
+      const currentSceneIndex = scenes.findIndex((s) => s.id == updatedTemplate.id)
+      const updatedPages = scenes.map((s) => {
+        if (s.id === updatedTemplate.id) {
           return { ...updatedTemplate, preview: updatedPreview }
         }
-        return p
+        return s
       })
 
-      const newPages = []
+      const startIndex = replace ? currentSceneIndex + 1 : updatedPages.length
+      const newPages = [...updatedPages]
 
+      let sceneIndex = startIndex
       for (const imgSrc of imgSrcs) {
         const defaultTemplate = await getDefaultTemplate(editor.canvas.canvas, currentDesign.frame)
         if (imgSrc) {
@@ -53,13 +56,13 @@ export const useAddScene = () => {
           defaultTemplate.layers[0].image = imgSrc
         }
         const newPreview = await editor.renderer.render(defaultTemplate)
-        newPages.push({ ...defaultTemplate, id: nanoid(), preview: newPreview })
-        setScenes([...updatedPages, ...newPages])
+        newPages[sceneIndex] = { ...defaultTemplate, id: nanoid(), preview: newPreview }
+        setScenes([...newPages])
+        sceneIndex++
       }
 
-      setScenes([...updatedPages, ...newPages])
-      if (switchToIt && newPages[0]) {
-        setCurrentScene(newPages[0])
+      if (switchToIt && newPages[startIndex]) {
+        setCurrentScene(newPages[startIndex])
       }
     },
     [editor, scenes, currentDesign, setScenes, setCurrentScene]
