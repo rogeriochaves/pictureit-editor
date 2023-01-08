@@ -48,7 +48,11 @@ const GraphicEditor = () => {
         await generationFrame.setImage(images[0])
         editor.canvas.canvas.requestRenderAll()
       }
-      addScene(false, images.slice(1), true)
+      editor.history.save()
+      // Wrap in runWithoutAffectingHistory to merge the scenes change with the last history
+      await editor.history.runWithoutAffectingHistory(async () => {
+        await addScene(false, images.slice(1), true)
+      })
     },
     [addScene, editor]
   )

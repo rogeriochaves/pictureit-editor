@@ -24,9 +24,10 @@ class History extends Base {
   }
 
   public runWithoutAffectingHistory = async (fn: () => Promise<unknown>) => {
+    const prevActive = this.isActive
     this.isActive = true
     const result = await fn()
-    this.isActive = false
+    this.isActive = prevActive
     return result
   }
 
