@@ -117,7 +117,7 @@ class PlaybackController {
   public render = (time: number) => {
     const last = [...this.resources.keys()][this.resources.size - 1]
     for (const [key, resource] of this.resources) {
-      if (time > resource.display.from && time < resource.display.to!) {
+      if (time >= resource.display.from && time < resource.display.to!) {
         this.applySpriteOptions(resource.sprite, { visible: true })
       } else {
         if (key == last && time > resource.display.to) {

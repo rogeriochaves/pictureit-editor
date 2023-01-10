@@ -130,8 +130,8 @@ class Scene extends Base {
           to: 0,
         },
         position: {
-          x: layer.left,
-          y: layer.top,
+          x: 0,
+          y: 0,
           zIndex: index,
           width: layer.width,
           height: layer.height,
