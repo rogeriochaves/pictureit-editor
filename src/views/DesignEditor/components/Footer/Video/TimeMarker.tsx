@@ -1,7 +1,7 @@
 import { useTimer } from "@layerhub-io/use-timer"
 import { Block } from "baseui/block"
 import React from "react"
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
+import { useRecoilState, useRecoilValue } from "recoil"
 import { displayPlaybackState, maxTimeState, scenesState } from "~/state/designEditor"
 
 const SCALE_FACTOR = 1
@@ -14,13 +14,15 @@ const TimeMarker = () => {
     y: 0,
   })
   const scenes = useRecoilValue(scenesState)
-  const setDisplayPlayback = useSetRecoilState(displayPlaybackState)
+  const [displayPlayback, setDisplayPlayback] = useRecoilState(displayPlaybackState)
   const [maxTime, setMaxTime] = useRecoilState(maxTimeState)
+  const isDisabled = scenes.length < 2
 
   React.useEffect(() => {
     if (time * SCALE_FACTOR <= maxTime) {
-      setPosition({ ...position, x: (time * SCALE_FACTOR) / 40, y: 0 })
+      setPosition({ ...position, x: time * SCALE_FACTOR, y: 0 })
     } else {
+      setPosition({ ...position, x: maxTime * SCALE_FACTOR, y: 0 })
       pause()
       setDisplayPlayback(false)
     }
@@ -29,7 +31,7 @@ const TimeMarker = () => {
   React.useEffect(() => {
     if (scenes) {
       const maxTime = scenes.reduce(function (previousVal, currentValue) {
-        return previousVal + currentValue.duration!
+        return previousVal + (currentValue.duration || 100)
       }, 0)
       setMaxTime(maxTime)
     }
@@ -63,6 +65,8 @@ const TimeMarker = () => {
     window.addEventListener("mouseup", onStop)
   }
 
+  if (displayPlayback === undefined || isDisabled) return null
+
   return (
     <Block
       onMouseDown={onStart}
@@ -91,7 +95,7 @@ const TimeMarker = () => {
       <Block
         id="markerLine"
         $style={{
-          height: "84px",
+          height: "110px",
           width: "2px",
           backgroundColor: "#333333",
           transform: "translate(0, -2px)",

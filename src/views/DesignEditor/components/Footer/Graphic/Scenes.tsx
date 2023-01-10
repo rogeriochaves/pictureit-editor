@@ -10,6 +10,9 @@ import { useCallback, useEffect, useState } from "react"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import { useDebouncedCallback } from "use-debounce"
 import Add from "../../../../../components/Icons/Add"
+import Pause from "../../../../../components/Icons/Pause"
+import Play from "../../../../../components/Icons/Play"
+import PlaySolid from "../../../../../components/Icons/PlaySolid"
 import { getDefaultTemplate } from "../../../../../constants/design-editor"
 import { useSaveIfNewFile } from "../../../../../hooks/useSaveLoad"
 import { useSyncWithHistory } from "../../../../../hooks/useSyncWithHistory"
@@ -21,6 +24,8 @@ import {
 } from "../../../../../state/designEditor"
 import { loadFileCall } from "../../../../../state/file"
 import { useRecoilValueLazyLoadable } from "../../../../../utils/lazySelectorFamily"
+import TimelineControl from "../Video/TimelineControl"
+import TimeMarker from "../Video/TimeMarker"
 import SceneContextMenu from "./SceneContextMenu"
 import SceneItem from "./SceneItem"
 
@@ -99,6 +104,8 @@ const Scenes = () => {
   const contextMenuTimelineRequest = useRecoilValue(contextMenuTimelineRequestState)
   const saveIfNewFile = useSaveIfNewFile()
   const loadRequest = useRecoilValueLazyLoadable(loadFileCall)
+  const [playbackStatus, setPlaybackStatus] = useState<"playing" | "paused">()
+
   useSyncWithHistory({
     currentScene: [currentScene, setCurrentScenePrivate],
     scenes: [scenes, setScenes],
@@ -231,39 +238,44 @@ const Scenes = () => {
         <div className={css({ display: "flex", alignItems: "center" })}>
           {contextMenuTimelineRequest.visible && <SceneContextMenu />}
 
-          <SortableContext items={scenes} strategy={horizontalListSortingStrategy}>
-            {scenes.map((page, index) => (
-              <SceneItem
-                key={index}
-                isCurrentScene={page.id === currentScene?.id}
-                scene={page}
-                index={index}
-                changePage={changePage}
-                preview={page.preview || ""}
-              />
-            ))}
-            <div
-              style={{
-                background: "#ffffff",
-                padding: "1rem 1rem 1rem 0.5rem",
-              }}
-            >
+          <TimelineControl />
+
+          <Block display="flex" position="relative">
+            <TimeMarker />
+            <SortableContext items={scenes} strategy={horizontalListSortingStrategy}>
+              {scenes.map((page, index) => (
+                <SceneItem
+                  key={index}
+                  isCurrentScene={page.id === currentScene?.id}
+                  scene={page}
+                  index={index}
+                  changePage={changePage}
+                  preview={page.preview || ""}
+                />
+              ))}
               <div
-                onClick={() => addScene()}
-                className={css({
-                  width: "100px",
-                  height: "56px",
-                  background: "rgb(243,244,246)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                })}
+                style={{
+                  background: "#ffffff",
+                  padding: "1rem 1rem 1rem 0.5rem",
+                }}
               >
-                <Add size={20} />
+                <div
+                  onClick={() => addScene()}
+                  className={css({
+                    width: "100px",
+                    height: "56px",
+                    background: "rgb(243,244,246)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                  })}
+                >
+                  <Add size={20} />
+                </div>
               </div>
-            </div>
-          </SortableContext>
+            </SortableContext>
+          </Block>
           <DragOverlay>
             {draggedScene ? (
               <Block

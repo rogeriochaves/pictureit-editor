@@ -12,22 +12,17 @@ const Playback = () => {
   const frameBoundingRect = editor.frame.getBoundingClientRect()
   const [initialized, setInitialized] = React.useState(false)
   const zoomRatio = useZoomRatio() as number
-  const { start } = useTimer()
+  const { start, time, reset } = useTimer()
   const pages = useRecoilValue(scenesState)
-  const { time } = useTimer()
   const loadFrames = React.useCallback(async () => {
     const currentTemplate = editor.scene.exportToJSON()
 
     let refTime = 0
     const templates = pages.map((page) => {
-      const currentTemplate = editor.scene.exportToJSON()
-      if (page.id === currentTemplate.id) {
-        return { ...currentTemplate, duration: page.duration }
-      }
-      return page
+      return { ...page, duration: 100 }
     })
 
-    let clips = []
+    const clips = []
     for (const template of templates) {
       const layers = await editor.scene.exportLayers(template)
       const timedLayers = layers.map((layer) => {
@@ -53,17 +48,14 @@ const Playback = () => {
       clips: clips,
     }
 
-    const layers = await editor.scene.exportLayers(currentTemplate)
-
     controller.current = new Controller("scenify_playback_container", {
-      data: layers,
       template: videoTemplate,
       zoomRatio,
     })
-    let interval: any
-    interval = setInterval(() => {
+    const interval = setInterval(() => {
       if (controller.current?.initialized) {
         clearInterval(interval)
+        reset()
         setInitialized(true)
       }
     }, 50)
@@ -98,6 +90,7 @@ const Playback = () => {
         height: "100%",
         position: "absolute",
         zIndex: 4,
+        opacity: initialized ? 1 : 0,
       }}
     >
       <Block $style={{ height: "100%", width: "100%", position: "relative" }}>

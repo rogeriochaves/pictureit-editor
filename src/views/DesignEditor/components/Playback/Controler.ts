@@ -115,12 +115,13 @@ class PlaybackController {
    * @public
    */
   public render = (time: number) => {
-    for (let [key, resource] of this.resources) {
+    const last = [...this.resources.keys()][this.resources.size - 1]
+    for (const [key, resource] of this.resources) {
       if (time > resource.display.from && time < resource.display.to!) {
         this.applySpriteOptions(resource.sprite, { visible: true })
       } else {
-        if (resource.type === "StaticVideo") {
-          this.hideAndMuteVideo(resource)
+        if (key == last && time > resource.display.to) {
+          //nothing
         } else {
           this.applySpriteOptions(resource.sprite, { visible: false })
         }
@@ -139,14 +140,20 @@ class PlaybackController {
    * @returns
    */
   public play = () => {
+    let first
     for (let [key, value] of this.resources) {
+      if (!first) {
+        first = value
+        value.sprite.visible = true
+      } else {
+        value.sprite.visible = false
+      }
       this.applySpriteOptions(value.sprite, value.position)
       if (value.type === "StaticVideo") {
         value.video.muted = false
         value.video.currentTime = 0
       }
 
-      value.sprite.visible = true
       this.app.stage.addChild(value.sprite)
     }
   }

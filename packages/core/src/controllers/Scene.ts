@@ -31,9 +31,7 @@ class Scene extends Base {
       },
     }
 
-    const layers = canvasJSON.objects.filter(
-      (object: any) => !nonRenderableLayerTypes.includes(object.type)
-    )
+    const layers = canvasJSON.objects.filter((object: any) => !nonRenderableLayerTypes.includes(object.type))
     const objectExporter = new ObjectExporter()
 
     layers.forEach((layer: ILayer) => {
@@ -55,7 +53,11 @@ class Scene extends Base {
     if (activeObject && selectionType) {
       const isMixed = selectionType.length > 1
 
-      if (activeObject.type === "activeSelection" || activeObject.type === "group" || activeObject.type == LayerType.GENERATION_FRAME) {
+      if (
+        activeObject.type === "activeSelection" ||
+        activeObject.type === "group" ||
+        activeObject.type == LayerType.GENERATION_FRAME
+      ) {
         let clonedObjects: any[] = []
         // @ts-ignore
         const objects = activeObject._objects
@@ -105,63 +107,39 @@ class Scene extends Base {
    * @returns
    */
   public exportLayers = async (template: IScene) => {
-    let elements: any[] = []
+    const elements: any[] = []
+
     for (const [index, layer] of template.layers.entries()) {
-      if (layer.type === "StaticVideo") {
-        elements = elements.concat({
-          id: layer.id,
-          type: "StaticVideo",
-          // @ts-ignore
-          url: layer.src,
-          duration: 5000,
-          display: {
-            from: 0,
-            to: 5000,
-          },
-          cut: {
-            from: 0,
-            to: 0,
-          },
-          position: {
-            x: layer.left,
-            y: layer.top,
-            zIndex: index,
-            width: layer.width,
-            height: layer.height,
-            scaleX: layer.scaleX,
-            scaleY: layer.scaleY,
-          },
-          objectId: layer.id,
-        })
-      } else {
-        // @ts-ignore
-        const preview = await this.editor.renderer.renderLayer(layer, {})
-        const objectURL = base64ImageToFile(preview)
-        elements = elements.concat({
-          id: layer.id,
-          type: "StaticImage",
-          url: objectURL,
-          duration: 5000,
-          display: {
-            from: 0,
-            to: 5000,
-          },
-          cut: {
-            from: 0,
-            to: 0,
-          },
-          position: {
-            x: layer.left,
-            y: layer.top,
-            zIndex: index,
-            width: layer.width,
-            height: layer.height,
-            scaleX: layer.scaleX,
-            scaleY: layer.scaleY,
-          },
-          objectId: layer.id,
-        })
+      // @ts-ignore
+      const preview = template.preview // await this.editor.renderer.renderLayer(layer, {})
+      if (!preview) {
+        continue
       }
+      const objectURL = base64ImageToFile(preview)
+      elements.push({
+        id: nanoid(),
+        type: "StaticImage",
+        url: objectURL,
+        duration: 5000,
+        display: {
+          from: 0,
+          to: 5000,
+        },
+        cut: {
+          from: 0,
+          to: 0,
+        },
+        position: {
+          x: layer.left,
+          y: layer.top,
+          zIndex: index,
+          width: layer.width,
+          height: layer.height,
+          scaleX: layer.scaleX || 1,
+          scaleY: layer.scaleY || 1,
+        },
+        objectId: nanoid(),
+      })
     }
     return elements
   }

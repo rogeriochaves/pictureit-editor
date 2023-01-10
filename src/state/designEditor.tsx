@@ -59,9 +59,9 @@ export const editorTypeState: RecoilState<DesignType> = atom({
   default: "GRAPHIC" as DesignType,
 })
 
-export const displayPlaybackState: RecoilState<boolean> = atom({
+export const displayPlaybackState: RecoilState<boolean | undefined> = atom({
   key: "displayPlaybackState",
-  default: false,
+  default: undefined as boolean | undefined,
 })
 
 export const displayPreviewState: RecoilState<boolean> = atom({
