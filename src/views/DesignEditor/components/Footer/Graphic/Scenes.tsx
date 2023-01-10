@@ -13,6 +13,7 @@ import Add from "../../../../../components/Icons/Add"
 import Pause from "../../../../../components/Icons/Pause"
 import Play from "../../../../../components/Icons/Play"
 import PlaySolid from "../../../../../components/Icons/PlaySolid"
+import Scrollable from "../../../../../components/Scrollable"
 import { getDefaultTemplate } from "../../../../../constants/design-editor"
 import { useSaveIfNewFile } from "../../../../../hooks/useSaveLoad"
 import { useSyncWithHistory } from "../../../../../hooks/useSyncWithHistory"
@@ -233,49 +234,51 @@ const Scenes = () => {
     >
       <Block
         id="TimelineItemsContainer"
-        $style={{ padding: "0.25rem 0.75rem", background: "#ffffff", position: "relative", minHeight: "124px" }}
+        $style={{ padding: "0.25rem 0.75rem 0 0.75rem", background: "#ffffff", position: "relative" }}
       >
         <div className={css({ display: "flex", alignItems: "center" })}>
           {contextMenuTimelineRequest.visible && <SceneContextMenu />}
 
           <TimelineControl />
 
-          <Block display="flex" position="relative">
-            <TimeMarker />
-            <SortableContext items={scenes} strategy={horizontalListSortingStrategy}>
-              {scenes.map((page, index) => (
-                <SceneItem
-                  key={index}
-                  isCurrentScene={page.id === currentScene?.id}
-                  scene={page}
-                  index={index}
-                  changePage={changePage}
-                  preview={page.preview || ""}
-                />
-              ))}
-              <div
-                style={{
-                  background: "#ffffff",
-                  padding: "1rem 1rem 1rem 0.5rem",
-                }}
-              >
+          <Scrollable style={{height: "116px"}}>
+            <Block display="flex">
+              <TimeMarker />
+              <SortableContext items={scenes} strategy={horizontalListSortingStrategy}>
+                {scenes.map((page, index) => (
+                  <SceneItem
+                    key={index}
+                    isCurrentScene={page.id === currentScene?.id}
+                    scene={page}
+                    index={index}
+                    changePage={changePage}
+                    preview={page.preview || ""}
+                  />
+                ))}
                 <div
-                  onClick={() => addScene()}
-                  className={css({
-                    width: "100px",
-                    height: "56px",
-                    background: "rgb(243,244,246)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                  })}
+                  style={{
+                    background: "#ffffff",
+                    padding: "1rem 1rem 1rem 0.5rem",
+                  }}
                 >
-                  <Add size={20} />
+                  <div
+                    onClick={() => addScene()}
+                    className={css({
+                      width: "100px",
+                      height: "56px",
+                      background: "rgb(243,244,246)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                    })}
+                  >
+                    <Add size={20} />
+                  </div>
                 </div>
-              </div>
-            </SortableContext>
-          </Block>
+              </SortableContext>
+            </Block>
+          </Scrollable>
           <DragOverlay>
             {draggedScene ? (
               <Block
