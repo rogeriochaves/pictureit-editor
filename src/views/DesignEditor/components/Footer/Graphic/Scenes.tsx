@@ -75,7 +75,7 @@ export const useAddScene = () => {
   )
 }
 
-const useSetCurrentScene = () => {
+export const useSetCurrentScene = () => {
   const editor = useEditor()
   const [_, setCurrentScenePrivate] = useRecoilState(currentSceneState)
 

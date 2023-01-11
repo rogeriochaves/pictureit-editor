@@ -12,7 +12,7 @@ const Playback = () => {
   const frameBoundingRect = editor.frame.getBoundingClientRect()
   const [initialized, setInitialized] = React.useState(false)
   const zoomRatio = useZoomRatio() as number
-  const { start, time, reset } = useTimer()
+  const { start, time } = useTimer()
   const pages = useRecoilValue(scenesState)
   const loadFrames = React.useCallback(async () => {
     const currentTemplate = editor.scene.exportToJSON()
@@ -55,7 +55,6 @@ const Playback = () => {
     const interval = setInterval(() => {
       if (controller.current?.initialized) {
         clearInterval(interval)
-        reset()
         setInitialized(true)
       }
     }, 50)

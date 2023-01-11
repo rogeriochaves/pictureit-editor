@@ -3,28 +3,27 @@ import { Block } from "baseui/block"
 import React from "react"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { displayPlaybackState, maxTimeState, scenesState } from "~/state/designEditor"
-
-const SCALE_FACTOR = 1
+import { usePausePlayback } from "./TimelineControl"
 
 const TimeMarker = () => {
-  const { time, setTime, pause } = useTimer()
+  const { time, setTime } = useTimer()
 
   const [position, setPosition] = React.useState({
     x: 0,
     y: 0,
   })
   const scenes = useRecoilValue(scenesState)
-  const [displayPlayback, setDisplayPlayback] = useRecoilState(displayPlaybackState)
+  const displayPlayback = useRecoilValue(displayPlaybackState)
   const [maxTime, setMaxTime] = useRecoilState(maxTimeState)
+  const pausePlayback = usePausePlayback()
   const isDisabled = scenes.length < 2
 
   React.useEffect(() => {
-    if (time * SCALE_FACTOR <= maxTime) {
-      setPosition({ ...position, x: time * SCALE_FACTOR, y: 0 })
+    if (time <= maxTime) {
+      setPosition({ ...position, x: time, y: 0 })
     } else {
-      setPosition({ ...position, x: maxTime * SCALE_FACTOR, y: 0 })
-      pause()
-      setDisplayPlayback(false)
+      setPosition({ ...position, x: maxTime, y: 0 })
+      pausePlayback()
     }
   }, [time])
 

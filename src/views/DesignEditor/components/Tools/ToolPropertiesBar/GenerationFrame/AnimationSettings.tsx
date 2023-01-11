@@ -7,7 +7,7 @@ import { Slider } from "baseui/slider"
 import { StatefulTooltip } from "baseui/tooltip"
 import { fabric } from "fabric"
 import { useCallback, useEffect, useState } from "react"
-import Steps from "../../../../../../components/Icons/Steps"
+import VideoFrames from "../../../../../../components/Icons/VideoFrames"
 import { DEFAULT_NUM_ANIMATION_FRAMES, DEFAULT_NUM_INTERPOLATION_STEPS } from "../../../../../../state/generateImage"
 
 export const AnimationSettings = () => {
@@ -185,10 +185,10 @@ export const AnimationSettings = () => {
       )}
     >
       <Block>
-        <StatefulTooltip placement={PLACEMENT.bottom} showArrow={true} accessibilityType="tooltip" content="Steps">
+        <StatefulTooltip placement={PLACEMENT.bottom} showArrow={true} accessibilityType="tooltip" content="Animation Frames">
           <Button size={SIZE.mini} kind={KIND.tertiary}>
             <Block paddingRight="8px">{state.numAnimationFrames}</Block>
-            <Steps size={24} />
+            <VideoFrames size={24} />
           </Button>
         </StatefulTooltip>
       </Block>
