@@ -1,6 +1,14 @@
+import { Editor } from "@layerhub-io/core"
 import { IScene } from "@layerhub-io/types"
-import { atom, atomFamily, RecoilState } from "recoil"
+import { atom, RecoilState } from "recoil"
 import { ContextMenuTimelineRequest, DesignType, IDesign } from "~/interfaces/DesignEditor"
+
+// This is synced with the value from useEditor to ease usage inside recoil functions
+export const recoilEditorState: RecoilState<Editor | null> = atom({
+  key: "recoilEditorState",
+  default: null as Editor | null,
+  dangerouslyAllowMutability: true,
+})
 
 export const scenesState: RecoilState<IScene[]> = atom({
   key: "scenesState",

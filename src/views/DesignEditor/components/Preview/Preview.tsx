@@ -1,26 +1,26 @@
-import { Editor } from "@layerhub-io/core"
 import { useEditor } from "@layerhub-io/react"
-import { IScene } from "@layerhub-io/types"
 import { Block } from "baseui/block"
 import { Button, KIND as BUTTON_KIND, SIZE as BUTTON_SIZE } from "baseui/button"
-import { Spinner, SIZE as SPINNER_SIZE } from "baseui/spinner"
+import { ButtonGroup } from "baseui/button-group"
 import { Input, SIZE } from "baseui/input"
 import { Modal, ModalBody, ROLE, SIZE as MODAL_SIZE } from "baseui/modal"
 import { KIND, Notification } from "baseui/notification"
-import React, { useCallback, useEffect, useRef, useState } from "react"
-import { useRecoilState, useRecoilValue } from "recoil"
-import { isPictureIt } from "../../../../api"
-import { currentDesignState, publishTitleState, scenesState } from "../../../../state/designEditor"
-import { publishPictureCall } from "../../../../state/publish"
-import { lazySelector, useRecoilLazyLoadable } from "../../../../utils/lazySelectorFamily"
-import { buildVideo } from "../../../../utils/video-builder"
-import { ButtonGroup } from "baseui/button-group"
-import Loop from "../../../../components/Icons/Loop"
-import Boomerang from "../../../../components/Icons/Boomerang"
-import { PLACEMENT, StatefulTooltip } from "baseui/tooltip"
 import { StatefulPopover } from "baseui/popover"
+import { Select, Value } from "baseui/select"
 import { Slider } from "baseui/slider"
-import { debounce } from "lodash"
+import { SIZE as SPINNER_SIZE, Spinner } from "baseui/spinner"
+import { PLACEMENT, StatefulTooltip } from "baseui/tooltip"
+import React, { useCallback, useEffect, useRef, useState } from "react"
+import { selectorFamily, useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil"
+import { useDebounce } from "use-debounce"
+import { isPictureIt } from "../../../../api"
+import Boomerang from "../../../../components/Icons/Boomerang"
+import Loop from "../../../../components/Icons/Loop"
+import { currentDesignState, publishTitleState, recoilEditorState, scenesState } from "../../../../state/designEditor"
+import { publishPictureCall } from "../../../../state/publish"
+import { sha256Hash } from "../../../../utils/hashing"
+import { useRecoilLazyLoadable } from "../../../../utils/lazySelectorFamily"
+import { buildVideo } from "../../../../utils/video-builder"
 
 interface ComponentProps {
   isOpen: boolean
@@ -84,21 +84,18 @@ const Preview = ({ isOpen, setIsOpen }: ComponentProps) => {
   )
 }
 
-const buildVideoPreviewCall = lazySelector({
+const buildVideoPreviewCall = selectorFamily({
   key: "videoPreviewCall",
   get:
-    () =>
-    async ({
-      editor,
-      scenes,
-      boomerang,
-      framesPerSecond,
-    }: {
-      editor: Editor
-      scenes: IScene[]
-      boomerang: boolean
-      framesPerSecond: number
-    }) => {
+    ({ key, boomerang, framesPerSecond }: { key: string | undefined; boomerang: boolean; framesPerSecond: number }) =>
+    async ({ get }) => {
+      if (!key) return
+
+      const editor = get(recoilEditorState)
+      const scenes = get(scenesState)
+
+      if (!editor) return
+
       let images = []
       for (const scene of scenes) {
         const preview = await editor.renderer.toDataURL(scene, {}, "image/jpeg", 0.8)
@@ -126,14 +123,28 @@ const PreviewContent = () => {
 
   const scenes = useRecoilValue(scenesState)
   const supportsVideo = scenes.length > 1
+  const videoRef = useRef<HTMLVideoElement | null>(null)
   const [previewType, setPreviewType] = useState<"image" | "video">(supportsVideo ? "video" : "image")
-  const [videoUrl, buildVideoPreview] = useRecoilLazyLoadable(buildVideoPreviewCall)
   const [videoControls, setVideoControls] = useState<VideoControls>({
     loop: true,
     boomerang: false,
     framesPerSecond: 10,
   })
-  const videoRef = useRef<HTMLVideoElement | null>(null)
+
+  const [videoKey, setVideoKey] = useState<string | undefined>()
+  useEffect(() => {
+    const hashedScenes = sha256Hash(scenes.map((scene) => scene.preview).join(""))
+    hashedScenes.then((hash) => setVideoKey(hash))
+  }, [scenes])
+
+  const [debouncedFramesPerSecond] = useDebounce(videoControls.framesPerSecond, 1000)
+  const videoUrl = useRecoilValueLoadable(
+    buildVideoPreviewCall({
+      key: videoKey,
+      boomerang: videoControls.boomerang,
+      framesPerSecond: debouncedFramesPerSecond,
+    })
+  )
 
   const buildImagePreview = useCallback(async () => {
     if (editor) {
@@ -142,20 +153,6 @@ const PreviewContent = () => {
       setImage(image)
     }
   }, [editor])
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedBuildVideoPreview = useCallback(
-    debounce(async (editor, scenes, boomerang, framesPerSecond) => {
-      await buildVideoPreview({ editor, scenes, boomerang, framesPerSecond })
-    }, 300),
-    []
-  )
-
-  useEffect(() => {
-    if (!editor) return
-
-    debouncedBuildVideoPreview(editor, scenes, videoControls.boomerang, videoControls.framesPerSecond)
-  }, [debouncedBuildVideoPreview, editor, scenes, videoControls.boomerang, videoControls.framesPerSecond])
 
   useEffect(() => {
     buildImagePreview()
@@ -186,6 +183,8 @@ const PreviewContent = () => {
             {imagePreview}
           </Overlay>
         )
+      } else {
+        return imagePreview
       }
     }
     return imagePreview
@@ -310,153 +309,197 @@ const VideoControls = ({
   setVideoControls: React.Dispatch<React.SetStateAction<VideoControls>>
   videoRef: React.MutableRefObject<HTMLVideoElement | null>
 }) => {
+  const scenes = useRecoilValue(scenesState)
+  const thumbnailOptions: Value = scenes.map((scene, index) => {
+    return {
+      label: (
+        <Block display="flex" gridGap="8px" alignItems="center">
+          <img src={scene.preview} height={32} />
+          Frame {index}
+        </Block>
+      ),
+      id: index,
+    }
+  })
+
   return (
-    <Block display="flex" flexDirection="column" gridGap="4px">
-      <b>Video Controls</b>
-      <Block display="flex" gridGap="8px">
-        <StatefulTooltip
-          placement={PLACEMENT.top}
-          showArrow={true}
-          accessibilityType="tooltip"
-          content="Loop"
-          overrides={{
-            Body: {
-              style: {
-                zIndex: 131,
+    <>
+      <Block display="flex" flexDirection="column" gridGap="4px">
+        <b>Video Controls</b>
+        <Block display="flex" gridGap="8px">
+          <StatefulTooltip
+            placement={PLACEMENT.top}
+            showArrow={true}
+            accessibilityType="tooltip"
+            content="Loop"
+            overrides={{
+              Body: {
+                style: {
+                  zIndex: 131,
+                },
               },
-            },
-          }}
-        >
-          <Button
-            kind={BUTTON_KIND.secondary}
-            size={BUTTON_SIZE.compact}
-            isSelected={videoControls.loop}
-            onClick={() => {
-              setVideoControls((state) => ({ ...state, loop: !state.loop }))
-              videoRef.current?.play()
             }}
           >
-            <Loop size={24} fill={videoControls.loop ? "#FFF" : "#000"} />
-          </Button>
-        </StatefulTooltip>
-        <StatefulTooltip
-          placement={PLACEMENT.top}
-          showArrow={true}
-          accessibilityType="tooltip"
-          content="Boomerang Effect"
-          overrides={{
-            Body: {
-              style: {
-                zIndex: 131,
+            <Button
+              kind={BUTTON_KIND.secondary}
+              size={BUTTON_SIZE.compact}
+              isSelected={videoControls.loop}
+              onClick={() => {
+                setVideoControls((state) => ({ ...state, loop: !state.loop }))
+                videoRef.current?.play()
+              }}
+            >
+              <Loop size={24} fill={videoControls.loop ? "#FFF" : "#000"} />
+            </Button>
+          </StatefulTooltip>
+          <StatefulTooltip
+            placement={PLACEMENT.top}
+            showArrow={true}
+            accessibilityType="tooltip"
+            content="Boomerang Effect"
+            overrides={{
+              Body: {
+                style: {
+                  zIndex: 131,
+                },
               },
-            },
-          }}
-        >
-          <Button
-            kind={BUTTON_KIND.secondary}
-            size={BUTTON_SIZE.compact}
-            isSelected={videoControls.boomerang}
-            onClick={() => setVideoControls((state) => ({ ...state, boomerang: !state.boomerang }))}
+            }}
           >
-            <Boomerang size={24} fill={videoControls.boomerang ? "#FFF" : "#000"} />
-          </Button>
-        </StatefulTooltip>
-        <StatefulPopover
-          showArrow={true}
-          placement={PLACEMENT.bottom}
-          content={() => (
-            <Block padding="12px" width="200px" backgroundColor="#ffffff" display="grid" gridGap="8px">
-              <Block $style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <Block $style={{ fontSize: "14px" }}>Frames per Second</Block>
-                <Block width="52px">
-                  <Input
+            <Button
+              kind={BUTTON_KIND.secondary}
+              size={BUTTON_SIZE.compact}
+              isSelected={videoControls.boomerang}
+              onClick={() => setVideoControls((state) => ({ ...state, boomerang: !state.boomerang }))}
+            >
+              <Boomerang size={24} fill={videoControls.boomerang ? "#FFF" : "#000"} />
+            </Button>
+          </StatefulTooltip>
+          <StatefulPopover
+            showArrow={true}
+            placement={PLACEMENT.bottom}
+            content={() => (
+              <Block padding="12px" width="200px" backgroundColor="#ffffff" display="grid" gridGap="8px">
+                <Block $style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <Block $style={{ fontSize: "14px" }}>Frames per Second</Block>
+                  <Block width="52px">
+                    <Input
+                      overrides={{
+                        Input: {
+                          style: {
+                            backgroundColor: "#ffffff",
+                            textAlign: "center",
+                          },
+                        },
+                        Root: {
+                          style: {
+                            borderBottomColor: "rgba(0,0,0,0.15)",
+                            borderTopColor: "rgba(0,0,0,0.15)",
+                            borderRightColor: "rgba(0,0,0,0.15)",
+                            borderLeftColor: "rgba(0,0,0,0.15)",
+                            borderTopWidth: "1px",
+                            borderBottomWidth: "1px",
+                            borderRightWidth: "1px",
+                            borderLeftWidth: "1px",
+                            height: "26px",
+                          },
+                        },
+                        InputContainer: {},
+                      }}
+                      size={SIZE.mini}
+                      onChange={() => {}}
+                      value={Math.round(videoControls.framesPerSecond)}
+                    />
+                  </Block>
+                </Block>
+
+                <Block>
+                  <Slider
                     overrides={{
-                      Input: {
+                      InnerThumb: () => null,
+                      ThumbValue: () => null,
+                      TickBar: () => null,
+                      Track: {
                         style: {
-                          backgroundColor: "#ffffff",
-                          textAlign: "center",
+                          paddingRight: 0,
+                          paddingLeft: 0,
                         },
                       },
-                      Root: {
+                      Thumb: {
                         style: {
-                          borderBottomColor: "rgba(0,0,0,0.15)",
-                          borderTopColor: "rgba(0,0,0,0.15)",
-                          borderRightColor: "rgba(0,0,0,0.15)",
-                          borderLeftColor: "rgba(0,0,0,0.15)",
-                          borderTopWidth: "1px",
-                          borderBottomWidth: "1px",
-                          borderRightWidth: "1px",
-                          borderLeftWidth: "1px",
-                          height: "26px",
+                          height: "12px",
+                          width: "12px",
                         },
                       },
-                      InputContainer: {},
                     }}
-                    size={SIZE.mini}
-                    onChange={() => {}}
-                    value={Math.round(videoControls.framesPerSecond)}
+                    min={2}
+                    max={50}
+                    marks={false}
+                    value={[videoControls.framesPerSecond]}
+                    onChange={({ value }) => setVideoControls((state) => ({ ...state, framesPerSecond: value[0] }))}
                   />
                 </Block>
               </Block>
-
-              <Block>
-                <Slider
-                  overrides={{
-                    InnerThumb: () => null,
-                    ThumbValue: () => null,
-                    TickBar: () => null,
-                    Track: {
-                      style: {
-                        paddingRight: 0,
-                        paddingLeft: 0,
-                      },
-                    },
-                    Thumb: {
-                      style: {
-                        height: "12px",
-                        width: "12px",
-                      },
-                    },
-                  }}
-                  min={2}
-                  max={50}
-                  marks={false}
-                  value={[videoControls.framesPerSecond]}
-                  onChange={({ value }) => setVideoControls((state) => ({ ...state, framesPerSecond: value[0] }))}
-                />
-              </Block>
-            </Block>
-          )}
-          overrides={{
-            Body: {
-              style: {
-                zIndex: 131,
+            )}
+            overrides={{
+              Body: {
+                style: {
+                  zIndex: 131,
+                },
               },
-            },
-          }}
-        >
-          <Block display="inline-flex">
-            <StatefulTooltip
-              placement={PLACEMENT.top}
-              showArrow={true}
-              accessibilityType="tooltip"
-              content="Frames per Second"
-              overrides={{
-                Body: {
-                  style: {
-                    zIndex: 131,
+            }}
+          >
+            <Block display="inline-flex">
+              <StatefulTooltip
+                placement={PLACEMENT.top}
+                showArrow={true}
+                accessibilityType="tooltip"
+                content="Frames per Second"
+                overrides={{
+                  Body: {
+                    style: {
+                      zIndex: 131,
+                    },
+                  },
+                }}
+              >
+                <Button kind={BUTTON_KIND.secondary} size={BUTTON_SIZE.compact}>
+                  <Block width="24px">{videoControls.framesPerSecond}</Block>
+                </Button>
+              </StatefulTooltip>
+            </Block>
+          </StatefulPopover>
+        </Block>
+      </Block>
+
+      <Block display="flex" flexDirection="column" gridGap="4px">
+        <b>Thumbnail</b>
+        <Block width="160px">
+          <Select
+            backspaceRemoves={false}
+            clearable={false}
+            closeOnSelect={false}
+            deleteRemoves={false}
+            escapeClearsValue={false}
+            value={[thumbnailOptions[0]]}
+            onChange={() => {}}
+            options={thumbnailOptions}
+            overrides={{
+              Popover: {
+                props: {
+                  overrides: {
+                    Body: {
+                      style: {
+                        zIndex: 131,
+                      },
+                    },
                   },
                 },
-              }}
-            >
-              <Button kind={BUTTON_KIND.secondary} size={BUTTON_SIZE.compact}>
-                <Block width="24px">{videoControls.framesPerSecond}</Block>
-              </Button>
-            </StatefulTooltip>
-          </Block>
-        </StatefulPopover>
+              },
+            }}
+          ></Select>
+        </Block>
       </Block>
-    </Block>
+    </>
   )
 }
 

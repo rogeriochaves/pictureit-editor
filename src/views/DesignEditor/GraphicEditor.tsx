@@ -21,6 +21,7 @@ import { useShortcuts } from "../../hooks/useShortcuts"
 import { useAddScene } from "./components/Footer/Graphic/Scenes"
 import { fabric } from "fabric"
 import { captureAllFrames } from "../../utils/video-parser"
+import { recoilEditorState } from "../../state/designEditor"
 
 const GraphicEditor = () => {
   useShortcuts()
@@ -33,6 +34,7 @@ const GraphicEditor = () => {
   const [generationDoneQueue, setGenerationDoneQueue] = useRecoilState(generationDoneQueueState)
 
   const editor = useEditor()
+  const setRecoilEditor = useSetRecoilState(recoilEditorState)
   const addScene = useAddScene()
 
   const processVideo = useCallback(
@@ -67,6 +69,10 @@ const GraphicEditor = () => {
       processVideo(item)
     }
   }, [generationDoneQueue, processVideo, setGenerationDoneQueue])
+
+  useEffect(() => {
+    setRecoilEditor(editor)
+  }, [editor, setRecoilEditor])
 
   return (
     <EditorContainer>
