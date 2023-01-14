@@ -27,6 +27,7 @@
     "express": "^4.18.2",
     "express-http-proxy": "^1.6.3",
     "fabric": "github:rogeriochaves/fabric.js#ce1db96da5155c04f6bf8bd14999c2a80955851c",
+    "ffmpeg.js": "^4.2.9003",
     "i18next": "^21.8.13",
     "immutability-helper": "^3.1.1",
     "install": "^0.13.0",

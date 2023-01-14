@@ -6,7 +6,7 @@ import { Button, SIZE } from "baseui/button"
 import DropZone from "~/components/Dropzone"
 import { useEditor } from "@layerhub-io/react"
 import { nanoid } from "nanoid"
-import { captureFrame, loadVideoResource } from "~/utils/video"
+import { captureFrame, loadVideoResource } from "~/utils/video-parser"
 import { ILayer } from "@layerhub-io/types"
 import { toBase64 } from "~/utils/data"
 

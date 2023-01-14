@@ -20,7 +20,7 @@ import PanelSidebar from "./components/Panels/PanelSidebar"
 import { useShortcuts } from "../../hooks/useShortcuts"
 import { useAddScene } from "./components/Footer/Graphic/Scenes"
 import { fabric } from "fabric"
-import { captureAllFrames } from "../../utils/video"
+import { captureAllFrames } from "../../utils/video-parser"
 
 const GraphicEditor = () => {
   useShortcuts()

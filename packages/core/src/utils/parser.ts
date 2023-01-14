@@ -16,27 +16,33 @@ export function angleToPoint(angle: number, sx: number, sy: number) {
   return { y: sy, x: sx - (pp - c) }
 }
 
-export function base64ImageToFile(str) {
+export function base64ImageToBinary(str) {
   // extract content type and base64 payload from original string
   const pos = str.indexOf(";base64,")
   const type = str.substring(5, pos)
   const b64 = str.substr(pos + 8)
 
   // decode base64
-  const imageContent = atob(b64)
+  const imageContent = window.atob(b64)
 
   // create an ArrayBuffer and a view (as unsigned 8-bit)
   const buffer = new ArrayBuffer(imageContent.length)
-  const view = new Uint8Array(buffer)
+  const data = new Uint8Array(buffer)
 
   // fill the view, using the decoded base64
   for (let n = 0; n < imageContent.length; n++) {
-    view[n] = imageContent.charCodeAt(n)
+    data[n] = imageContent.charCodeAt(n)
   }
+
+  return { buffer, data, type }
+}
+
+export function base64ImageToFile(str) {
+  const { buffer, type } = base64ImageToBinary(str)
 
   // const filename = `background.${type.split('/')[1]}`
   // convert ArrayBuffer to Blob
-  let blob = new Blob([buffer], { type: type })
+  const blob = new Blob([buffer], { type: type })
   const objectURL = URL.createObjectURL(blob)
   // const file = new File([blob], filename)
   return objectURL

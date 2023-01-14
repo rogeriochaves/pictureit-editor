@@ -19,11 +19,11 @@ class Renderer {
     })
   }
 
-  public async toDataURL(template: IScene, params: Record<string, any>) {
+  public async toDataURL(template: IScene, params: Record<string, any>, extension = "image/webp", quality = 0.6) {
     const staticCanvas = new fabric.StaticCanvas(null)
     await this.loadTemplate(staticCanvas, template, params)
 
-    return staticCanvas.toCanvasElement().toDataURL("image/webp", 0.6)
+    return staticCanvas.toCanvasElement().toDataURL(extension, quality)
   }
 
   public renderLayer = async (layer: Required<ILayer>, params: object) => {
