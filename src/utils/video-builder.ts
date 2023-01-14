@@ -1,7 +1,7 @@
 import { base64ImageToBinary } from "@layerhub-io/core/src/utils/parser"
 import "ffmpeg.js"
 
-export const buildVideo = (b64images: string[]) => {
+export const buildVideo = (b64images: string[], framesPerSecond: number) => {
   return new Promise<string>((resolve, reject) => {
     const images = b64images.map((b64image, index) => {
       const { data, type } = base64ImageToBinary(b64image)
@@ -58,8 +58,8 @@ export const buildVideo = (b64images: string[]) => {
       TOTAL_MEMORY: 268435456,
       // arguments: 'ffmpeg -framerate 24 -pattern_type glob -i *.jpeg -c:v libx264 -pix_fmt yuv420p output.mp4'.split(' '),
       arguments: [
-        "-r",
-        "20",
+        "-framerate",
+        `${framesPerSecond}`,
         "-i",
         "img%03d.jpeg",
         "-c:v",
