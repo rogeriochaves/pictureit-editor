@@ -112,6 +112,7 @@ type VideoControls = {
   loop: boolean
   boomerang: boolean
   framesPerSecond: number
+  thumbnailIndex: number
 }
 
 const PreviewContent = () => {
@@ -129,6 +130,7 @@ const PreviewContent = () => {
     loop: true,
     boomerang: false,
     framesPerSecond: 10,
+    thumbnailIndex: 0,
   })
 
   const [videoKey, setVideoKey] = useState<string | undefined>()
@@ -477,11 +479,13 @@ const VideoControls = ({
           <Select
             backspaceRemoves={false}
             clearable={false}
-            closeOnSelect={false}
             deleteRemoves={false}
             escapeClearsValue={false}
-            value={[thumbnailOptions[0]]}
-            onChange={() => {}}
+            searchable={false}
+            value={[thumbnailOptions[videoControls.thumbnailIndex]]}
+            onChange={(value) => {
+              setVideoControls((state) => ({ ...state, thumbnailIndex: +(value.option?.id || 0) }))
+            }}
             options={thumbnailOptions}
             overrides={{
               Popover: {
