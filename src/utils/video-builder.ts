@@ -15,14 +15,14 @@ export const buildVideo = (b64images: string[], framesPerSecond: number) => {
 
     const done = (result: BlobPart) => {
       const blob = new Blob([result], {
-        type: "video/mp4",
+        type: "video/webm",
       })
       const videoUrl = webkitURL.createObjectURL(blob)
 
       resolve(videoUrl)
     }
 
-    const worker = new Worker(new URL("../../node_modules/ffmpeg.js/ffmpeg-worker-mp4.js", import.meta.url))
+    const worker = new Worker(new URL("../../node_modules/ffmpeg.js/ffmpeg-worker-webm.js", import.meta.url))
 
     let log = ""
     worker.onmessage = function (e) {
@@ -56,25 +56,17 @@ export const buildVideo = (b64images: string[], framesPerSecond: number) => {
     worker.postMessage({
       type: "run",
       TOTAL_MEMORY: 268435456,
-      // arguments: 'ffmpeg -framerate 24 -pattern_type glob -i *.jpeg -c:v libx264 -pix_fmt yuv420p output.mp4'.split(' '),
       arguments: [
         "-framerate",
         `${framesPerSecond}`,
         "-i",
         "img%03d.jpeg",
-        "-c:v",
-        "libx264",
         "-crf",
-        "1",
-        // "-vf",
-        // "scale=150:150",
-        "-pix_fmt",
-        "yuv420p",
+        "20",
         "-vb",
         "20M",
-        "out.mp4",
+        "out.webm",
       ],
-      //arguments: '-r 60 -i img%03d.jpeg -c:v libx264 -crf 1 -vf -pix_fmt yuv420p -vb 20M out.mp4'.split(' '),
       MEMFS: images,
     })
   })
