@@ -18,6 +18,7 @@ import Boomerang from "../../../../components/Icons/Boomerang"
 import Loop from "../../../../components/Icons/Loop"
 import { currentDesignState, publishTitleState, recoilEditorState, scenesState } from "../../../../state/designEditor"
 import { publishPictureCall } from "../../../../state/publish"
+import { toBase64 } from "../../../../utils/data"
 import { sha256Hash } from "../../../../utils/hashing"
 import { useRecoilLazyLoadable } from "../../../../utils/lazySelectorFamily"
 import { buildVideo } from "../../../../utils/video-builder"
@@ -140,7 +141,7 @@ const PreviewContent = () => {
   }, [scenes])
 
   const [debouncedFramesPerSecond] = useDebounce(videoControls.framesPerSecond, 1000)
-  const videoUrl = useRecoilValueLoadable(
+  const video = useRecoilValueLoadable(
     buildVideoPreviewCall({
       key: videoKey,
       boomerang: videoControls.boomerang,
@@ -164,15 +165,31 @@ const PreviewContent = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const onPublish = useCallback(async () => {
+    if (!publishTitle) return
+
+    if (previewType == "image") {
+      publish({ title: publishTitle, image: image })
+    } else if (previewType == "video") {
+      const b64preview = scenes[videoControls.thumbnailIndex].preview
+      if (!b64preview) return
+
+      if (video.state != "hasValue" || !video.contents) return
+      const b64video = await toBase64(video.contents.blob)
+
+      publish({ title: publishTitle, image: b64preview, video: b64video, videoLoop: videoControls.loop })
+    }
+  }, [image, previewType, publish, publishTitle, scenes, video, videoControls])
+
   const imageOrVideoPreviewBlock = () => {
     const imagePreview = <img width="auto" height="100%" src={image} />
 
     if (previewType == "video") {
-      if (videoUrl.state == "hasValue") {
-        return <video ref={videoRef} src={videoUrl.contents} autoPlay loop={videoControls.loop} controls={true} />
-      } else if (videoUrl.state == "hasError") {
+      if (video.state == "hasValue") {
+        return <video ref={videoRef} src={video.contents?.url} autoPlay loop={videoControls.loop} controls={true} />
+      } else if (video.state == "hasError") {
         return <Overlay content={<div>Error trying to render video</div>}>{imagePreview}</Overlay>
-      } else if (videoUrl.state == "loading") {
+      } else if (video.state == "loading") {
         return (
           <Overlay
             content={
@@ -263,7 +280,7 @@ const PreviewContent = () => {
                 <Block>
                   <Button
                     style={{ marginTop: "12px" }}
-                    onClick={() => publishTitle && publish({ title: publishTitle, image: image })}
+                    onClick={onPublish}
                     disabled={!publishTitle || publishRequest.state == "loading"}
                   >
                     {publishRequest.state == "loading" ? <Spinner /> : "Publish"}

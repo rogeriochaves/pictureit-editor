@@ -33,7 +33,7 @@ interface FileEndpoints {
 }
 
 interface PublishEndpoints {
-  publish(title: string, image: string): Promise<{ url: string }>
+  publish(title: string, image: string, video?: string, videoLoop?: boolean): Promise<{ url: string }>
 }
 
 interface TagSuggestions {
@@ -118,8 +118,8 @@ const PictureIt: PictureItApi = class {
     return file
   }
 
-  static async publish(title: string, image: string) {
-    return await postApi(`/api/picture/publish`, { title, image })
+  static async publish(title: string, image: string, video?: string, videoLoop?: boolean) {
+    return await postApi(`/api/picture/publish`, { title, image, video, video_loop: videoLoop })
   }
 
   static async tagSuggestions(prompt: string) {
@@ -166,11 +166,7 @@ async function getApi(url: string) {
   return json
 }
 
-async function modelCall(
-  modelPath: string,
-  params: object,
-  onLoadProgress: LoadProgressCallback
-) {
+async function modelCall(modelPath: string, params: object, onLoadProgress: LoadProgressCallback) {
   const response = await postApi(modelPath, params)
   const result = await checkUntilDone(response, onLoadProgress)
 

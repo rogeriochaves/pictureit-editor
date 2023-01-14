@@ -2,7 +2,7 @@ import { base64ImageToBinary } from "@layerhub-io/core/src/utils/parser"
 import "ffmpeg.js"
 
 export const buildVideo = (b64images: string[], framesPerSecond: number) => {
-  return new Promise<string>((resolve, reject) => {
+  return new Promise<{ blob: Blob, url: string }>((resolve, reject) => {
     const images = b64images.map((b64image, index) => {
       const { data, type } = base64ImageToBinary(b64image)
       const [_, extension] = type.split("/")
@@ -17,9 +17,9 @@ export const buildVideo = (b64images: string[], framesPerSecond: number) => {
       const blob = new Blob([result], {
         type: "video/webm",
       })
-      const videoUrl = webkitURL.createObjectURL(blob)
+      const url = webkitURL.createObjectURL(blob)
 
-      resolve(videoUrl)
+      resolve({ blob, url })
     }
 
     const worker = new Worker(new URL("../../node_modules/ffmpeg.js/ffmpeg-worker-webm.js", import.meta.url))
