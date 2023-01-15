@@ -13,7 +13,7 @@ import { addGaussianNoise } from "../utils/noise"
 import { hasAnyTransparentPixel } from "../utils/transparency"
 import { currentUserQuery } from "./user"
 
-export const DEFAULT_PROMPT_STRENGTH = 0.8
+export const DEFAULT_PROMPT_STRENGTH = 0.6
 export const DEFAULT_GUIDANCE = 7.5
 export const DEFAULT_STEPS = 50
 export const DEFAULT_NUM_ANIMATION_FRAMES = 3
@@ -173,26 +173,31 @@ const detectModelToUse = (
   return "stable-diffusion"
 }
 
+const longLoadingTimeouts: { [key: string]: NodeJS.Timeout } = {}
+
 const showStartingLoading = (frame: fabric.GenerationFrame, editor: Editor) => {
   frame.showLoading(20_000, "Starting...")
-  setTimeout(() => {
+
+  const updateLoadingMessage = (message: string) => {
     const loadingStepLabel = frame.getLoadingStepLabel()
-    if (loadingStepLabel && loadingStepLabel.text == "Starting...") {
-      loadingStepLabel.text = "Taking a little longer than usual..."
+    if (loadingStepLabel) {
+      loadingStepLabel.text = message
       editor.canvas.requestRenderAll()
     }
+  }
+
+  clearTimeout(longLoadingTimeouts[frame.id])
+  longLoadingTimeouts[frame.id] = setTimeout(() => {
+    updateLoadingMessage("Taking a little longer than usual...")
+    longLoadingTimeouts[frame.id] = setTimeout(() => {
+      updateLoadingMessage("Hang in there...")
+    }, 30_000)
   }, 20_000)
-  setTimeout(() => {
-    const loadingStepLabel = frame.getLoadingStepLabel()
-    if (loadingStepLabel && loadingStepLabel.text == "Taking a little longer than usual...") {
-      loadingStepLabel.text = "Hang in there..."
-      editor.canvas.requestRenderAll()
-    }
-  }, 50_000)
 }
 
 const onLoadProgress = (frame: fabric.GenerationFrame) => (event: GenerationProgressEvent) => {
   if ("progress" in event) {
+    clearTimeout(longLoadingTimeouts[frame.id])
     frame.moveLoading(event.progress / 100, 500)
   }
 }
