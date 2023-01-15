@@ -1,5 +1,4 @@
 import { base64ImageToBinary } from "@layerhub-io/core/src/utils/parser"
-import "ffmpeg.js"
 
 export const buildVideo = (b64images: string[], framesPerSecond: number) => {
   return new Promise<{ blob: Blob, url: string }>((resolve, reject) => {
