@@ -328,14 +328,14 @@ const Navbar = () => {
               overrides={{
                 List: {
                   style: {
-                    background: "#FFF"
+                    background: "#FFF",
                   },
                 },
                 OptgroupHeader: {
                   style: {
                     color: "#666",
                     padding: "4px 12px 12px 12px",
-                  }
+                  },
                 },
                 Option: {
                   props: {
@@ -399,13 +399,17 @@ const Navbar = () => {
         content={() => (
           <StatefulMenu
             onItemSelect={({ item }) => {
+              if (item.action == "new") {
+                document.location = `/editor`
+              }
               if (item.action == "files") {
                 document.location = `${PICTURE_IT_URL}/files`
               }
             }}
             items={[
+              { label: "New artwork...", action: "new" },
               { label: "Back to artworks", action: "files" },
-              { label: "File", arrow: true, action: "submenu-file" },
+              { label: "Local", arrow: true, action: "submenu-file" },
             ]}
             overrides={{
               Option: {
