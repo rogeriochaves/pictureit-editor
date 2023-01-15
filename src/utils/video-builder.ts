@@ -1,7 +1,7 @@
 import { base64ImageToBinary } from "@layerhub-io/core/src/utils/parser"
 
 export const buildVideo = (b64images: string[], framesPerSecond: number) => {
-  return new Promise<{ blob: Blob, url: string }>((resolve, reject) => {
+  return new Promise<{ blob: Blob; url: string }>((resolve, reject) => {
     const images = b64images.map((b64image, index) => {
       const { data, type } = base64ImageToBinary(b64image)
       const [_, extension] = type.split("/")
@@ -14,14 +14,14 @@ export const buildVideo = (b64images: string[], framesPerSecond: number) => {
 
     const done = (result: BlobPart) => {
       const blob = new Blob([result], {
-        type: "video/webm",
+        type: "video/mp4",
       })
       const url = webkitURL.createObjectURL(blob)
 
       resolve({ blob, url })
     }
 
-    const worker = new Worker(new URL("../../node_modules/ffmpeg.js/ffmpeg-worker-webm.js", import.meta.url))
+    const worker = new Worker(new URL("../../node_modules/ffmpeg.js/ffmpeg-worker-mp4.js", import.meta.url))
 
     let log = ""
     worker.onmessage = function (e) {
@@ -60,11 +60,15 @@ export const buildVideo = (b64images: string[], framesPerSecond: number) => {
         `${framesPerSecond}`,
         "-i",
         "img%03d.jpeg",
+        "-c:v",
+        "libx264",
         "-crf",
         "20",
+        "-pix_fmt",
+        "yuv420p",
         "-vb",
         "20M",
-        "out.webm",
+        "out.mp4",
       ],
       MEMFS: images,
     })
