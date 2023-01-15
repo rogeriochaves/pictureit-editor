@@ -18,7 +18,7 @@ import Boomerang from "../../../../components/Icons/Boomerang"
 import Loop from "../../../../components/Icons/Loop"
 import { currentDesignState, publishTitleState, recoilEditorState, scenesState } from "../../../../state/designEditor"
 import { publishPictureCall } from "../../../../state/publish"
-import { toBase64 } from "../../../../utils/data"
+import { b64FileExtension, downloadBlob, toBase64 } from "../../../../utils/data"
 import { sha256Hash } from "../../../../utils/hashing"
 import { useRecoilLazyLoadable } from "../../../../utils/lazySelectorFamily"
 import { buildVideo } from "../../../../utils/video-builder"
@@ -181,12 +181,35 @@ const PreviewContent = () => {
     }
   }, [image, previewType, publish, publishTitle, scenes, video, videoControls])
 
+  const onDownload = useCallback(async () => {
+    const filename = currentDesign.name.toLowerCase().replaceAll(" ", "-")
+    if (previewType == "image") {
+      const extension = b64FileExtension(image)
+      const blob = await fetch(image).then((res) => res.blob())
+      downloadBlob(`${filename}.${extension}`, blob)
+    } else if (previewType == "video") {
+      if (video.state != "hasValue" || !video.contents) return
+
+      const [_, extension] = video.contents.blob.type.split("/")
+      downloadBlob(`${filename}.${extension}`, video.contents.blob)
+    }
+  }, [currentDesign.name, image, previewType, video.contents, video.state])
+
   const imageOrVideoPreviewBlock = () => {
-    const imagePreview = <img width="auto" height="100%" src={image} />
+    const imagePreview = <img width="auto" height="100%" style={{ maxHeight: "70vh" }} src={image} />
 
     if (previewType == "video") {
       if (video.state == "hasValue") {
-        return <video ref={videoRef} src={video.contents?.url} autoPlay loop={videoControls.loop} controls={true} />
+        return (
+          <video
+            ref={videoRef}
+            src={video.contents?.url}
+            autoPlay
+            style={{ maxHeight: "70vh" }}
+            loop={videoControls.loop}
+            controls={true}
+          />
+        )
       } else if (video.state == "hasError") {
         return <Overlay content={<div>Error trying to render video</div>}>{imagePreview}</Overlay>
       } else if (video.state == "loading") {
@@ -214,25 +237,45 @@ const PreviewContent = () => {
       <Block $style={{ maxWidth: "1200px", display: "flex", flexDirection: "column", gap: "12px" }}>
         <Block $style={{ display: "flex", gap: "24px", alignItems: "center" }}>
           <Block display="flex" flexDirection="column" gridGap="24px" alignItems="center">
-            <ButtonGroup>
-              <Button
-                kind={BUTTON_KIND.secondary}
-                style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
-                isSelected={previewType == "video"}
-                onClick={() => setPreviewType("video")}
-              >
-                Video
-              </Button>
-              <Button
-                kind={BUTTON_KIND.secondary}
-                style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
-                isSelected={previewType == "image"}
-                onClick={() => setPreviewType("image")}
-              >
-                Image
-              </Button>
-            </ButtonGroup>
+            {supportsVideo && (
+              <ButtonGroup>
+                <Button
+                  kind={BUTTON_KIND.secondary}
+                  style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
+                  isSelected={previewType == "video"}
+                  onClick={() => setPreviewType("video")}
+                >
+                  Video
+                </Button>
+                <Button
+                  kind={BUTTON_KIND.secondary}
+                  style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+                  isSelected={previewType == "image"}
+                  onClick={() => setPreviewType("image")}
+                >
+                  Image
+                </Button>
+              </ButtonGroup>
+            )}
             {imageOrVideoPreviewBlock()}
+
+            {!isPictureIt() && (
+              <Block
+                display="flex"
+                justifyContent={previewType == "video" ? "space-between" : "center"}
+                alignItems="flex-end"
+                width="100%"
+              >
+                {previewType == "video" && (
+                  <VideoControls
+                    videoControls={videoControls}
+                    setVideoControls={setVideoControls}
+                    videoRef={videoRef}
+                  />
+                )}
+                <Button onClick={onDownload}>Download</Button>
+              </Block>
+            )}
           </Block>
 
           {isPictureIt() && (
@@ -344,7 +387,7 @@ const VideoControls = ({
   return (
     <>
       <Block display="flex" flexDirection="column" gridGap="4px">
-        <b>Video Controls</b>
+        {isPictureIt() && <b>Video Controls</b>}
         <Block display="flex" gridGap="8px">
           <StatefulTooltip
             placement={PLACEMENT.top}
@@ -393,6 +436,7 @@ const VideoControls = ({
               <Boomerang size={24} fill={videoControls.boomerang ? "#FFF" : "#000"} />
             </Button>
           </StatefulTooltip>
+
           <StatefulPopover
             showArrow={true}
             placement={PLACEMENT.bottom}
@@ -490,36 +534,38 @@ const VideoControls = ({
         </Block>
       </Block>
 
-      <Block display="flex" flexDirection="column" gridGap="4px">
-        <b>Thumbnail</b>
-        <Block width="160px">
-          <Select
-            backspaceRemoves={false}
-            clearable={false}
-            deleteRemoves={false}
-            escapeClearsValue={false}
-            searchable={false}
-            value={[thumbnailOptions[videoControls.thumbnailIndex]]}
-            onChange={(value) => {
-              setVideoControls((state) => ({ ...state, thumbnailIndex: +(value.option?.id || 0) }))
-            }}
-            options={thumbnailOptions}
-            overrides={{
-              Popover: {
-                props: {
-                  overrides: {
-                    Body: {
-                      style: {
-                        zIndex: 131,
+      {isPictureIt() && (
+        <Block display="flex" flexDirection="column" gridGap="4px">
+          <b>Thumbnail</b>
+          <Block width="160px">
+            <Select
+              backspaceRemoves={false}
+              clearable={false}
+              deleteRemoves={false}
+              escapeClearsValue={false}
+              searchable={false}
+              value={[thumbnailOptions[videoControls.thumbnailIndex]]}
+              onChange={(value) => {
+                setVideoControls((state) => ({ ...state, thumbnailIndex: +(value.option?.id || 0) }))
+              }}
+              options={thumbnailOptions}
+              overrides={{
+                Popover: {
+                  props: {
+                    overrides: {
+                      Body: {
+                        style: {
+                          zIndex: 131,
+                        },
                       },
                     },
                   },
                 },
-              },
-            }}
-          ></Select>
+              }}
+            ></Select>
+          </Block>
         </Block>
-      </Block>
+      )}
     </>
   )
 }

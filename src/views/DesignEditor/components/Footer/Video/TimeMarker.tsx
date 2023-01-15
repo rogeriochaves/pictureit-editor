@@ -49,8 +49,8 @@ const TimeMarker = () => {
       playControlRef.getBoundingClientRect().width
 
     const onDrag = (ev: MouseEvent) => {
-      let x = ev.clientX - initialX - toolItemsWidth
-      let newX = initialX + x * 40
+      const x = ev.clientX - initialX - toolItemsWidth
+      const newX = initialX + x * 40
       if (newX + 2 <= 0 || newX >= maxTime) return
       setTime(newX)
     }

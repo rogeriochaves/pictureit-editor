@@ -291,7 +291,7 @@ const Navbar = () => {
         <Play size={24} />
       </Button>
 
-      <Button size="compact" onClick={() => (document.location = "https://github.com/")} kind={KIND.tertiary}>
+      <Button size="compact" onClick={() => (document.location = "https://github.com/rogeriochaves/pictureit-editor")} kind={KIND.tertiary}>
         <Github size={24} />
       </Button>
     </Block>
