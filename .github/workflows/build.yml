@@ -24,4 +24,6 @@ jobs:
         cache: 'npm'
     - run: npm config set -g production false && npm install
     - run: npm run packages:build
-    - run: npm run build
+    - run: |
+        export NODE_OPTIONS="--max_old_space_size=32768"
+        npm run build
