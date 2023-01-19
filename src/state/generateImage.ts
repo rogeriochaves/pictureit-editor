@@ -4,7 +4,7 @@ import { ModelTypes } from "@layerhub-io/objects"
 import { IGenerationFrame, ILayer } from "@layerhub-io/types"
 import { fabric } from "fabric"
 import { atom, atomFamily } from "recoil"
-import api, { GenerationProgressEvent, StableDiffusionOutput } from "../api"
+import api, { GenerationOutput, GenerationProgressEvent } from "../api"
 import { extractErrorMessage } from "../api/utils"
 import { canvasFromImage } from "../utils/canvas-from-image"
 import { paintItBlack } from "../utils/clip-mask"
@@ -109,7 +109,7 @@ const generateAdvanceSteps = async ({
 }: {
   frame: fabric.GenerationFrame
   editor: Editor
-}): Promise<StableDiffusionOutput> => {
+}): Promise<GenerationOutput> => {
   const numInferenceSteps = frame.metadata?.steps || DEFAULT_STEPS
   showStartingLoading(frame, editor)
 
@@ -121,16 +121,14 @@ const generateAdvanceSteps = async ({
   const image = renderedFrame.toDataURL("image/jpeg")
   const stepsToSkip = frame.metadata?.accumulatedSteps || frame.metadata?.steps || 50
 
-  const result = await api.stableDiffusionAdvanceSteps(
-    {
-      prompt: frame.metadata?.prompt || "",
-      init_image: image,
-      num_inference_steps: stepsToSkip + numInferenceSteps,
-      skip_timesteps: stepsToSkip,
-      seed: 42,
-    },
-    onLoadProgress(frame)
-  )
+  const result = await api.stableDiffusionAdvanceSteps({
+    onLoadProgress: onLoadProgress(frame),
+    prompt: frame.metadata?.prompt || "",
+    init_image: image,
+    num_inference_steps: stepsToSkip + numInferenceSteps,
+    skip_timesteps: stepsToSkip,
+    seed: 42,
+  })
 
   frame.metadata = {
     ...frame.metadata,
@@ -208,7 +206,7 @@ const generateImageOrVideo = async ({
 }: {
   frame: fabric.GenerationFrame
   editor: Editor
-}): Promise<StableDiffusionOutput> => {
+}): Promise<GenerationOutput> => {
   const numInferenceSteps = frame.metadata?.steps || 50
   showStartingLoading(frame, editor)
 
@@ -229,57 +227,49 @@ const generateImageOrVideo = async ({
   const model = frame.metadata.model || detectModelToUse(editor, frame, initImageWithNoise, initImageCanvas)
 
   return model == "stable-diffusion-inpainting"
-    ? await api.stableDiffusionInpainting(
-        {
-          prompt: frame.metadata?.prompt || "",
-          num_inference_steps: numInferenceSteps,
-          guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
-          image: initImageWithNoise,
-          mask: clipMask,
-        },
-        onLoadProgress(frame)
-      )
+    ? await api.stableDiffusionInpainting({
+        onLoadProgress: onLoadProgress(frame),
+        prompt: frame.metadata?.prompt || "",
+        num_inference_steps: numInferenceSteps,
+        guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
+        init_image: initImageWithNoise,
+        mask: clipMask,
+      })
     : model == "openjourney"
-    ? await api.openJourney(
-        {
-          prompt: frame.metadata?.prompt || "",
-          num_inference_steps: numInferenceSteps,
-          guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
-        },
-        onLoadProgress(frame)
-      )
+    ? await api.openJourney({
+        onLoadProgress: onLoadProgress(frame),
+        prompt: frame.metadata?.prompt || "",
+        num_inference_steps: numInferenceSteps,
+        guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
+      })
     : model == "stable-diffusion-animation"
-    ? await api.stableDiffusionAnimation(
-        {
-          prompt_start: frame.metadata?.prompt || "",
-          prompt_end: frame.metadata?.promptEnd || "",
-          num_inference_steps: numInferenceSteps,
-          num_animation_frames: frame.metadata?.numAnimationFrames || DEFAULT_NUM_ANIMATION_FRAMES,
-          num_interpolation_steps: frame.metadata?.numInterpolationSteps || DEFAULT_NUM_INTERPOLATION_STEPS,
-          film_interpolation: true,
-          output_format: "mp4",
-        },
-        (event: GenerationProgressEvent) => {
+    ? await api.stableDiffusionAnimation({
+        onLoadProgress: (event: GenerationProgressEvent) => {
           if ("step" in event) {
             frame.showLoading(animationTimeEstimation(frame).perFrame, `Frame ${event.step + 1}`)
           }
-        }
-      )
-    : await api.stableDiffusion(
-        {
-          prompt: frame.metadata?.prompt || "",
-          negative_prompt: frame.metadata?.negativePrompt,
-          num_inference_steps: numInferenceSteps,
-          guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
-          ...(initImageWithNoise
-            ? {
-                init_image: initImageWithNoise,
-                prompt_strength: frame.metadata?.initImage?.promptStrength ?? DEFAULT_PROMPT_STRENGTH,
-              }
-            : {}),
         },
-        onLoadProgress(frame)
-      )
+        prompt: frame.metadata?.prompt || "",
+        prompt_end: frame.metadata?.promptEnd || "",
+        num_inference_steps: numInferenceSteps,
+        num_animation_frames: frame.metadata?.numAnimationFrames || DEFAULT_NUM_ANIMATION_FRAMES,
+        num_interpolation_steps: frame.metadata?.numInterpolationSteps || DEFAULT_NUM_INTERPOLATION_STEPS,
+        film_interpolation: true,
+        output_format: "mp4",
+      })
+    : await api.stableDiffusion({
+        onLoadProgress: onLoadProgress(frame),
+        prompt: frame.metadata?.prompt || "",
+        negative_prompt: frame.metadata?.negativePrompt,
+        num_inference_steps: numInferenceSteps,
+        guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
+        ...(initImageWithNoise
+          ? {
+              init_image: initImageWithNoise,
+              prompt_strength: frame.metadata?.initImage?.promptStrength ?? DEFAULT_PROMPT_STRENGTH,
+            }
+          : {}),
+      })
 }
 
 export const renderInitImage = async (

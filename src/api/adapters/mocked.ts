@@ -1,23 +1,7 @@
-import {
-  Api,
-  LoadProgressCallback,
-  OpenJourneyInput,
-  OpenJourneyOutput,
-  StableDiffusionAdvanceStepsInput,
-  StableDiffusionAdvanceStepsOutput,
-  StableDiffusionAnimationInput,
-  StableDiffusionAnimationOutput,
-  StableDiffusionInpaintingInput,
-  StableDiffusionInpaintingOutput,
-  StableDiffusionInput,
-  StableDiffusionOutput,
-} from "../index"
+import { AllGenerationParams, Api, GenerationOutput, LoadProgressCallback } from "../index"
 
 const Mocked: Api = class {
-  static async stableDiffusion(
-    params: StableDiffusionInput,
-    onLoadProgress: LoadProgressCallback
-  ): Promise<StableDiffusionOutput> {
+  static async stableDiffusion(_params: AllGenerationParams): Promise<GenerationOutput> {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve({ url: sampleImage })
@@ -25,10 +9,7 @@ const Mocked: Api = class {
     })
   }
 
-  static async stableDiffusionInpainting(
-    params: StableDiffusionInpaintingInput,
-    onLoadProgress: LoadProgressCallback
-  ): Promise<StableDiffusionInpaintingOutput> {
+  static async stableDiffusionInpainting(_params: AllGenerationParams): Promise<GenerationOutput> {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve({ url: sampleImage })
@@ -36,10 +17,7 @@ const Mocked: Api = class {
     })
   }
 
-  static async stableDiffusionAdvanceSteps(
-    params: StableDiffusionAdvanceStepsInput,
-    onLoadProgress: LoadProgressCallback
-  ): Promise<StableDiffusionAdvanceStepsOutput> {
+  static async stableDiffusionAdvanceSteps(_params: AllGenerationParams): Promise<GenerationOutput> {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve({ url: sampleImage })
@@ -47,7 +25,7 @@ const Mocked: Api = class {
     })
   }
 
-  static async openJourney(params: OpenJourneyInput, onLoadProgress: LoadProgressCallback): Promise<OpenJourneyOutput> {
+  static async openJourney(_params: AllGenerationParams): Promise<GenerationOutput> {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve({ url: sampleImage })
@@ -55,10 +33,7 @@ const Mocked: Api = class {
     })
   }
 
-  static async stableDiffusionAnimation(
-    params: StableDiffusionAnimationInput,
-    onLoadProgress: LoadProgressCallback
-  ): Promise<StableDiffusionAnimationOutput> {
+  static async stableDiffusionAnimation({ onLoadProgress }: AllGenerationParams): Promise<GenerationOutput> {
     const timePerFrame = 3000
     setTimeout(() => {
       onLoadProgress({ step: 0 })

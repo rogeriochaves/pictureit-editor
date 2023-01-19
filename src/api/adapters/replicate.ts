@@ -1,60 +1,120 @@
-import {
-  Api,
-  StableDiffusionInpaintingInput,
-  StableDiffusionInpaintingOutput,
-  StableDiffusionInput,
-  StableDiffusionAdvanceStepsInput,
-  StableDiffusionAdvanceStepsOutput,
-  StableDiffusionOutput,
-  OpenJourneyInput,
-  OpenJourneyOutput,
-  StableDiffusionAnimationInput,
-  StableDiffusionAnimationOutput,
-  LoadProgressCallback,
-} from "../index"
+import { AllGenerationParams, Api, GenerationOutput, LoadProgressCallback } from "../index"
 import { proxyFetch } from "../proxyFetch"
 import { parseProgressFromLogs } from "../utils"
 
 const replicateFetch = proxyFetch("https://api.replicate.com")
 
 const Replicate: Api = class {
-  static async stableDiffusion(
-    params: StableDiffusionInput,
-    onLoadProgress: LoadProgressCallback
-  ): Promise<StableDiffusionOutput> {
+  static async stableDiffusion({
+    onLoadProgress,
+    prompt,
+    negative_prompt,
+    num_inference_steps,
+    guidance_scale,
+    init_image,
+    prompt_strength,
+  }: AllGenerationParams): Promise<GenerationOutput> {
     // https://replicate.com/stability-ai/stable-diffusion
-    return callReplicate("27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478", params, onLoadProgress)
+    return callReplicate(
+      "27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478",
+      {
+        prompt,
+        negative_prompt,
+        num_inference_steps,
+        guidance_scale,
+        init_image,
+        prompt_strength,
+      },
+      onLoadProgress
+    )
   }
 
-  static async stableDiffusionInpainting(
-    params: StableDiffusionInpaintingInput,
-    onLoadProgress: LoadProgressCallback
-  ): Promise<StableDiffusionInpaintingOutput> {
+  static async stableDiffusionInpainting({
+    onLoadProgress,
+    prompt,
+    num_inference_steps,
+    guidance_scale,
+    init_image,
+    mask,
+  }: AllGenerationParams): Promise<GenerationOutput> {
     // https://replicate.com/andreasjansson/stable-diffusion-inpainting
-    return callReplicate("8eb2da8345bee796efcd925573f077e36ed5fb4ea3ba240ef70c23cf33f0d848", params, onLoadProgress)
+    return callReplicate(
+      "8eb2da8345bee796efcd925573f077e36ed5fb4ea3ba240ef70c23cf33f0d848",
+      {
+        prompt,
+        num_inference_steps,
+        guidance_scale,
+        image: init_image,
+        mask,
+      },
+      onLoadProgress
+    )
   }
 
-  static async stableDiffusionAdvanceSteps(
-    params: StableDiffusionAdvanceStepsInput,
-    onLoadProgress: LoadProgressCallback
-  ): Promise<StableDiffusionAdvanceStepsOutput> {
+  static async stableDiffusionAdvanceSteps({
+    onLoadProgress,
+    prompt,
+    init_image,
+    num_inference_steps,
+    skip_timesteps,
+    seed,
+  }: AllGenerationParams): Promise<GenerationOutput> {
     // https://replicate.com/devxpy/glid-3-xl-stable
-    return callReplicate("7d6a340e1815acf2b3b2ee0fcaf830fbbcd8697e9712ca63d81930c60484d2d7", params, onLoadProgress)
+    return callReplicate(
+      "7d6a340e1815acf2b3b2ee0fcaf830fbbcd8697e9712ca63d81930c60484d2d7",
+      {
+        prompt,
+        init_image,
+        num_inference_steps,
+        skip_timesteps,
+        seed,
+      },
+      onLoadProgress
+    )
   }
 
-  static async openJourney(params: OpenJourneyInput, onLoadProgress: LoadProgressCallback): Promise<OpenJourneyOutput> {
-    params = { ...params, prompt: `mdjrny-v4 style ${params.prompt}` }
-
+  static async openJourney({
+    onLoadProgress,
+    prompt,
+    num_inference_steps,
+    guidance_scale,
+  }: AllGenerationParams): Promise<GenerationOutput> {
     // https://replicate.com/prompthero/openjourney
-    return callReplicate("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb", params, onLoadProgress)
+    return callReplicate(
+      "9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb",
+      {
+        prompt: `mdjrny-v4 style ${prompt}`,
+        num_inference_steps,
+        guidance_scale,
+      },
+      onLoadProgress
+    )
   }
 
-  static async stableDiffusionAnimation(
-    params: StableDiffusionAnimationInput,
-    onLoadProgress: LoadProgressCallback
-  ): Promise<StableDiffusionAnimationOutput> {
+  static async stableDiffusionAnimation({
+    onLoadProgress,
+    prompt,
+    prompt_end,
+    num_inference_steps,
+    num_animation_frames,
+    num_interpolation_steps,
+    film_interpolation,
+    output_format,
+  }: AllGenerationParams): Promise<GenerationOutput> {
     // https://replicate.com/andreasjansson/stable-diffusion-animation
-    return callReplicate("ca1f5e306e5721e19c473e0d094e6603f0456fe759c10715fcd6c1b79242d4a5", params, onLoadProgress)
+    return callReplicate(
+      "ca1f5e306e5721e19c473e0d094e6603f0456fe759c10715fcd6c1b79242d4a5",
+      {
+        prompt_start: prompt,
+        prompt_end,
+        num_inference_steps,
+        num_animation_frames,
+        num_interpolation_steps,
+        film_interpolation,
+        output_format,
+      },
+      onLoadProgress
+    )
   }
 }
 

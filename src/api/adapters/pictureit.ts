@@ -1,53 +1,113 @@
-import {
-  Api,
-  StableDiffusionInpaintingInput,
-  StableDiffusionInpaintingOutput,
-  StableDiffusionInput,
-  StableDiffusionAdvanceStepsInput,
-  StableDiffusionAdvanceStepsOutput,
-  StableDiffusionOutput,
-  OpenJourneyInput,
-  OpenJourneyOutput,
-  StableDiffusionAnimationInput,
-  StableDiffusionAnimationOutput,
-  LoadProgressCallback,
-} from "../index"
+import { Api, LoadProgressCallback, AllGenerationParams, GenerationOutput } from "../index"
 import { getApi, postApi } from "../pictureit"
 import { parseProgressFromLogs } from "../utils"
 
 const PictureItAdapter: Api = class {
-  static async stableDiffusion(
-    params: StableDiffusionInput,
-    onLoadProgress: LoadProgressCallback
-  ): Promise<StableDiffusionOutput> {
-    return modelCall("/api/editor/stable_diffusion", params, onLoadProgress)
+  static async stableDiffusion({
+    onLoadProgress,
+    prompt,
+    negative_prompt,
+    num_inference_steps,
+    guidance_scale,
+    init_image,
+    prompt_strength,
+  }: AllGenerationParams): Promise<GenerationOutput> {
+    return modelCall(
+      "/api/editor/stable_diffusion",
+      {
+        prompt,
+        negative_prompt,
+        num_inference_steps,
+        guidance_scale,
+        init_image,
+        prompt_strength,
+      },
+      onLoadProgress
+    )
   }
 
-  static async stableDiffusionInpainting(
-    params: StableDiffusionInpaintingInput,
-    onLoadProgress: LoadProgressCallback
-  ): Promise<StableDiffusionInpaintingOutput> {
-    return modelCall("/api/editor/stable_diffusion_inpainting", params, onLoadProgress)
+  static async stableDiffusionInpainting({
+    onLoadProgress,
+    prompt,
+    num_inference_steps,
+    guidance_scale,
+    init_image,
+    mask,
+  }: AllGenerationParams): Promise<GenerationOutput> {
+    return modelCall(
+      "/api/editor/stable_diffusion_inpainting",
+      {
+        prompt,
+        num_inference_steps,
+        guidance_scale,
+        image: init_image,
+        mask,
+      },
+      onLoadProgress
+    )
   }
 
-  static async stableDiffusionAdvanceSteps(
-    params: StableDiffusionAdvanceStepsInput,
-    onLoadProgress: LoadProgressCallback
-  ): Promise<StableDiffusionAdvanceStepsOutput> {
-    return modelCall("/api/editor/stable_diffusion_advance_steps", params, onLoadProgress)
+  static async stableDiffusionAdvanceSteps({
+    onLoadProgress,
+    prompt,
+    init_image,
+    num_inference_steps,
+    skip_timesteps,
+    seed,
+  }: AllGenerationParams): Promise<GenerationOutput> {
+    return modelCall(
+      "/api/editor/stable_diffusion_advance_steps",
+      {
+        prompt,
+        init_image,
+        num_inference_steps,
+        skip_timesteps,
+        seed,
+      },
+      onLoadProgress
+    )
   }
 
-  static async openJourney(params: OpenJourneyInput, onLoadProgress: LoadProgressCallback): Promise<OpenJourneyOutput> {
-    params = { ...params, prompt: `mdjrny-v4 style ${params.prompt}` }
-
-    return modelCall("/api/editor/open_journey", params, onLoadProgress)
+  static async openJourney({
+    onLoadProgress,
+    prompt,
+    num_inference_steps,
+    guidance_scale,
+  }: AllGenerationParams): Promise<GenerationOutput> {
+    return modelCall(
+      "/api/editor/open_journey",
+      {
+        prompt: `mdjrny-v4 style ${prompt}`,
+        num_inference_steps,
+        guidance_scale,
+      },
+      onLoadProgress
+    )
   }
 
-  static async stableDiffusionAnimation(
-    params: StableDiffusionAnimationInput,
-    onLoadProgress: LoadProgressCallback
-  ): Promise<StableDiffusionAnimationOutput> {
-    return modelCall("/api/editor/stable_diffusion_animation", params, onLoadProgress)
+  static async stableDiffusionAnimation({
+    onLoadProgress,
+    prompt,
+    prompt_end,
+    num_inference_steps,
+    num_animation_frames,
+    num_interpolation_steps,
+    film_interpolation,
+    output_format,
+  }: AllGenerationParams): Promise<GenerationOutput> {
+    return modelCall(
+      "/api/editor/stable_diffusion_animation",
+      {
+        prompt_start: prompt,
+        prompt_end,
+        num_inference_steps,
+        num_animation_frames,
+        num_interpolation_steps,
+        film_interpolation,
+        output_format,
+      },
+      onLoadProgress
+    )
   }
 }
 
