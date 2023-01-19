@@ -1,7 +1,7 @@
 import api from "../api"
 import { atom, RecoilState } from "recoil"
-import { PictureItFile } from "../api/adapters/pictureit"
 import { lazySelector } from "../utils/lazySelectorFamily"
+import { PictureIt, PictureItFile } from "../api/pictureit"
 
 export const MAX_RETRY_SAVE_TIME = 5 * 60 * 1000 // 5 minutes
 
@@ -28,8 +28,8 @@ export const changesWithoutExportingState: RecoilState<boolean> = atom({
 export const saveFileCall = lazySelector({
   key: "saveFileCall",
   get: () => async (file: PictureItFile) => {
-    if ("isPictureIt" in api) {
-      return api.saveFile(file)
+    if (PictureIt.isAvailable()) {
+      return PictureIt.saveFile(file)
     }
   },
 })
@@ -37,8 +37,8 @@ export const saveFileCall = lazySelector({
 export const loadFileCall = lazySelector({
   key: "loadFileCall",
   get: () => async (id: string) => {
-    if ("isPictureIt" in api) {
-      const file = await api.loadFile(id)
+    if (PictureIt.isAvailable()) {
+      const file = await PictureIt.loadFile(id)
       return file
     }
   },

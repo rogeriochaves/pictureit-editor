@@ -6,7 +6,6 @@ import { Modal, ModalBody, ModalButton, ModalFooter, ModalHeader, ROLE, SIZE } f
 import { useCallback, useEffect } from "react"
 import { useSearchParams } from "react-router-dom"
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from "recoil"
-import { PICTURE_IT_URL } from "../../api/adapters/pictureit"
 import GreenCheckmark from "../../components/Icons/GreenCheckmark"
 import { GenerationDoneQueueItem, generationDoneQueueState, paymentRequiredState } from "../../state/generateImage"
 import { currentUserQuery } from "../../state/user"
@@ -22,6 +21,7 @@ import { useAddScene } from "./components/Footer/Graphic/Scenes"
 import { fabric } from "fabric"
 import { captureAllFrames } from "../../utils/video-parser"
 import { recoilEditorState } from "../../state/designEditor"
+import { PICTURE_IT_URL } from "../../api/pictureit"
 
 const GraphicEditor = () => {
   useShortcuts()

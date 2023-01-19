@@ -1,11 +1,11 @@
 import { selectorFamily } from "recoil"
-import api from "../api"
+import { PictureIt } from "../api/pictureit"
 
 export const tagSuggestionsCall = selectorFamily({
   key: "tagSuggestionsCall",
   get: (prompt: string) => async () => {
-    if ("isPictureIt" in api) {
-      return await api.tagSuggestions(prompt)
+    if (PictureIt.isAvailable()) {
+      return await PictureIt.tagSuggestions(prompt)
     }
   },
 })

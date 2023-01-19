@@ -2,7 +2,6 @@ import { LayerType } from "@layerhub-io/core"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
 import { Block } from "baseui/block"
 import { Button, KIND, SIZE } from "baseui/button"
-import { FormControl } from "baseui/form-control"
 import { ChevronDown } from "baseui/icon"
 import { StatefulMenu } from "baseui/menu"
 import { Popover } from "baseui/popover"
@@ -11,8 +10,8 @@ import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { DetailedHTMLProps, InputHTMLAttributes, useCallback, useEffect, useRef, useState } from "react"
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil"
-import api, { ModelCapabilities } from "../../../../api"
-import { PICTURE_IT_URL } from "../../../../api/adapters/pictureit"
+import { ModelCapabilities } from "../../../../api"
+import { PictureIt, PICTURE_IT_URL } from "../../../../api/pictureit"
 import Negative from "../../../../components/Icons/Negative"
 import Question from "../../../../components/Icons/Question"
 import Scrollable from "../../../../components/Scrollable"
@@ -166,7 +165,7 @@ const ActionPopup = () => {
     </>
   )
 
-  const showTagSuggestions = model != "stable-diffusion-animation" && "isPictureIt" in api
+  const showTagSuggestions = model != "stable-diffusion-animation" && PictureIt.isAvailable()
 
   const videoPromptButtonAlignment =
     model == "stable-diffusion-animation"

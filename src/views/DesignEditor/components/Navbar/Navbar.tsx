@@ -15,8 +15,7 @@ import useDesignEditorContext from "~/hooks/useDesignEditorContext"
 import { IDesign } from "~/interfaces/DesignEditor"
 import { loadTemplateFonts } from "~/utils/fonts"
 import { loadVideoEditorAssets } from "~/utils/video-parser"
-import api, { isPictureIt } from "../../../../api"
-import { PICTURE_IT_URL } from "../../../../api/adapters/pictureit"
+import { PictureIt, PICTURE_IT_URL } from "../../../../api/pictureit"
 import { useExportToJSON } from "../../../../hooks/useSaveLoad"
 import { displayPreviewState, editorTypeState } from "../../../../state/designEditor"
 import { changesWithoutExportingState } from "../../../../state/file"
@@ -467,9 +466,9 @@ const Navbar = () => {
           ref={inputFileRef}
           style={{ display: "none" }}
         />
-        {isPictureIt() ? <FilesMenu /> : <Logo size={36} />}
+        {PictureIt.isAvailable() ? <FilesMenu /> : <Logo size={36} />}
         <DesignTitle />
-        {isPictureIt() ? <PictureItNavbar /> : <OpenSourceNavbar />}
+        {PictureIt.isAvailable() ? <PictureItNavbar /> : <OpenSourceNavbar />}
       </Container>
     </ThemeProvider>
   )

@@ -12,49 +12,10 @@ import {
   StableDiffusionAnimationOutput,
   LoadProgressCallback,
 } from "../index"
-import { proxyFetch } from "../proxyFetch"
+import { getApi, postApi } from "../pictureit"
 import { parseProgressFromLogs } from "../utils"
 
-export const PICTURE_IT_URL = import.meta.env.VITE_ENV_PICTURE_IT_URL || "https://pictureit.art"
-
-const pictureItFetch = proxyFetch(PICTURE_IT_URL)
-
-interface IsPictureIt {
-  isPictureIt(): true
-}
-
-interface UserEndpoints {
-  user(): Promise<User | undefined>
-}
-
-interface FileEndpoints {
-  saveFile(file: PictureItFile): Promise<boolean>
-  loadFile(id: string): Promise<PictureItFile>
-}
-
-interface PublishEndpoints {
-  publish(title: string, image: string, video?: string, videoLoop?: boolean): Promise<{ url: string }>
-}
-
-interface TagSuggestions {
-  tagSuggestions(prompt: string): Promise<string[]>
-}
-
-export type PictureItFile = {
-  id: string
-  name: string
-  preview: string
-  content: object
-}
-
-export type PictureItApi = IsPictureIt & UserEndpoints & FileEndpoints & PublishEndpoints & TagSuggestions & Api
-
-export interface User {
-  email: string
-  name: string
-}
-
-const PictureIt: PictureItApi = class {
+const PictureItAdapter: Api = class {
   static async stableDiffusion(
     params: StableDiffusionInput,
     onLoadProgress: LoadProgressCallback
@@ -88,82 +49,6 @@ const PictureIt: PictureItApi = class {
   ): Promise<StableDiffusionAnimationOutput> {
     return modelCall("/api/editor/stable_diffusion_animation", params, onLoadProgress)
   }
-
-  static async user(): Promise<User | undefined> {
-    const result = await getApi("/api/user")
-    if ("email" in result) {
-      return result
-    }
-
-    throw "signed out"
-  }
-
-  static async saveFile(file: PictureItFile): Promise<boolean> {
-    await postApi(`/api/files/${file.id}`, file)
-    return true
-  }
-
-  static async loadFile(id: string): Promise<PictureItFile> {
-    const file = await getApi(`/api/files/${id}`).catch((err) => {
-      if (err.status && err.status == 401) {
-        document.location = `${PICTURE_IT_URL}/login?return_to=${encodeURIComponent(document.location.toString())}`
-
-        // small delay to display the loading while the redirect happens
-        return new Promise((resolve) => setTimeout(resolve, 3000))
-      }
-
-      throw err
-    })
-
-    return file
-  }
-
-  static async publish(title: string, image: string, video?: string, videoLoop?: boolean) {
-    return await postApi(`/api/picture/publish`, { title, image, video, video_loop: videoLoop })
-  }
-
-  static async tagSuggestions(prompt: string) {
-    return await getApi(`/api/tag_suggestions?prompt=${encodeURIComponent(prompt)}`)
-  }
-
-  static isPictureIt(): true {
-    return true
-  }
-}
-
-async function postApi(url: string, params: object) {
-  const response = await pictureItFetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify(params),
-    credentials: "include",
-  })
-  const json = await response.json()
-  if (json.error) {
-    throw json
-  }
-
-  return json
-}
-
-async function getApi(url: string) {
-  const response = await pictureItFetch(url, {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-  })
-  const json = await response.json()
-  if (json.error) {
-    throw json
-  }
-
-  return json
 }
 
 async function modelCall(modelPath: string, params: object, onLoadProgress: LoadProgressCallback) {
@@ -195,4 +80,4 @@ async function checkUntilDone(
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export default PictureIt
+export default PictureItAdapter

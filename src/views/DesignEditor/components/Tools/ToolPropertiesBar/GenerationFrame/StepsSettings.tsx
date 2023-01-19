@@ -7,7 +7,7 @@ import { Slider } from "baseui/slider"
 import { StatefulTooltip } from "baseui/tooltip"
 import { fabric } from "fabric"
 import { useCallback, useEffect, useState } from "react"
-import { PICTURE_IT_URL } from "../../../../../../api/adapters/pictureit"
+import { PICTURE_IT_URL } from "../../../../../../api/pictureit"
 import Question from "../../../../../../components/Icons/Question"
 import Steps from "../../../../../../components/Icons/Steps"
 

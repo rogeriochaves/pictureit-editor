@@ -4,7 +4,7 @@ import { useCallback, useEffect } from "react"
 import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from "recoil"
 import { useDebouncedCallback } from "use-debounce"
-import api from "../api"
+import { PictureIt } from "../api/pictureit"
 import { IDesign } from "../interfaces/DesignEditor"
 import { currentDesignState, currentSceneState, scenesState } from "../state/designEditor"
 import {
@@ -39,7 +39,7 @@ export const useAutosaveEffect = () => {
 
     setChangesWithoutExporting(true)
 
-    if (id && "isPictureIt" in api) {
+    if (id && PictureIt.isAvailable()) {
       setWaitingForFileSaveDebounce(true)
       debouncedSave()
     }
@@ -77,7 +77,7 @@ export const usePreventCloseIfNotSaved = () => {
 
   const preventClosingIfNotSaved = useCallback(
     (event: BeforeUnloadEvent) => {
-      if ("isPictureIt" in api) {
+      if (PictureIt.isAvailable()) {
         if (
           !paymentRequired &&
           user.state != "hasError" &&

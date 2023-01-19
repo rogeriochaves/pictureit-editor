@@ -12,12 +12,12 @@ import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
 import { debounce } from "lodash"
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
-import { PICTURE_IT_URL } from "../../../../../../api/adapters/pictureit"
 import NoColor from "../../../../../../components/Icons/NoColor"
 import Question from "../../../../../../components/Icons/Question"
 import { DEFAULT_PROMPT_STRENGTH, renderInitImage, renderNewInitImage } from "../../../../../../state/generateImage"
 import { ColorSquare } from "../Shared/ColorSquare"
 import { toBase64 } from "../../../../../../utils/data"
+import { PICTURE_IT_URL } from "../../../../../../api/pictureit"
 
 export const InitImageSettings = () => {
   const editor = useEditor()!

@@ -1,6 +1,6 @@
 import { ModelTypes } from "@layerhub-io/objects"
 import Mocked from "./adapters/mocked"
-import PictureIt, { PictureItApi } from "./adapters/pictureit"
+import PictureIt from "./adapters/pictureit"
 import Replicate from "./adapters/replicate"
 
 export enum Capabilities {
@@ -89,7 +89,7 @@ export interface Api {
   ): Promise<StableDiffusionAnimationOutput>
 }
 
-const adapter: PictureItApi | Api =
+const adapter: Api =
   import.meta.env.VITE_ENV_BACKEND == "replicate"
     ? Replicate
     : import.meta.env.VITE_ENV_BACKEND == "mocked"
@@ -97,5 +97,3 @@ const adapter: PictureItApi | Api =
     : PictureIt
 
 export default adapter
-
-export const isPictureIt = () => "isPictureIt" in adapter

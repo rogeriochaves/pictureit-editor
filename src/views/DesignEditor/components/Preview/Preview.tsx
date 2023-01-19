@@ -13,7 +13,7 @@ import { PLACEMENT, StatefulTooltip } from "baseui/tooltip"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { selectorFamily, useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil"
 import { useDebounce } from "use-debounce"
-import { isPictureIt } from "../../../../api"
+import { PictureIt } from "../../../../api/pictureit"
 import Boomerang from "../../../../components/Icons/Boomerang"
 import Loop from "../../../../components/Icons/Loop"
 import { currentDesignState, publishTitleState, recoilEditorState, scenesState } from "../../../../state/designEditor"
@@ -259,7 +259,7 @@ const PreviewContent = () => {
             )}
             {imageOrVideoPreviewBlock()}
 
-            {!isPictureIt() && (
+            {!PictureIt.isAvailable() && (
               <Block
                 display="flex"
                 justifyContent={previewType == "video" ? "space-between" : "center"}
@@ -278,7 +278,7 @@ const PreviewContent = () => {
             )}
           </Block>
 
-          {isPictureIt() && (
+          {PictureIt.isAvailable() && (
             <Block $style={{ width: "300px", marginTop: "-48px" }}>
               <p style={{ marginBottom: "24px" }}>
                 Publish your art to be featured on Picture it community or share with friends
@@ -387,7 +387,7 @@ const VideoControls = ({
   return (
     <>
       <Block display="flex" flexDirection="column" gridGap="4px">
-        {isPictureIt() && <b>Video Controls</b>}
+        {PictureIt.isAvailable() && <b>Video Controls</b>}
         <Block display="flex" gridGap="8px">
           <StatefulTooltip
             placement={PLACEMENT.top}
@@ -534,7 +534,7 @@ const VideoControls = ({
         </Block>
       </Block>
 
-      {isPictureIt() && (
+      {PictureIt.isAvailable() && (
         <Block display="flex" flexDirection="column" gridGap="4px">
           <b>Thumbnail</b>
           <Block width="160px">

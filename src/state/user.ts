@@ -1,11 +1,11 @@
 import { selector } from "recoil"
-import api from "../api"
+import { PictureIt } from "../api/pictureit"
 
 export const currentUserQuery = selector({
   key: "currentUserQuery",
   get: async () => {
-    if ("isPictureIt" in api) {
-      return api.user()
+    if (PictureIt.isAvailable()) {
+      return await PictureIt.user()
     }
   },
 })
