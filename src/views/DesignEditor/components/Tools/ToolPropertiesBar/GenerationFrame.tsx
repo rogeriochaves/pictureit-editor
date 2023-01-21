@@ -2,7 +2,8 @@ import { useActiveObject, useEditor } from "@layerhub-io/react"
 import { Block } from "baseui/block"
 import { fabric } from "fabric"
 import { useSetRecoilState } from "recoil"
-import { ModelCapabilities } from "../../../../../api"
+import { hasCapability } from "../../../../../api"
+import { ModelCapability } from "../../../../../api/types"
 import { hidePopupState } from "../../../../../state/generateImage"
 import Common from "./Common"
 import { AnimationSettings } from "./GenerationFrame/AnimationSettings"
@@ -34,13 +35,13 @@ const GenerationFrame = () => {
     >
       <Block display="flex" gridGap="0.5rem" alignItems="center">
         <ModelSettings />
-        {ModelCapabilities[model].init_image && (
+        {hasCapability(model, ModelCapability.INIT_IMAGE) && (
           <>
             <Separator />
             <InitImageSettings />
           </>
         )}
-        {ModelCapabilities[model].animation_frames && (
+        {hasCapability(model, ModelCapability.ANIMATION_FRAMES) && (
           <>
             <Separator />
             <AnimationSettings />

@@ -1,4 +1,3 @@
-import api from "../api"
 import { atom, RecoilState } from "recoil"
 import { lazySelector } from "../utils/lazySelectorFamily"
 import { PictureIt, PictureItFile } from "../api/pictureit"

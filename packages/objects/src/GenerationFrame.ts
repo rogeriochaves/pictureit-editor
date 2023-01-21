@@ -8,18 +8,12 @@ export type InitImage = {
   promptStrength?: number
 }
 
-export type ModelTypes =
-  | "stable-diffusion"
-  | "stable-diffusion-inpainting"
-  | "openjourney"
-  | "stable-diffusion-animation"
-
 // @ts-ignore
 export class GenerationFrameObject extends fabric.Group {
   static type = "GenerationFrame"
   id: string
   metadata?: {
-    model?: ModelTypes
+    modelKey?: string
     prompt?: string
     negativePrompt?: string
     promptEnd?: string

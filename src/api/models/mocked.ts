@@ -1,48 +1,50 @@
-import { AllGenerationParams, Api, GenerationOutput, LoadProgressCallback } from "../index"
+import { GenerationModel, ModelCapability } from "../types"
 
-const Mocked: Api = class {
-  static async stableDiffusion(_params: AllGenerationParams): Promise<GenerationOutput> {
+const mockedModel = {
+  enabled: true,
+  setupInstructions: "",
+}
+
+const mockedStableDiffusion: GenerationModel<
+  [
+    ModelCapability.BASIC,
+    ModelCapability.GUIDANCE_SCALE,
+    ModelCapability.INIT_IMAGE,
+    ModelCapability.NEGATIVE_PROMPT,
+    ModelCapability.ADVANCE
+  ]
+> = {
+  ...mockedModel,
+  name: "[Mocked] Stable Diffusion",
+  call: () => {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve({ url: sampleImage })
       }, 1000)
     })
-  }
+  },
+  capabilities: [
+    ModelCapability.BASIC,
+    ModelCapability.GUIDANCE_SCALE,
+    ModelCapability.INIT_IMAGE,
+    ModelCapability.NEGATIVE_PROMPT,
+    ModelCapability.ADVANCE,
+  ],
+}
 
-  static async stableDiffusionInpainting(_params: AllGenerationParams): Promise<GenerationOutput> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({ url: sampleImage })
-      }, 1000)
-    })
-  }
-
-  static async stableDiffusionAdvanceSteps(_params: AllGenerationParams): Promise<GenerationOutput> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({ url: sampleImage })
-      }, 1000)
-    })
-  }
-
-  static async openJourney(_params: AllGenerationParams): Promise<GenerationOutput> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({ url: sampleImage })
-      }, 1000)
-    })
-  }
-
-  static async stableDiffusionAnimation({ onLoadProgress }: AllGenerationParams): Promise<GenerationOutput> {
+const mockedStableDiffusionAnimation: GenerationModel<[ModelCapability.BASIC, ModelCapability.ANIMATION_FRAMES]> = {
+  ...mockedModel,
+  name: "[Mocked] Stable Diffusion Animation",
+  call: ({ onLoadProgress }) => {
     const timePerFrame = 3000
     setTimeout(() => {
-      onLoadProgress({ step: 0 })
+      onLoadProgress?.({ step: 0 })
     }, timePerFrame)
     setTimeout(() => {
-      onLoadProgress({ step: 1 })
+      onLoadProgress?.({ step: 1 })
     }, timePerFrame * 2)
     setTimeout(() => {
-      onLoadProgress({ step: 2 })
+      onLoadProgress?.({ step: 2 })
     }, timePerFrame * 3)
 
     return new Promise((resolve) => {
@@ -50,7 +52,13 @@ const Mocked: Api = class {
         resolve({ url: sampleVideo })
       }, timePerFrame * 4)
     })
-  }
+  },
+  capabilities: [ModelCapability.BASIC, ModelCapability.ANIMATION_FRAMES],
+}
+
+export const models = {
+  mockedStableDiffusion,
+  mockedStableDiffusionAnimation,
 }
 
 export const sampleImage =
@@ -58,5 +66,3 @@ export const sampleImage =
 
 export const sampleVideo =
   "https://replicate.delivery/pbxt/JBY8rFoNxUZWHlGTP9cc1dnhq7fe5Pz9IfPt6IYwxzQMwyjgA/output.mp4"
-
-export default Mocked

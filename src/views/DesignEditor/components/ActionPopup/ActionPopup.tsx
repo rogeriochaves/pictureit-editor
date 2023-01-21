@@ -8,10 +8,11 @@ import { Popover } from "baseui/popover"
 import { PLACEMENT, StatefulTooltip } from "baseui/tooltip"
 import { fabric } from "fabric"
 import { IEvent } from "fabric/fabric-impl"
-import { DetailedHTMLProps, InputHTMLAttributes, useCallback, useEffect, useRef, useState } from "react"
+import { DetailedHTMLProps, InputHTMLAttributes, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil"
-import { ModelCapabilities } from "../../../../api"
+import { hasCapability } from "../../../../api"
 import { PictureIt, PICTURE_IT_URL } from "../../../../api/pictureit"
+import { ModelCapability } from "../../../../api/types"
 import Negative from "../../../../components/Icons/Negative"
 import Question from "../../../../components/Icons/Question"
 import Scrollable from "../../../../components/Scrollable"
@@ -165,14 +166,13 @@ const ActionPopup = () => {
     </>
   )
 
-  const showTagSuggestions = model != "stable-diffusion-animation" && PictureIt.isAvailable()
-
-  const videoPromptButtonAlignment =
-    model == "stable-diffusion-animation"
-      ? {
-          alignItems: "flex-end",
-        }
-      : {}
+  const showPromptEnd = model && hasCapability(model, ModelCapability.ANIMATION_FRAMES)
+  const showTagSuggestions = PictureIt.isAvailable() && !showPromptEnd
+  const videoPromptButtonAlignment = showPromptEnd
+    ? {
+        alignItems: "flex-end",
+      }
+    : {}
 
   const noTagSuggestionsPadding = showTagSuggestions ? {} : { paddingBottom: "12px" }
 
@@ -190,7 +190,7 @@ const ActionPopup = () => {
             }}
           >
             <div style={{ flexGrow: "1", display: "flex", position: "relative", flexDirection: "column", gap: "8px" }}>
-              {model == "stable-diffusion-animation" ? VideoPrompt : ImagePrompt}
+              {hasCapability(model, ModelCapability.ANIMATION_FRAMES) ? VideoPrompt : ImagePrompt}
             </div>
             <GenerateButton popup={popup} />
           </div>
@@ -223,7 +223,7 @@ const ActionPopupLayout = ({ popup, children }: { popup: Popup | null; children:
       setLeft(Math.max(popup.x - popupInnerRect.width / 2, minX))
     }, 0)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [popup, popup?.target.id, children == null, popup?.target.metadata?.model])
+  }, [popup, popup?.target.id, children == null, popup?.target.metadata?.modelKey])
 
   return (
     <div ref={popupRef}>
@@ -407,7 +407,7 @@ const NegativePromptInput = ({
   const [model] = useFrameModel(editor, popup.target)
 
   const disabledDueToUnsupportedAction = generateAction == "advance"
-  const disabledDueToUnsupportedModel = !ModelCapabilities[model].negative_prompt
+  const disabledDueToUnsupportedModel = !hasCapability(model, ModelCapability.NEGATIVE_PROMPT)
   const disabled = disabledDueToUnsupportedAction || disabledDueToUnsupportedModel
 
   const promptInput = (
@@ -428,7 +428,7 @@ const NegativePromptInput = ({
         disabledDueToUnsupportedAction
           ? "Negative prompt is not available for Advance action"
           : disabledDueToUnsupportedModel
-          ? `Negative prompt is not available for ${model.replaceAll("-", " ")}`
+          ? `Negative prompt is not available for ${model.name}`
           : "Negative prompt is not supported with the config combination"
       }
     >
@@ -468,21 +468,23 @@ const GenerateButton = ({ popup }: { popup: Popup }) => {
   const [isGenerateActionOptionsOpen, setIsGenerateActionOptionsOpen] = useState(false)
   const [generateAction, setGenerateAction] = useRecoilState(generateActionState(popup.target.id))
 
+  const showPromptEnd = model && hasCapability(model, ModelCapability.ANIMATION_FRAMES)
+
   const onGenerateImage = useCallback(async () => {
     if (!editor) return
 
     const targetId = popup?.target.id
     if (!targetId) return
     if (!popup.target.metadata?.prompt) return
-    if (model == "stable-diffusion-animation" && !popup.target.metadata?.promptEnd) return
+    if (showPromptEnd && !popup.target.metadata?.promptEnd) return
     generateImage({
       frame: popup.target,
       editor: editor,
       advanceSteps: generateAction == "advance",
     })
-  }, [editor, popup.target, model, generateImage, generateAction])
+  }, [editor, popup.target, showPromptEnd, generateImage, generateAction])
 
-  return popup?.target.getImage() && model == "stable-diffusion" ? (
+  return popup?.target.getImage() && hasCapability(model, ModelCapability.ADVANCE) ? (
     <Block display="flex" alignItems="flex-start">
       <Button
         style={{ height: "42px" }}

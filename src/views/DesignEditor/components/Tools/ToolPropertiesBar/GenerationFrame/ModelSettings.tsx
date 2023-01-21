@@ -1,15 +1,15 @@
 import { Editor } from "@layerhub-io/core"
-import { ModelTypes } from "@layerhub-io/objects"
 import { useActiveObject, useEditor } from "@layerhub-io/react"
 import { OnChangeParams, Select } from "baseui/select"
 import { fabric } from "fabric"
 import { useCallback, useEffect } from "react"
 import { atom, RecoilState, useRecoilState } from "recoil"
+import { AnyModel, availableGenerators, getModelByKey, ModelKeys } from "../../../../../../api"
 import { renderToDetectModelToUse } from "../../../../../../state/generateImage"
 
-const frameModelState: RecoilState<ModelTypes> = atom({
+const frameModelState: RecoilState<AnyModel> = atom({
   key: "frameModelState",
-  default: "stable-diffusion" as ModelTypes,
+  default: availableGenerators[0],
 })
 
 // Prevent multiple components from rerendering frame every time just to detect the model to be used
@@ -19,20 +19,23 @@ let useEffectRegistered = false
 export const useFrameModel = (
   editor: Editor | null,
   frame: fabric.GenerationFrame | undefined
-): [ModelTypes, (model: ModelTypes) => void] => {
+): [AnyModel, (model: AnyModel) => void] => {
   const [model, setModelPrivate] = useRecoilState(frameModelState)
 
   useEffect(() => {
     if (!editor || !frame) return
     if (useEffectRegistered) return
 
-    const { model } = frame.metadata || {}
+    const { modelKey } = frame.metadata || {}
+    const model = getModelByKey(modelKey as ModelKeys)
 
     if (model) {
       setModelPrivate(model)
     } else {
       renderToDetectModelToUse(editor, frame).then((model) => {
-        setModelPrivate(model)
+        if (model) {
+          setModelPrivate(model)
+        }
       })
     }
 
@@ -43,14 +46,14 @@ export const useFrameModel = (
   }, [editor, frame, setModelPrivate])
 
   const setModel = useCallback(
-    (model: ModelTypes) => {
+    (model: AnyModel) => {
       if (!frame) return
 
       if (model) {
-        setModelPrivate(model as ModelTypes)
+        setModelPrivate(model)
         frame.metadata = {
           ...(frame.metadata || {}),
-          model: model as ModelTypes,
+          modelKey: model.key,
         }
       }
     },
@@ -68,20 +71,19 @@ export const ModelSettings = () => {
 
   const handleChange = useCallback(
     (params: OnChangeParams) => {
-      const model = params.value[0].id
+      const modelKey = params.value[0].id
+      const model = getModelByKey(modelKey as ModelKeys)
       if (model) {
-        setModel(model as ModelTypes)
+        setModel(model)
       }
     },
     [setModel]
   )
 
-  const options: { label: string; id: ModelTypes }[] = [
-    { label: "Stable Diffusion", id: "stable-diffusion" },
-    { label: "Stable Diffusion Inpainting", id: "stable-diffusion-inpainting" },
-    { label: "OpenJourney", id: "openjourney" },
-    { label: "Stable Diffusion Animation", id: "stable-diffusion-animation" },
-  ]
+  const options: { label: string; id: ModelKeys }[] = availableGenerators.map((model) => ({
+    label: model.name,
+    id: model.key,
+  }))
 
   return (
     <Select
@@ -89,7 +91,7 @@ export const ModelSettings = () => {
       clearable={false}
       deleteRemoves={false}
       options={options}
-      value={[{ id: model }]}
+      value={[{ id: model.key }]}
       searchable={false}
       placeholder="Select color"
       onChange={handleChange}

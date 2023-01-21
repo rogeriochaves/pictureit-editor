@@ -63,6 +63,8 @@ Feel free to contribute by opening issues with any questions, bug reports or fea
 
 Also if you are familiar with React, Typescript, Fabric.js or Stable Diffusion, feel free to send pull requests and contribute with anything you feel like should be improved
 
+You can enable the env var `VITE_ENV_MOCKED_MODELS=enabled` to play with the frontend without spending anything
+
 ## Get in touch
 
 You can reach us at hello@pictureit.art

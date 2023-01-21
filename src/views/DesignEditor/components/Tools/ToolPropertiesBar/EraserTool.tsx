@@ -28,7 +28,7 @@ const EraserTool = () => {
               fixed: false,
             },
           }
-          delete frame.metadata.model
+          delete frame.metadata.modelKey
         }
       }
     }

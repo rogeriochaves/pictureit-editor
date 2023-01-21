@@ -1,10 +1,10 @@
 import { Editor, nonRenderableLayerTypes } from "@layerhub-io/core"
 import ObjectExporter from "@layerhub-io/core/src/utils/object-exporter"
-import { ModelTypes } from "@layerhub-io/objects"
 import { IGenerationFrame, ILayer } from "@layerhub-io/types"
 import { fabric } from "fabric"
 import { atom, atomFamily } from "recoil"
-import api, { GenerationOutput, GenerationProgressEvent } from "../api"
+import { AnyModel, firstModelByCapability, getModelByKey, hasCapability, ModelKeys } from "../api"
+import { GenerationOutput, GenerationProgressEvent, ModelCapability } from "../api/types"
 import { extractErrorMessage } from "../api/utils"
 import { canvasFromImage } from "../utils/canvas-from-image"
 import { paintItBlack } from "../utils/clip-mask"
@@ -84,7 +84,7 @@ const generateImage = async (
       : await generateImageOrVideo({ frame, editor })
 
     if (result.url) {
-      if (frame.metadata?.model == "stable-diffusion-animation") {
+      if (result.url.match(/\.mp4/)) {
         enqueueDone({ id: frame.id, url: result.url, type: "video" })
       } else {
         // TODO: enqueue images as well so that it can be loaded even when on different scene
@@ -121,7 +121,16 @@ const generateAdvanceSteps = async ({
   const image = renderedFrame.toDataURL("image/jpeg")
   const stepsToSkip = frame.metadata?.accumulatedSteps || frame.metadata?.steps || 50
 
-  const result = await api.stableDiffusionAdvanceSteps({
+  const model =
+    (frame.metadata?.modelKey && getModelByKey(frame.metadata.modelKey as ModelKeys)) ||
+    (await renderToDetectModelToUse(editor, frame))
+
+  if (!model || !hasCapability(model, ModelCapability.ADVANCE)) {
+    alert("Sorry, no advance model was found, this option should have been unavailable")
+    return Promise.reject("Misconfigured")
+  }
+
+  const result = await model.call({
     onLoadProgress: onLoadProgress(frame),
     prompt: frame.metadata?.prompt || "",
     init_image: image,
@@ -160,15 +169,15 @@ const detectModelToUse = (
   frame: fabric.GenerationFrame,
   initImageWithNoise: string | undefined,
   initImageCanvas: HTMLCanvasElement | undefined
-): ModelTypes => {
+): AnyModel | undefined => {
   const hasOverlappingFrames = getOverlappingFrames(editor, frame).length > 0
   const hasImageAndTransparency =
     initImageCanvas && frame.getImage() && hasAnyTransparentPixel(initImageCanvas.getContext("2d")!)
 
   if (initImageWithNoise && (hasOverlappingFrames || hasImageAndTransparency)) {
-    return "stable-diffusion-inpainting"
+    return firstModelByCapability(ModelCapability.INPAINTING)
   }
-  return "stable-diffusion"
+  return firstModelByCapability(ModelCapability.BASIC)
 }
 
 const longLoadingTimeouts: { [key: string]: NodeJS.Timeout } = {}
@@ -198,6 +207,9 @@ const onLoadProgress = (frame: fabric.GenerationFrame) => (event: GenerationProg
     clearTimeout(longLoadingTimeouts[frame.id])
     frame.moveLoading(event.progress / 100, 500)
   }
+  if ("step" in event) {
+    frame.showLoading(animationTimeEstimation(frame).perFrame, `Frame ${event.step + 1}`)
+  }
 }
 
 const generateImageOrVideo = async ({
@@ -224,52 +236,37 @@ const generateImageOrVideo = async ({
     accumulatedSteps: numInferenceSteps,
   }
 
-  const model = frame.metadata.model || detectModelToUse(editor, frame, initImageWithNoise, initImageCanvas)
+  const model =
+    (frame.metadata.modelKey && getModelByKey(frame.metadata.modelKey as ModelKeys)) ||
+    detectModelToUse(editor, frame, initImageWithNoise, initImageCanvas)
 
-  return model == "stable-diffusion-inpainting"
-    ? await api.stableDiffusionInpainting({
-        onLoadProgress: onLoadProgress(frame),
-        prompt: frame.metadata?.prompt || "",
-        num_inference_steps: numInferenceSteps,
-        guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
-        init_image: initImageWithNoise,
-        mask: clipMask,
-      })
-    : model == "openjourney"
-    ? await api.openJourney({
-        onLoadProgress: onLoadProgress(frame),
-        prompt: frame.metadata?.prompt || "",
-        num_inference_steps: numInferenceSteps,
-        guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
-      })
-    : model == "stable-diffusion-animation"
-    ? await api.stableDiffusionAnimation({
-        onLoadProgress: (event: GenerationProgressEvent) => {
-          if ("step" in event) {
-            frame.showLoading(animationTimeEstimation(frame).perFrame, `Frame ${event.step + 1}`)
-          }
-        },
-        prompt: frame.metadata?.prompt || "",
-        prompt_end: frame.metadata?.promptEnd || "",
-        num_inference_steps: numInferenceSteps,
-        num_animation_frames: frame.metadata?.numAnimationFrames || DEFAULT_NUM_ANIMATION_FRAMES,
-        num_interpolation_steps: frame.metadata?.numInterpolationSteps || DEFAULT_NUM_INTERPOLATION_STEPS,
-        film_interpolation: true,
-        output_format: "mp4",
-      })
-    : await api.stableDiffusion({
-        onLoadProgress: onLoadProgress(frame),
-        prompt: frame.metadata?.prompt || "",
-        negative_prompt: frame.metadata?.negativePrompt,
-        num_inference_steps: numInferenceSteps,
-        guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
-        ...(initImageWithNoise
-          ? {
-              init_image: initImageWithNoise,
-              prompt_strength: frame.metadata?.initImage?.promptStrength ?? DEFAULT_PROMPT_STRENGTH,
-            }
-          : {}),
-      })
+  if (!model) {
+    alert(
+      "Sorry, something is misconfigured, no model was found to be used, please try creating another Generation Frame"
+    )
+    return Promise.reject("Misconfigured")
+  }
+
+  return model.call({
+    onLoadProgress: onLoadProgress(frame),
+    prompt: frame.metadata?.prompt || "",
+    num_inference_steps: numInferenceSteps,
+
+    guidance_scale: frame.metadata?.guidance || DEFAULT_GUIDANCE,
+
+    init_image: initImageWithNoise,
+    prompt_strength: frame.metadata?.initImage?.promptStrength ?? DEFAULT_PROMPT_STRENGTH,
+
+    mask: clipMask,
+
+    negative_prompt: frame.metadata?.negativePrompt,
+
+    prompt_end: frame.metadata?.promptEnd || "",
+    num_animation_frames: frame.metadata?.numAnimationFrames || DEFAULT_NUM_ANIMATION_FRAMES,
+    num_interpolation_steps: frame.metadata?.numInterpolationSteps || DEFAULT_NUM_INTERPOLATION_STEPS,
+    film_interpolation: true,
+    output_format: "mp4",
+  })
 }
 
 export const renderInitImage = async (

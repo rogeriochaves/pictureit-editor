@@ -1,4 +1,4 @@
-import { GenerationProgressEvent } from "."
+import { GenerationProgressEvent } from "./types"
 
 export const extractErrorMessage = async (error: any) => {
   if (error.json) {
