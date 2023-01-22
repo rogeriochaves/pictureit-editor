@@ -80,9 +80,10 @@ export const ModelSettings = () => {
     [setModel]
   )
 
-  const options: { label: string; id: ModelKeys }[] = availableGenerators.map((model) => ({
+  const options: { label: string; id: ModelKeys; disabled: boolean }[] = availableGenerators.map((model) => ({
     label: model.name,
     id: model.key,
+    disabled: !model.enabled,
   }))
 
   return (

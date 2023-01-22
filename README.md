@@ -38,6 +38,10 @@ Instead, Picture it uses [Replicate](https://replicate.com/) as the API to run t
 
 ## Running Locally
 
+To run it locally, you will need some backend to talk to actually generate the images, we recomend to start with Replicate
+
+### Replicate as a Backend
+
 First, you are going to need a Replicate API key, to be able to use the AI models, get one at:
 
 https://replicate.com/
@@ -52,10 +56,24 @@ npm install
 Now start the project, passing your token as ENV:
 
 ```
-VITE_ENV_BACKEND=replicate VITE_ENV_REPLICATE_TOKEN=<token> npm run dev
+VITE_ENV_REPLICATE_TOKEN=<token> npm run dev
 ```
 
 App should be running. Go to http://localhost:5173/ and enjoy!
+
+### Evoke as a Backend
+
+Alternatively, you can use also Evoke as a backend, it's generally faster and cheaper than Replicate, but with only basic Stable Diffusion available for now
+
+First, get an Evoke API key at:
+
+https://evoke-app.com
+
+Then set the env var and start the app:
+
+```
+VITE_ENV_EVOKE_TOKEN=<token> npm run dev
+```
 
 ## Contribution
 
