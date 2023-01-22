@@ -38,15 +38,7 @@ Instead, Picture it uses [Replicate](https://replicate.com/) as the API to run t
 
 ## Running Locally
 
-To run it locally, you will need some backend to talk to actually generate the images, we recomend to start with Replicate
-
-### Replicate as a Backend
-
-First, you are going to need a Replicate API key, to be able to use the AI models, get one at:
-
-https://replicate.com/
-
-Then, clone the project and install the dependencies:
+To run it locally, you will need to have [nodejs](https://nodejs.org/en/), and then install the editor:
 
 ```
 git clone https://github.com/rogeriochaves/pictureit-editor
@@ -56,10 +48,26 @@ npm install
 Now start the project, passing your token as ENV:
 
 ```
+npm run dev
+```
+
+A basic version of the app should be running now, go to http://localhost:5173/ and see if everything is working
+
+Now, by default the only working backend is StableHorde, which generates images for free but can get you in a long queue. If you want to generate videos and more images faster, you will need to setup more backends as below:
+
+### Replicate as a Backend
+
+We recommend setting up Replicate as it has the most functionalities, for that you are going to need a Replicate API key, get one at:
+
+https://replicate.com/
+
+Now start the project, passing your token as ENV:
+
+```
 VITE_ENV_REPLICATE_TOKEN=<token> npm run dev
 ```
 
-App should be running. Go to http://localhost:5173/ and enjoy!
+Go to http://localhost:5173/ and enjoy!
 
 ### Evoke as a Backend
 
@@ -73,6 +81,18 @@ Then set the env var and start the app:
 
 ```
 VITE_ENV_EVOKE_TOKEN=<token> npm run dev
+```
+
+### StableHorde as a Backend
+
+Finally, you can register on StableHorde to have better priority at the cluster queue, go to:
+
+https://stablehorde.net/
+
+Get a key, then set the env var and start the app:
+
+```
+VITE_ENV_STABLE_HORDE_TOKEN=<token> npm run dev
 ```
 
 ## Contribution

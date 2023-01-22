@@ -78,6 +78,9 @@ const stableDiffusionInpainting: GenerationModel<
   ...pictureItModel,
   name: "Stable Diffusion Inpainting",
   call: ({ onLoadProgress, prompt, num_inference_steps, guidance_scale, init_image, mask }) => {
+    if (!mask || !init_image) {
+      throw "Nothing to inpaint, use inpaint tool or a different model"
+    }
     return modelCall(
       "/api/editor/stable_diffusion_inpainting",
       {

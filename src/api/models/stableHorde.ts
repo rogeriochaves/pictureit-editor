@@ -13,18 +13,26 @@ const stableHordeStableDiffusion: GenerationModel<
     ModelCapability.BASIC,
     ModelCapability.PROGRESS_REPORTING,
     ModelCapability.GUIDANCE_SCALE,
-    ModelCapability.NEGATIVE_PROMPT
+    ModelCapability.INIT_IMAGE,
+    ModelCapability.INPAINTING
   ]
 > = {
   ...stableHordeModel,
   name: "[Stable Horde] Stable Diffusion",
-  call: ({ onLoadProgress, prompt, num_inference_steps, guidance_scale, negative_prompt }) => {
+  call: ({ onLoadProgress, prompt, num_inference_steps, guidance_scale, init_image, mask }) => {
     return callStableHorde(
       {
         prompt,
-        num_inference_steps,
-        guidance_scale,
-        negative_prompt,
+        params: {
+          steps: num_inference_steps,
+          cfg_scale: guidance_scale,
+        },
+        censor_nsfw: true,
+        ...(init_image && mask
+          ? { source_image: init_image.split(",")[1], source_mask: mask.split(",")[1], source_processing: "inpainting" }
+          : init_image
+          ? { source_image: init_image.split(",")[1], source_processing: "img2img" }
+          : {}),
       },
       onLoadProgress
     )
@@ -33,7 +41,8 @@ const stableHordeStableDiffusion: GenerationModel<
     ModelCapability.BASIC,
     ModelCapability.PROGRESS_REPORTING,
     ModelCapability.GUIDANCE_SCALE,
-    ModelCapability.NEGATIVE_PROMPT,
+    ModelCapability.INIT_IMAGE,
+    ModelCapability.INPAINTING,
   ],
 }
 
@@ -48,9 +57,9 @@ async function callStableHorde(params: object, onLoadProgress: LoadProgressCallb
       "Content-Type": "application/json",
     },
     body: JSON.stringify([
+      params,
       {
         token: import.meta.env.VITE_ENV_STABLE_HORDE_TOKEN || "0000000000",
-        ...params,
       },
     ]),
   })
@@ -110,9 +119,9 @@ async function checkUntilDone(
         queuePosition === 0
           ? 90
           : initialQueuePosition
-          ? Math.min((1 - queuePosition / initialQueuePosition + 0.4) * 100, 90)
+          ? Math.min((1 - queuePosition / initialQueuePosition) * 0.6 * 100 + 40, 90)
           : 40,
-      label: `Queue Position #${queuePosition}`,
+      label: queuePosition == 0 ? `Finalizing...` : `Queue Position #${queuePosition}`,
     })
 
     await sleep(500)

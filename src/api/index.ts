@@ -15,10 +15,12 @@ const models = {
 
 export type ModelKeys = keyof typeof models
 
-const modelList = Object.entries(models).map(([key, model]) => ({
-  ...model,
-  key: key as ModelKeys,
-}))
+const modelList = Object.entries(models)
+  .map(([key, model]) => ({
+    ...model,
+    key: key as ModelKeys,
+  }))
+  .sort((_a, b) => (b.enabled ? 1 : -1))
 
 export type AnyModel = typeof modelList[number]
 

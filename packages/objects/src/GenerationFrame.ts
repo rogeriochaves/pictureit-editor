@@ -320,7 +320,7 @@ export class GenerationFrameObject extends fabric.Group {
         loadingStepLabel = this.getLoadingStepLabel()
       }
       if (loadingStepLabel) {
-        widthTo = Math.max(widthTo, loadingBar.width, loadingStepLabel.width + 24)
+        widthTo = Math.max(widthTo, loadingStepLabel.width + 24)
         loadingBar.width = Math.max(loadingBar.width, loadingStepLabel.width + 24)
         this.canvas.requestRenderAll()
       }

@@ -160,19 +160,20 @@ export const animationTimeEstimation = (frame: fabric.GenerationFrame) => {
 
 export const renderToDetectModelToUse = async (editor: Editor, frame: fabric.GenerationFrame) => {
   const [_initImage, initImageWithNoise, initImageCanvas] = await renderInitImage(editor, frame, false)
+  const hasImageAndTransparency =
+    initImageCanvas && frame.getImage() && hasAnyTransparentPixel(initImageCanvas.getContext("2d")!)
 
-  return detectModelToUse(editor, frame, initImageWithNoise, initImageCanvas)
+  return detectModelToUse(editor, frame, initImageWithNoise, initImageCanvas, hasImageAndTransparency)
 }
 
 const detectModelToUse = (
   editor: Editor,
   frame: fabric.GenerationFrame,
   initImageWithNoise: string | undefined,
-  initImageCanvas: HTMLCanvasElement | undefined
+  initImageCanvas: HTMLCanvasElement | undefined,
+  hasImageAndTransparency: boolean | undefined
 ): AnyModel | undefined => {
   const hasOverlappingFrames = getOverlappingFrames(editor, frame).length > 0
-  const hasImageAndTransparency =
-    initImageCanvas && frame.getImage() && hasAnyTransparentPixel(initImageCanvas.getContext("2d")!)
 
   if (initImageWithNoise && (hasOverlappingFrames || hasImageAndTransparency)) {
     return firstModelByCapability(ModelCapability.INPAINTING)
@@ -225,7 +226,9 @@ const generateImageOrVideo = async ({
   const numInferenceSteps = frame.metadata?.steps || 50
 
   const [initImage, initImageWithNoise, initImageCanvas] = await renderInitImage(editor, frame, true)
-  const clipMask = initImage && (await renderClipMask(editor, frame))
+  const hasImageAndTransparency =
+    initImageCanvas && frame.getImage() && hasAnyTransparentPixel(initImageCanvas.getContext("2d")!)
+  const clipMask = initImage && hasImageAndTransparency && (await renderClipMask(editor, frame))
 
   frame.metadata = {
     ...frame.metadata,
@@ -240,7 +243,7 @@ const generateImageOrVideo = async ({
 
   const model =
     (frame.metadata.modelKey && getModelByKey(frame.metadata.modelKey as ModelKeys)) ||
-    detectModelToUse(editor, frame, initImageWithNoise, initImageCanvas)
+    detectModelToUse(editor, frame, initImageWithNoise, initImageCanvas, hasImageAndTransparency)
 
   if (!model) {
     alert(
@@ -260,7 +263,7 @@ const generateImageOrVideo = async ({
     init_image: initImageWithNoise,
     prompt_strength: frame.metadata?.initImage?.promptStrength ?? DEFAULT_PROMPT_STRENGTH,
 
-    mask: clipMask,
+    mask: clipMask ? clipMask : undefined,
 
     negative_prompt: frame.metadata?.negativePrompt,
 

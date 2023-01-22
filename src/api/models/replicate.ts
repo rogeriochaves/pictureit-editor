@@ -82,6 +82,9 @@ const stableDiffusionInpainting: GenerationModel<
   ...replicateModel,
   name: "[Replicate] Stable Diffusion Inpainting",
   call: ({ onLoadProgress, prompt, num_inference_steps, guidance_scale, init_image, mask }) => {
+    if (!mask || !init_image) {
+      throw "Nothing to inpaint, use inpaint tool or a different model"
+    }
     // https://replicate.com/andreasjansson/stable-diffusion-inpainting
     return callReplicate(
       "8eb2da8345bee796efcd925573f077e36ed5fb4ea3ba240ef70c23cf33f0d848",
