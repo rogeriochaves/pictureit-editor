@@ -57,7 +57,7 @@ export type ParamsPerCapability = {
   }
 }
 
-export type GenerationProgressEvent = { progress: number } | { step: number }
+export type GenerationProgressEvent = { progress: number, label?: string } | { step: number }
 export type LoadProgressCallback = (event: GenerationProgressEvent) => void
 
 export type GenerationOutput = {

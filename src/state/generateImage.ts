@@ -208,7 +208,7 @@ const showStartingLoading = (frame: fabric.GenerationFrame, editor: Editor, mode
 const onLoadProgress = (frame: fabric.GenerationFrame) => (event: GenerationProgressEvent) => {
   if ("progress" in event) {
     clearTimeout(longLoadingTimeouts[frame.id])
-    frame.moveLoading(event.progress / 100, 500)
+    frame.moveLoading(event.progress / 100, 500, event.label)
   }
   if ("step" in event) {
     frame.showLoading(animationTimeEstimation(frame).perFrame, `Frame ${event.step + 1}`)

@@ -20,9 +20,9 @@ export class GenerationFrameObject extends fabric.Group {
     steps?: number
     guidance?: number
     initImage?: InitImage
-    accumulatedSteps?: number,
-    numAnimationFrames?: number,
-    numInterpolationSteps?: number,
+    accumulatedSteps?: number
+    numAnimationFrames?: number
+    numInterpolationSteps?: number
   }
   loadingAnimation: () => void | undefined
 
@@ -210,29 +210,7 @@ export class GenerationFrameObject extends fabric.Group {
   }
 
   showLoading(duration: number, step: string = undefined) {
-    const currentLoadingStepLabel = this.getLoadingStepLabel()
-    let loadingStepLabel: fabric.Text
-    if (step && currentLoadingStepLabel && step == currentLoadingStepLabel.text) {
-      return
-    } else if (step) {
-      if (currentLoadingStepLabel) {
-        this.canvas.remove(currentLoadingStepLabel)
-      }
-      loadingStepLabel = new fabric.Text(step, {
-        type: "GenericNonRenderable",
-        top: this.top + 4,
-        left: this.left + 8,
-        //@ts-ignore
-        id: `${this.id}-loading-step-label`,
-        selectable: false,
-        hasControls: false,
-        evented: false,
-        fontSize: 19,
-        fill: "rgba(255, 255, 255, 1)",
-        fontFamily: "Uber Move Text, sans-serif",
-        erasable: false,
-      })
-    }
+    const loadingStepLabel = step && this.createLoadingLabel(step)
 
     if (this.loadingAnimation) {
       // cancels animation
@@ -299,20 +277,58 @@ export class GenerationFrameObject extends fabric.Group {
     this.canvas.requestRenderAll()
   }
 
-  moveLoading(to: number, duration: number) {
+  createLoadingLabel(label: string): fabric.Text | undefined {
+    const currentLoadingStepLabel = this.getLoadingStepLabel()
+    if (currentLoadingStepLabel && label == currentLoadingStepLabel.text) {
+      return
+    } else {
+      if (currentLoadingStepLabel) {
+        this.canvas.remove(currentLoadingStepLabel)
+      }
+      return new fabric.Text(label, {
+        type: "GenericNonRenderable",
+        top: this.top + 4,
+        left: this.left + 8,
+        //@ts-ignore
+        id: `${this.id}-loading-step-label`,
+        selectable: false,
+        hasControls: false,
+        evented: false,
+        fontSize: 19,
+        fill: "rgba(255, 255, 255, 1)",
+        fontFamily: "Uber Move Text, sans-serif",
+        erasable: false,
+      })
+    }
+  }
+
+  moveLoading(to: number, duration: number, label: string | undefined = undefined) {
     const loadingBar = this.getLoadingBar()
     if (!loadingBar) return
-
-    const loadingStepLabel = this.getLoadingStepLabel()
-    if (loadingStepLabel) {
-      this.canvas.remove(loadingStepLabel)
-    }
 
     if (this.loadingAnimation) {
       // cancels animation
       this.loadingAnimation()
     }
-    this.loadingAnimation = loadingBar.animate("width", this.width * to, {
+
+    let widthTo = this.width * to
+    if (label) {
+      let loadingStepLabel = this.createLoadingLabel(label)
+      if (loadingStepLabel) {
+        this.canvas.add(loadingStepLabel)
+      } else {
+        loadingStepLabel = this.getLoadingStepLabel()
+      }
+      if (loadingStepLabel) {
+        widthTo = Math.max(widthTo, loadingBar.width, loadingStepLabel.width + 24)
+        loadingBar.width = Math.max(loadingBar.width, loadingStepLabel.width + 24)
+        this.canvas.requestRenderAll()
+      }
+    } else {
+      this.removeLoadingStepLabel()
+    }
+
+    this.loadingAnimation = loadingBar.animate("width", widthTo, {
       onChange: this.canvas.requestRenderAll.bind(this.canvas),
       duration,
       easing: fabric.util.ease.easeInOutQuad,
@@ -366,12 +382,19 @@ export class GenerationFrameObject extends fabric.Group {
     )
   }
 
-  getLoadingStepLabel(canvas?) : fabric.Text | undefined {
+  getLoadingStepLabel(canvas?): fabric.Text | undefined {
     return (canvas || this.canvas)?.getObjects().find(
       (object) =>
         //@ts-ignore
         object.id == `${this.id}-loading-step-label`
     )
+  }
+
+  removeLoadingStepLabel() {
+    const loadingStepLabel = this.getLoadingStepLabel()
+    if (loadingStepLabel) {
+      this.canvas.remove(loadingStepLabel)
+    }
   }
 
   getError() {

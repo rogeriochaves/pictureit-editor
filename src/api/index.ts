@@ -2,6 +2,7 @@ import { models as mockedModels } from "./models/mocked"
 import { models as pictureItModels } from "./models/pictureit"
 import { models as replicateModels } from "./models/replicate"
 import { models as evokeModels } from "./models/evoke"
+import { models as stableHordeModels } from "./models/stableHorde"
 import { PictureIt } from "./pictureit"
 import { ModelCapability } from "./types"
 
@@ -9,7 +10,7 @@ const mocksEnabled = !!import.meta.env.VITE_ENV_MOCKED_MODELS
 
 const models = {
   ...(mocksEnabled ? mockedModels : {}),
-  ...(PictureIt.isAvailable() ? pictureItModels : { ...replicateModels, ...evokeModels }),
+  ...(PictureIt.isAvailable() ? pictureItModels : { ...replicateModels, ...evokeModels, ...stableHordeModels }),
 }
 
 export type ModelKeys = keyof typeof models

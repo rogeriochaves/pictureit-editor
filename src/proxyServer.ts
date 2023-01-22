@@ -3,12 +3,30 @@ import path from "path"
 import cors from "cors"
 import proxy from "express-http-proxy"
 import bodyParser from "body-parser"
+import StableHorde from "@zeldafan0225/stable_horde"
 
 const app = express()
+const stableHordeCli = new StableHorde({
+  cache_interval: 3000,
+  cache: {
+    generations_check: 3000,
+  },
+})
 
 app.use(cors({ origin: true, credentials: true }))
 app.use(bodyParser.json({ limit: "10mb" }))
 app.use("/", express.static(path.join(__dirname, "public")))
+
+app.use("/stableHorde/:method", (req, res) => {
+  //@ts-ignore
+  stableHordeCli[req.params.method](...req.body)
+    .then((result: object) => {
+      res.status(200).send(JSON.stringify(result))
+    })
+    .catch((err: any) => {
+      res.status(500).send(JSON.stringify({ error: err.toString() }))
+    })
+})
 
 app.use((req, res, next) => {
   // https://github.com/villadora/express-http-proxy/issues/359
