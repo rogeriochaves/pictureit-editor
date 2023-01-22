@@ -111,7 +111,6 @@ const generateAdvanceSteps = async ({
   editor: Editor
 }): Promise<GenerationOutput> => {
   const numInferenceSteps = frame.metadata?.steps || DEFAULT_STEPS
-  showStartingLoading(frame, editor)
 
   const renderedFrame = await renderNewInitImage(editor, frame)
   if (!renderedFrame) {
@@ -130,6 +129,7 @@ const generateAdvanceSteps = async ({
     return Promise.reject("Misconfigured")
   }
 
+  showStartingLoading(frame, editor, model)
   const result = await model.call({
     onLoadProgress: onLoadProgress(frame),
     prompt: frame.metadata?.prompt || "",
@@ -182,8 +182,11 @@ const detectModelToUse = (
 
 const longLoadingTimeouts: { [key: string]: NodeJS.Timeout } = {}
 
-const showStartingLoading = (frame: fabric.GenerationFrame, editor: Editor) => {
-  frame.showLoading(20_000, "Starting...")
+const showStartingLoading = (frame: fabric.GenerationFrame, editor: Editor, model: AnyModel) => {
+  frame.showLoading(
+    model.estimatedGenerationTime ?? 20_000,
+    hasCapability(model, ModelCapability.PROGRESS_REPORTING) ? "Starting..." : undefined
+  )
 
   const updateLoadingMessage = (message: string) => {
     const loadingStepLabel = frame.getLoadingStepLabel()
@@ -220,7 +223,6 @@ const generateImageOrVideo = async ({
   editor: Editor
 }): Promise<GenerationOutput> => {
   const numInferenceSteps = frame.metadata?.steps || 50
-  showStartingLoading(frame, editor)
 
   const [initImage, initImageWithNoise, initImageCanvas] = await renderInitImage(editor, frame, true)
   const clipMask = initImage && (await renderClipMask(editor, frame))
@@ -247,6 +249,7 @@ const generateImageOrVideo = async ({
     return Promise.reject("Misconfigured")
   }
 
+  showStartingLoading(frame, editor, model)
   return model.call({
     onLoadProgress: onLoadProgress(frame),
     prompt: frame.metadata?.prompt || "",

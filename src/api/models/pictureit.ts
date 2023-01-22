@@ -10,6 +10,7 @@ const pictureItModel = {
 const stableDiffusion: GenerationModel<
   [
     ModelCapability.BASIC,
+    ModelCapability.PROGRESS_REPORTING,
     ModelCapability.GUIDANCE_SCALE,
     ModelCapability.INIT_IMAGE,
     ModelCapability.NEGATIVE_PROMPT,
@@ -57,6 +58,7 @@ const stableDiffusion: GenerationModel<
   },
   capabilities: [
     ModelCapability.BASIC,
+    ModelCapability.PROGRESS_REPORTING,
     ModelCapability.GUIDANCE_SCALE,
     ModelCapability.INIT_IMAGE,
     ModelCapability.NEGATIVE_PROMPT,
@@ -65,7 +67,13 @@ const stableDiffusion: GenerationModel<
 }
 
 const stableDiffusionInpainting: GenerationModel<
-  [ModelCapability.BASIC, ModelCapability.GUIDANCE_SCALE, ModelCapability.INIT_IMAGE, ModelCapability.INPAINTING]
+  [
+    ModelCapability.BASIC,
+    ModelCapability.PROGRESS_REPORTING,
+    ModelCapability.GUIDANCE_SCALE,
+    ModelCapability.INIT_IMAGE,
+    ModelCapability.INPAINTING
+  ]
 > = {
   ...pictureItModel,
   name: "Stable Diffusion Inpainting",
@@ -84,13 +92,16 @@ const stableDiffusionInpainting: GenerationModel<
   },
   capabilities: [
     ModelCapability.BASIC,
+    ModelCapability.PROGRESS_REPORTING,
     ModelCapability.GUIDANCE_SCALE,
     ModelCapability.INIT_IMAGE,
     ModelCapability.INPAINTING,
   ],
 }
 
-const stableDiffusionOpenJourney: GenerationModel<[ModelCapability.BASIC, ModelCapability.GUIDANCE_SCALE]> = {
+const stableDiffusionOpenJourney: GenerationModel<
+  [ModelCapability.BASIC, ModelCapability.PROGRESS_REPORTING, ModelCapability.GUIDANCE_SCALE]
+> = {
   ...pictureItModel,
   name: "Open Journey",
   call: ({ onLoadProgress, prompt, num_inference_steps, guidance_scale }) => {
@@ -104,10 +115,12 @@ const stableDiffusionOpenJourney: GenerationModel<[ModelCapability.BASIC, ModelC
       onLoadProgress
     )
   },
-  capabilities: [ModelCapability.BASIC, ModelCapability.GUIDANCE_SCALE],
+  capabilities: [ModelCapability.BASIC, ModelCapability.PROGRESS_REPORTING, ModelCapability.GUIDANCE_SCALE],
 }
 
-const stableDiffusionAnimation: GenerationModel<[ModelCapability.BASIC, ModelCapability.ANIMATION_FRAMES]> = {
+const stableDiffusionAnimation: GenerationModel<
+  [ModelCapability.BASIC, ModelCapability.PROGRESS_REPORTING, ModelCapability.ANIMATION_FRAMES]
+> = {
   ...pictureItModel,
   name: "Stable Diffusion Animation",
   call: ({
@@ -134,7 +147,7 @@ const stableDiffusionAnimation: GenerationModel<[ModelCapability.BASIC, ModelCap
       onLoadProgress
     )
   },
-  capabilities: [ModelCapability.BASIC, ModelCapability.ANIMATION_FRAMES],
+  capabilities: [ModelCapability.BASIC, ModelCapability.PROGRESS_REPORTING, ModelCapability.ANIMATION_FRAMES],
 }
 
 export const models = {

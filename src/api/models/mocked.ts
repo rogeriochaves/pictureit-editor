@@ -30,9 +30,12 @@ const mockedStableDiffusion: GenerationModel<
     ModelCapability.NEGATIVE_PROMPT,
     ModelCapability.ADVANCE,
   ],
+  estimatedGenerationTime: 1000,
 }
 
-const mockedStableDiffusionAnimation: GenerationModel<[ModelCapability.BASIC, ModelCapability.ANIMATION_FRAMES]> = {
+const mockedStableDiffusionAnimation: GenerationModel<
+  [ModelCapability.BASIC, ModelCapability.PROGRESS_REPORTING, ModelCapability.ANIMATION_FRAMES]
+> = {
   ...mockedModel,
   name: "[Mocked] Stable Diffusion Animation",
   call: ({ onLoadProgress }) => {
@@ -53,7 +56,7 @@ const mockedStableDiffusionAnimation: GenerationModel<[ModelCapability.BASIC, Mo
       }, timePerFrame * 4)
     })
   },
-  capabilities: [ModelCapability.BASIC, ModelCapability.ANIMATION_FRAMES],
+  capabilities: [ModelCapability.BASIC, ModelCapability.PROGRESS_REPORTING, ModelCapability.ANIMATION_FRAMES],
 }
 
 export const models = {

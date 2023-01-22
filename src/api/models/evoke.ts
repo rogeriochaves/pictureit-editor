@@ -6,7 +6,7 @@ const evokeSdAdd = proxyFetch("https://xarrreg662.execute-api.us-east-1.amazonaw
 
 const evokeSdCheck = proxyFetch("https://qrlh34e4y6.execute-api.us-east-1.amazonaws.com")
 
-const replicateModel = {
+const evokeModel = {
   enabled: !!import.meta.env.VITE_ENV_EVOKE_TOKEN,
   setupInstructions: "Set VITE_ENV_EVOKE_TOKEN to enable this model",
 }
@@ -14,7 +14,7 @@ const replicateModel = {
 const evokeStableDiffusion: GenerationModel<
   [ModelCapability.BASIC, ModelCapability.GUIDANCE_SCALE, ModelCapability.NEGATIVE_PROMPT]
 > = {
-  ...replicateModel,
+  ...evokeModel,
   name: "[Evoke] Stable Diffusion",
   call: ({ prompt, num_inference_steps, guidance_scale, negative_prompt }) => {
     return callEvoke({
@@ -25,6 +25,7 @@ const evokeStableDiffusion: GenerationModel<
     })
   },
   capabilities: [ModelCapability.BASIC, ModelCapability.GUIDANCE_SCALE, ModelCapability.NEGATIVE_PROMPT],
+  estimatedGenerationTime: 7_000
 }
 
 export const models = {

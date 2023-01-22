@@ -9,10 +9,12 @@ export type GenerationModel<T extends ModelCapability[]> = {
   capabilities: T
   enabled: boolean
   setupInstructions: string
+  estimatedGenerationTime?: number
 }
 
 export enum ModelCapability {
   BASIC = "basic",
+  PROGRESS_REPORTING = "progress_reporting",
   INIT_IMAGE = "init_image",
   NEGATIVE_PROMPT = "negative_prompt",
   ANIMATION_FRAMES = "animation_frames",
@@ -25,6 +27,8 @@ export type ParamsPerCapability = {
   [ModelCapability.BASIC]: {
     prompt: string
     num_inference_steps: number
+  }
+  [ModelCapability.PROGRESS_REPORTING]: {
     onLoadProgress: LoadProgressCallback
   }
   [ModelCapability.GUIDANCE_SCALE]: {
@@ -59,4 +63,3 @@ export type LoadProgressCallback = (event: GenerationProgressEvent) => void
 export type GenerationOutput = {
   url: string
 }
-

@@ -63,7 +63,7 @@ App should be running. Go to http://localhost:5173/ and enjoy!
 
 ### Evoke as a Backend
 
-Alternatively, you can use also Evoke as a backend, it's generally faster and cheaper than Replicate, but with only basic Stable Diffusion available for now
+Alternatively, you can use also Evoke as a backend, it's cheaper than Replicate, but with only basic Stable Diffusion available for now
 
 First, get an Evoke API key at:
 
