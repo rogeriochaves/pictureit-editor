@@ -211,12 +211,15 @@ export class GenerationFrameObject extends fabric.Group {
 
   showLoading(duration: number, step: string = undefined) {
     const loadingStepLabel = step && this.createLoadingLabel(step)
+    const previousLoadingBar = this.getLoadingBar()
+
+    // Prevents reseting the loading bar when switching to the same step
+    if (previousLoadingBar && !loadingStepLabel) return
 
     if (this.loadingAnimation) {
       // cancels animation
       this.loadingAnimation()
     }
-    const previousLoadingBar = this.getLoadingBar()
     if (previousLoadingBar) {
       this.canvas.remove(previousLoadingBar)
     }
