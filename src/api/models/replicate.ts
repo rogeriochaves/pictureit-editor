@@ -48,7 +48,7 @@ const stableDiffusion: GenerationModel<
     }
     // https://replicate.com/stability-ai/stable-diffusion
     return callReplicate(
-      "27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478",
+      "db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf",
       {
         prompt,
         num_inference_steps,
@@ -87,7 +87,7 @@ const stableDiffusionInpainting: GenerationModel<
     }
     // https://replicate.com/andreasjansson/stable-diffusion-inpainting
     return callReplicate(
-      "8eb2da8345bee796efcd925573f077e36ed5fb4ea3ba240ef70c23cf33f0d848",
+      "e490d072a34a94a11e9711ed5a6ba621c3fab884eda1665d9d3a282d65a21180",
       {
         prompt,
         num_inference_steps,

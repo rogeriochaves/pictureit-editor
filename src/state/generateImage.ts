@@ -226,8 +226,7 @@ const generateImageOrVideo = async ({
   const numInferenceSteps = frame.metadata?.steps || 50
 
   const [initImage, initImageWithNoise, initImageCanvas] = await renderInitImage(editor, frame, true)
-  const hasImageAndTransparency =
-    initImageCanvas && frame.getImage() && hasAnyTransparentPixel(initImageCanvas.getContext("2d")!)
+  const hasImageAndTransparency = initImageCanvas && hasAnyTransparentPixel(initImageCanvas.getContext("2d")!)
   const clipMask = initImage && hasImageAndTransparency && (await renderClipMask(editor, frame))
 
   frame.metadata = {
